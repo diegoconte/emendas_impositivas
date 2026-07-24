@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - Emendas Impositivas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -5px;
+            top: 6px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #3b82f6;
+            border: 2px solid #1e293b;
+        }
+
+        /* Progress Bar Animation */
+        .progress-bar-fill {
+            transition: width 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 min-h-screen text-slate-100">
+
+    <div id="toast-container" class="fixed bottom-4 right-4 z-[100] flex flex-col gap-2"></div>
+
+    <div id="confirm-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-[60] flex items-center justify-center backdrop-blur-sm transition-opacity">
+        <div class="bg-slate-800 rounded-xl shadow-2xl p-6 w-full max-w-sm mx-4 transform transition-all border border-slate-700">
+            <h3 class="text-lg font-bold text-slate-100 mb-2" id="confirm-title">Atenção</h3>
+            <p class="text-slate-400 mb-6" id="confirm-message">Tem certeza que deseja realizar esta ação?</p>
+            <div class="flex justify-end gap-3">
+                <button id="btn-confirm-cancel" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium rounded-lg transition">Cancelar</button>
+                <button id="btn-confirm-ok" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg shadow-sm transition">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="login-screen" class="flex items-center justify-center min-h-screen bg-slate-900">
+        <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl w-full max-w-md mx-4 border border-slate-700">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-blue-900/50 text-blue-400 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl border border-blue-800/50">🏛️</div>
+                <h2 class="text-2xl font-bold text-slate-100">Acesso Restrito</h2>
+                <p class="text-sm text-slate-400 mt-1">Painel de Gestão de Emendas</p>
+            </div>
+            <form id="form-login" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">E-mail</label>
+                    <input type="email" id="email" placeholder="admin@horizontina.rs.gov.br" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-slate-100 placeholder-slate-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Senha</label>
+                    <input type="password" id="senha" placeholder="••••••••" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-slate-100 placeholder-slate-500" required>
+                </div>
+                <button type="submit" id="btn-login" class="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-blue-700 shadow-md hover:shadow-lg transition duration-300 border border-blue-500">Entrar no Sistema</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="dashboard-screen" class="hidden flex-col min-h-screen">
+        <nav class="bg-slate-800 border-b border-slate-700 sticky top-0 z-30">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16 items-center">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">📊</span>
+                        <h1 class="text-xl font-bold text-slate-100 tracking-tight">Gestão de Emendas</h1>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="text-sm text-slate-400 hidden sm:block" id="user-email-display">admin@...</span>
+                        <button id="btn-logout" class="text-sm font-medium text-slate-300 hover:text-red-400 px-3 py-2 rounded-md hover:bg-slate-700 transition">Sair</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        
+        <main class="flex-grow p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-100">Painel Geral</h2>
+                    <p class="text-sm text-slate-400 mt-1">Acompanhamento e evolução dos processos.</p>
+                </div>
+                <div class="flex gap-3 w-full sm:w-auto">
+                    <button id="btn-sincronizar" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-slate-800 border border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-slate-100 font-medium py-2.5 px-4 rounded-lg shadow-sm transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        Sincronizar
+                    </button>
+                    <button id="btn-nova-emenda" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-5 rounded-lg shadow-md transition border border-blue-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Nova Emenda
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-700 mb-6 flex flex-col md:flex-row gap-4 items-center justify-between">
+                <div class="w-full md:w-1/3 relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                    <input type="text" id="filtro-busca" placeholder="Buscar processo, emenda ou beneficiário..." class="block w-full pl-10 pr-3 py-2 border border-slate-600 rounded-lg bg-slate-900 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent sm:text-sm transition">
+                </div>
+                
+                <div class="w-full md:w-2/3 flex flex-col sm:flex-row gap-3">
+                    <select id="filtro-autor" class="w-full sm:w-1/3 block pl-3 pr-10 py-2 text-sm border border-slate-600 rounded-lg bg-slate-900 text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                        <option value="">Todas as Autorias</option>
+                        <option value="Bancada">Bancadas</option>
+                        <option value="Individual">Individuais</option>
+                    </select>
+                    
+                    <select id="filtro-status" class="w-full sm:w-1/3 block pl-3 pr-10 py-2 text-sm border border-slate-600 rounded-lg bg-slate-900 text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                        <option value="">Todos os Status</option>
+                        <option value="Atrasada">❗ Atrasadas</option>
+                        <option value="Em Andamento">Em Andamento</option>
+                        <option value="Concluida">Concluídas (100%)</option>
+                        <option value="Cancelada">Canceladas</option>
+                    </select>
+
+                    <div class="w-full sm:w-1/3 flex items-center bg-slate-900 border border-slate-600 rounded-lg px-3 py-2">
+                        <input id="filtro-remanejada" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-600 rounded bg-slate-800">
+                        <label for="filtro-remanejada" class="ml-2 block text-sm text-slate-300 select-none cursor-pointer">
+                            Só Remanejadas
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-800 rounded-xl shadow-sm border border-slate-700 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-900/50 border-b border-slate-700 select-none">
+                            <tr>
+                                <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-slate-800/50 transition group" data-sort="processo">
+                                    <div class="flex items-center gap-1">Processo / Emenda <span class="text-slate-600 group-hover:text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">↕</span></div>
+                                </th>
+                                <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-slate-800/50 transition group" data-sort="autor">
+                                    <div class="flex items-center gap-1">Autoria <span class="text-slate-600 group-hover:text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">↕</span></div>
+                                </th>
+                                <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-slate-800/50 transition group" data-sort="beneficiario">
+                                    <div class="flex items-center gap-1">Beneficiário (Tipo) <span class="text-slate-600 group-hover:text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">↕</span></div>
+                                </th>
+                                <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-slate-800/50 transition group" data-sort="valor">
+                                    <div class="flex items-center gap-1">Valor <span class="text-slate-600 group-hover:text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">↕</span></div>
+                                </th>
+                                <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider w-1/4 cursor-pointer hover:bg-slate-800/50 transition group" data-sort="progresso">
+                                    <div class="flex items-center gap-1">Progresso Atual <span class="text-slate-600 group-hover:text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">↕</span></div>
+                                </th>
+                                <th class="px-6 py-4 text-center text-xs font-semibold text-slate-400 uppercase tracking-wider">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-corpo" class="divide-y divide-slate-700/50 bg-slate-800">
+                            <tr id="linha-loading">
+                                <td colspan="6" class="px-6 py-8 text-center text-slate-400">
+                                    <svg class="animate-spin inline-block w-5 h-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                    Carregando emendas...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="modal-emenda" class="hidden fixed inset-0 bg-black bg-opacity-70 z-[50] flex items-center justify-center backdrop-blur-sm p-4 sm:p-6 transition-opacity">
+        <div class="bg-slate-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[95vh] flex flex-col overflow-hidden border border-slate-700">
+            
+            <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center bg-slate-900/50">
+                <div class="flex items-center gap-3">
+                    <h3 id="modal-titulo" class="text-xl font-bold text-slate-100">Cadastrar Nova Emenda</h3>
+                    <span id="progresso-text" class="hidden sm:inline-flex bg-blue-900/30 text-blue-400 text-xs font-bold px-2.5 py-1 rounded shadow-sm border border-blue-800/50">0% Concluído</span>
+                </div>
+                <button id="btn-fechar-modal" class="text-slate-400 hover:text-slate-200 transition text-2xl leading-none">&times;</button>
+            </div>
+
+            <div class="p-6 overflow-y-auto flex-grow bg-slate-800">
+                <form id="form-emenda" class="space-y-6">
+                    <input type="hidden" id="emenda_id" value="">
+                    
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-4 border-b border-slate-700 pb-2 text-blue-400">Dados Básicos</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-400 mb-1">Nº do Processo</label>
+                                <input type="text" id="num_processo" placeholder="Ex: 339991/2025" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-slate-100 placeholder-slate-600" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-400 mb-1">Nº da Emenda</label>
+                                <input type="text" id="num_emenda" placeholder="Ex: 071/2025" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-slate-100 placeholder-slate-600" required>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-slate-400 mb-1">Bancada</label>
+                                <select id="bancada" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-slate-100" required>
+                                    <option value="">Selecione uma Bancada</option>
+                                    <option value="Bancada União Brasil">Bancada União Brasil</option>
+                                    <option value="Bancada PDT">Bancada PDT</option>
+                                    <option value="Bancada Progressistas">Bancada Progressistas</option>
+                                    <option value="Bancada Cidadania">Bancada Cidadania</option>
+                                    <option value="Individual">Emenda Individual</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-400 mb-1">Vereador(a)</label>
+                                <select id="vereador" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-slate-100" required>
+                                    <option value="Nenhum (Emenda de Bancada)">Nenhum (Emenda de Bancada)</option>
+                                    <option value="Eduardo Maron">Eduardo Maron (UNIÃO BRASIL)</option>
+                                    <option value="Valmor Reckziegel">Valmor Reckziegel (UNIÃO BRASIL)</option>
+                                    <option value="Zuleica Wehner">Zuleica Wehner (UNIÃO BRASIL)</option>
+                                    <option value="Rosane Santos">Rosane Santos (UNIÃO BRASIL)</option>
+                                    <option value="Rafael Godoy">Rafael Godoy (PDT)</option>
+                                    <option value="Ivete Callegaro">Ivete Callegaro (PDT)</option>
+                                    <option value="Marcio Fischer">Marcio Fischer (PDT)</option>
+                                    <option value="Lucas Stoll">Lucas Stoll (PROGRESSISTAS)</option>
+                                    <option value="Cleiton Niesciur">Cleiton Niesciur (CIDADANIA)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-slate-400 mb-1">Tipo de Execução</label>
+                                <select id="tipo_execucao" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-slate-100" required>
+                                    <option value="Direta">Direta (Secretaria Municipal)</option>
+                                    <option value="Indireta">Indireta (Entidade / Termo Fomento)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-slate-400 mb-1">Beneficiário (Secretaria ou Entidade)</label>
+                                <input type="text" id="beneficiario" placeholder="Ex: SMECJL ou ACEHOR" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-slate-100 placeholder-slate-600" required>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-slate-400 mb-1">Ação / Enquadramento</label>
+                                <input type="text" id="acao" placeholder="Ex: 2237" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-slate-100 placeholder-slate-600">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-400 mb-1">Dotação</label>
+                                <input type="text" id="dotacao" placeholder="Ex: 2226" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-slate-100 placeholder-slate-600">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-400 mb-1">Valor Total (R$)</label>
+                                <input type="number" step="0.01" id="valor" placeholder="Ex: 19660.00" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-slate-100 placeholder-slate-600" required>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 flex items-center bg-slate-900/50 p-3 rounded-lg border border-slate-700">
+                            <input id="remanejada" type="checkbox" class="w-5 h-5 text-blue-500 bg-slate-800 border-slate-600 rounded focus:ring-blue-500 focus:ring-offset-slate-900 cursor-pointer">
+                            <label for="remanejada" class="ml-3 text-sm font-medium text-slate-300 cursor-pointer select-none">Esta emenda sofreu remanejamento do Legislativo</label>
+                        </div>
+
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium text-slate-400 mb-1">Objeto / Justificativa</label>
+                            <textarea id="objeto" rows="3" placeholder="Resumo do objetivo da emenda..." class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-slate-100 placeholder-slate-600" required></textarea>
+                        </div>
+                    </div>
+
+                    <div id="container-historico" class="hidden mt-6 border-t border-slate-700 pt-4">
+                        <div class="bg-indigo-900/20 p-4 rounded-lg border border-indigo-800/30 mb-6" id="box-adicionar-etapa">
+                            <h5 class="text-xs font-bold text-indigo-400 uppercase mb-3">Adicionar Nova Etapa</h5>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-end mb-3">
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-400 mb-1">Data</label>
+                                    <input type="date" id="nova_etapa_data" class="w-full p-2 bg-slate-800 border border-slate-600 text-slate-200 rounded focus:ring-2 focus:ring-indigo-500 outline-none text-sm [color-scheme:dark]">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-400 mb-1">Marco Atingido</label>
+                                    <select id="nova_etapa_status" class="w-full p-2 bg-slate-800 border border-slate-600 text-slate-200 rounded focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                                        <!-- Opções serão carregadas via JS dependendo do tipo de execução -->
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-end">
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-400 mb-1">Depto / Responsável</label>
+                                    <input type="text" id="nova_etapa_responsavel" placeholder="Ex: Setor de Compras / João" class="w-full p-2 bg-slate-800 border border-slate-600 text-slate-200 rounded focus:ring-2 focus:ring-indigo-500 outline-none text-sm placeholder-slate-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-400 mb-1">Observação</label>
+                                    <input type="text" id="nova_etapa_obs" placeholder="Ex: Encaminhado ao setor..." class="w-full p-2 bg-slate-800 border border-slate-600 text-slate-200 rounded focus:ring-2 focus:ring-indigo-500 outline-none text-sm placeholder-slate-500">
+                                </div>
+                            </div>
+                            <div class="mt-4 flex justify-end">
+                                <button type="button" id="btn-adicionar-etapa" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium py-2 px-4 rounded shadow transition flex items-center gap-2 border border-indigo-500">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                    Atualizar Progresso
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="pl-2">
+                            <ul id="timeline-lista" class="border-l-2 border-slate-700 ml-3 space-y-4 pb-2">
+                                <!-- Preenchido via JS -->
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div id="container-versoes-remanejamento" class="hidden mt-8">
+                        <h4 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-4 border-b border-slate-700 pb-2 text-purple-400">Histórico de Remanejamentos</h4>
+                        <div id="lista-versoes-remanejamento" class="space-y-4">
+                            <!-- Preenchido via JS -->
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+            <div class="px-6 py-4 border-t border-slate-700 bg-slate-900/50 flex justify-end gap-3">
+                <button type="button" id="btn-cancelar-modal" class="px-5 py-2.5 bg-slate-800 border border-slate-600 text-slate-300 font-medium rounded-lg hover:bg-slate-700 hover:text-slate-100 transition">
+                    Cancelar
+                </button>
+                <button type="button" id="btn-salvar" class="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow-md transition flex items-center gap-2 border border-green-500">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                    Salvar Emenda
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        // CONFIGURAÇÃO DO FIREBASE (suas chaves)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAdHnH9Q6c6GqE8mlhBxcNdcEB6n3G7QvU",
+            authDomain: "emendas-b63d1.firebaseapp.com",
+            projectId: "emendas-b63d1",
+            storageBucket: "emendas-b63d1.firebasestorage.app",
+            messagingSenderId: "819384266831",
+            appId: "1:819384266831:web:d94187838a57bbe0f67a3a",
+            measurementId: "G-YYGZRLDYQD"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // VARIAVEIS GLOBAIS
+        const CACHE_KEY = "emendas_cache_v3";
+        let historicoAtualDaEdicao = [];
+        let emendaOriginalSendoEditada = null;
+        const ADMIN_EMAILS_EXCLUSAO = ["diegoconte@horizontina.rs.gov.br", "raquelcallegaro@horizontina.rs.gov.br"];
+
+        let dadosEmendasGlobais = [];
+        let currentSortColumn = 'progresso'; // Default sort
+        let currentSortDirection = 'asc';    // Lowest progress first
+
+        // DEFINIÇÃO DAS ETAPAS, PORCENTAGENS E DATAS LIMITE (PRAZOS)
+        // Ajuste os valores de "prazo" (AAAA-MM-DD) conforme o cronograma oficial do município.
+        const ETAPAS_DIRETA = [
+            { id: 0, status: "Emenda CANCELADA", pct: 100, class: "bg-red-900/30 text-red-400 border-red-800/50" },
+            { id: 1, status: "Recepção e Cadastro da Emenda", pct: 3, prazo: "2026-02-15", class: "bg-slate-800 text-slate-300 border-slate-700" },
+            { id: 2, status: "Análise Técnica de Viabilidade", pct: 10, prazo: "2026-03-01", class: "bg-blue-900/30 text-blue-400 border-blue-800/50" },
+            { id: 3, status: "Preenchimento do Formulário de Aceite", pct: 15, prazo: "2026-03-15", class: "bg-blue-900/30 text-blue-400 border-blue-800/50" },
+            { id: 4, status: "Comunicação Oficial à Câmara", pct: 18, prazo: "2026-03-30", class: "bg-orange-900/30 text-orange-400 border-orange-800/50" },
+            { id: 5, status: "Aguardando remanejamento", pct: 22, prazo: "2026-05-15", class: "bg-orange-900/30 text-orange-400 border-orange-800/50" },
+            { id: 6, status: "Análise Após Remanejamento", pct: 25, prazo: "2026-05-30", class: "bg-blue-900/30 text-blue-400 border-blue-800/50" },
+            { id: 7, status: "Pesquisa de Preços (Cotações)", pct: 30, prazo: "2026-06-30", class: "bg-indigo-900/30 text-indigo-400 border-indigo-800/50" },
+            { id: 8, status: "Elaboração de PROJETO DE ENG/ETP/TR", pct: 35, prazo: "2026-07-15", class: "bg-indigo-900/30 text-indigo-400 border-indigo-800/50" },
+            { id: 9, status: "Reserva de Dotação Orçamentária", pct: 40, prazo: "2026-07-30", class: "bg-yellow-900/30 text-yellow-400 border-yellow-800/50" },
+            { id: 10, status: "Abertura de Processo Administrativo", pct: 45, prazo: "2026-08-15", class: "bg-emerald-900/30 text-emerald-400 border-emerald-800/50" },
+            { id: 11, status: "Parecer Jurídico (se necessário)", pct: 55, prazo: "2026-08-30", class: "bg-slate-800 text-slate-300 border-slate-700" },
+            { id: 12, status: "Emissão da Nota de Empenho", pct: 65, prazo: "2026-09-15", class: "bg-yellow-900/30 text-yellow-400 border-yellow-800/50" },
+            { id: 13, status: "Assinatura de Contrato / Ordem Compra", pct: 72, prazo: "2026-09-30", class: "bg-emerald-900/30 text-emerald-400 border-emerald-800/50" },
+            { id: 14, status: "Entrega do Bem ou Início da Obra", pct: 85, prazo: "2026-11-15", class: "bg-green-900/30 text-green-400 border-green-800/50" },
+            { id: 15, status: "Ateste de Recebimento (Liquidação)", pct: 92, prazo: "2026-11-30", class: "bg-green-900/30 text-green-400 border-green-800/50" },
+            { id: 16, status: "Processamento do Pagamento", pct: 98, prazo: "2026-12-15", class: "bg-green-800/40 text-green-300 border-green-700/50" },
+            { id: 17, status: "Relatório Final e Arquivamento", pct: 100, prazo: "2026-12-30", class: "bg-slate-700/50 text-slate-300 border-slate-600" }
+        ];
+
+        const ETAPAS_INDIRETA = [
+            { id: 0, status: "Emenda CANCELADA", pct: 100, class: "bg-red-900/30 text-red-400 border-red-800/50" },
+            { id: 1, status: "Recepção e Cadastro da Emenda", pct: 3, prazo: "2026-02-15", class: "bg-slate-800 text-slate-300 border-slate-700" },
+            { id: 2, status: "Aguardando Plano de Trabalho (Entidade)", pct: 10, prazo: "2026-03-01", class: "bg-orange-900/30 text-orange-400 border-orange-800/50" },
+            { id: 3, status: "Análise Técnica do Plano", pct: 15, prazo: "2026-03-15", class: "bg-blue-900/30 text-blue-400 border-blue-800/50" },
+            { id: 4, status: "Comunicação Oficial de Impedimento", pct: 18, prazo: "2026-03-30", class: "bg-red-900/30 text-red-400 border-red-800/50" },
+            { id: 5, status: "Aguardando remanejamento", pct: 22, prazo: "2026-05-15", class: "bg-orange-900/30 text-orange-400 border-orange-800/50" },
+            { id: 6, status: "Análise Após Remanejamento", pct: 25, prazo: "2026-05-30", class: "bg-blue-900/30 text-blue-400 border-blue-800/50" },
+            { id: 7, status: "Parecer da Comissão de Seleção", pct: 35, prazo: "2026-06-30", class: "bg-indigo-900/30 text-indigo-400 border-indigo-800/50" },
+            { id: 8, status: "Reserva de Dotação Orçamentária", pct: 40, prazo: "2026-07-15", class: "bg-yellow-900/30 text-yellow-400 border-yellow-800/50" },
+            { id: 9, status: "Abertura de Processo Fomento/Colaboração", pct: 45, prazo: "2026-07-30", class: "bg-emerald-900/30 text-emerald-400 border-emerald-800/50" },
+            { id: 10, status: "Parecer Jurídico PGM", pct: 55, prazo: "2026-08-15", class: "bg-slate-800 text-slate-300 border-slate-700" },
+            { id: 11, status: "Emissão da Nota de Empenho", pct: 65, prazo: "2026-08-30", class: "bg-yellow-900/30 text-yellow-400 border-yellow-800/50" },
+            { id: 12, status: "Assinatura do Termo de Fomento/Colab.", pct: 72, prazo: "2026-09-15", class: "bg-emerald-900/30 text-emerald-400 border-emerald-800/50" },
+            { id: 13, status: "Repasse Financeiro (Pagamento)", pct: 85, prazo: "2026-10-15", class: "bg-green-900/30 text-green-400 border-green-800/50" },
+            { id: 14, status: "Acompanhamento da Execução (Parceria)", pct: 90, prazo: "2026-11-30", class: "bg-blue-900/30 text-blue-400 border-blue-800/50" },
+            { id: 15, status: "Análise da Prestação de Contas", pct: 95, prazo: "2026-12-15", class: "bg-orange-900/30 text-orange-400 border-orange-800/50" },
+            { id: 16, status: "Aprovação Final das Contas", pct: 100, prazo: "2026-12-30", class: "bg-green-800/40 text-green-300 border-green-700/50" }
+        ];
+
+        const loginScreen = document.getElementById('login-screen');
+        const dashboardScreen = document.getElementById('dashboard-screen');
+        const tabelaCorpo = document.getElementById('tabela-corpo');
+        const linhaLoading = document.getElementById('linha-loading');
+        
+        const modalEmenda = document.getElementById('modal-emenda');
+        const btnNovaEmenda = document.getElementById('btn-nova-emenda');
+        const btnFecharModal = document.getElementById('btn-fechar-modal');
+        const btnCancelarModal = document.getElementById('btn-cancelar-modal');
+        const btnSalvar = document.getElementById('btn-salvar');
+        
+        const containerHistorico = document.getElementById('container-historico');
+        const timelineLista = document.getElementById('timeline-lista');
+        const btnAdicionarEtapa = document.getElementById('btn-adicionar-etapa');
+        const progressoText = document.getElementById('progresso-text');
+        
+        const containerVersoesRemanejamento = document.getElementById('container-versoes-remanejamento');
+        const listaVersoesRemanejamento = document.getElementById('lista-versoes-remanejamento');
+        const selTipoExecucao = document.getElementById('tipo_execucao');
+        const selNovaEtapaStatus = document.getElementById('nova_etapa_status');
+
+        function getEtapaInfo(statusName, tipoExecucao) {
+            const list = tipoExecucao === 'Indireta' ? ETAPAS_INDIRETA : ETAPAS_DIRETA;
+            const found = list.find(e => e.status === statusName);
+            if(found) return found;
+            if(statusName.includes("Cancelada") || statusName.includes("CANCELADA")) return { pct: 100, class: "bg-red-900/30 text-red-400 border-red-800/50" };
+            return { pct: 0, class: "bg-slate-800 text-slate-300 border-slate-700" };
+        }
+
+        function showToast(mensagem, tipo = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            let bgClass = 'bg-green-600/90 border-green-500';
+            let icon = '<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+            if (tipo === 'error') { bgClass = 'bg-red-600/90 border-red-500'; icon = '<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>'; }
+            if (tipo === 'info') { bgClass = 'bg-blue-600/90 border-blue-500'; icon = '<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'; }
+            if (tipo === 'warning') { bgClass = 'bg-orange-500/90 border-orange-400'; icon = '<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>'; }
+
+            toast.className = `flex items-center gap-3 ${bgClass} border backdrop-blur-md text-white px-4 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-y-10 opacity-0`;
+            toast.innerHTML = `<span>${icon}</span> <span class="font-medium text-sm">${mensagem}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.remove('translate-y-10', 'opacity-0'), 10);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-x-10');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        function showConfirm(mensagem, onConfirm) {
+            const modal = document.getElementById('confirm-modal');
+            const msgEl = document.getElementById('confirm-message');
+            const btnOk = document.getElementById('btn-confirm-ok');
+            const btnCancel = document.getElementById('btn-confirm-cancel');
+
+            msgEl.textContent = mensagem;
+            modal.classList.remove('hidden');
+
+            btnOk.onclick = null; btnCancel.onclick = null;
+            btnCancel.onclick = () => modal.classList.add('hidden');
+            btnOk.onclick = () => { modal.classList.add('hidden'); onConfirm(); };
+        }
+
+        function carregarOpcoesStatus(tipoExecucao) {
+            if(!selNovaEtapaStatus) return;
+            selNovaEtapaStatus.innerHTML = '';
+            const list = tipoExecucao === 'Indireta' ? ETAPAS_INDIRETA : ETAPAS_DIRETA;
+            
+            list.forEach(etapa => {
+                const opt = document.createElement('option');
+                opt.value = etapa.status;
+                opt.textContent = `[${etapa.pct}%] ${etapa.status}`;
+                selNovaEtapaStatus.appendChild(opt);
+            });
+        }
+
+        if(selTipoExecucao) {
+            selTipoExecucao.addEventListener('change', (e) => {
+                carregarOpcoesStatus(e.target.value);
+            });
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('user-email-display').textContent = user.email;
+                loginScreen.classList.add('hidden');
+                dashboardScreen.classList.remove('hidden');
+                dashboardScreen.classList.add('flex');
+                carregarEmendasDaMemoriaOuBanco();
+            } else {
+                loginScreen.classList.remove('hidden');
+                dashboardScreen.classList.add('hidden');
+                dashboardScreen.classList.remove('flex');
+            }
+        });
+
+        document.getElementById('form-login').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+            const btn = document.getElementById('btn-login');
+            const originalText = btn.textContent;
+            btn.innerHTML = `<svg class="animate-spin inline-block w-5 h-5 mr-2 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Verificando...`;
+            btn.disabled = true;
+
+            signInWithEmailAndPassword(auth, email, senha)
+                .then(() => {
+                    document.getElementById('email').value = '';
+                    document.getElementById('senha').value = '';
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                    showToast("Login realizado com sucesso!", "success");
+                })
+                .catch((error) => {
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                    showToast("Erro ao entrar. Verifique e-mail e senha.", "error");
+                    console.error(error);
+                });
+        });
+
+        document.getElementById('btn-logout').addEventListener('click', () => {
+            signOut(auth).catch(() => showToast("Erro ao sair.", "error"));
+        });
+
+        async function carregarEmendasDaMemoriaOuBanco(forcarSincronizacao = false) {
+            const cache = localStorage.getItem(CACHE_KEY);
+            
+            if (cache && !forcarSincronizacao) {
+                console.log("Lendo dados do Cache do Navegador (Economizando leituras Firebase)");
+                dadosEmendasGlobais = JSON.parse(cache);
+                aplicarFiltrosEOrdenacao();
+            } else {
+                if(linhaLoading) linhaLoading.style.display = 'table-row';
+                if(tabelaCorpo) tabelaCorpo.innerHTML = '';
+                if(tabelaCorpo && linhaLoading) tabelaCorpo.appendChild(linhaLoading);
+
+                try {
+                    const querySnapshot = await getDocs(collection(db, "emendas"));
+                    const emendasBaixadas = [];
+                    querySnapshot.forEach((doc) => {
+                        emendasBaixadas.push({ id: doc.id, ...doc.data() });
+                    });
+
+                    localStorage.setItem(CACHE_KEY, JSON.stringify(emendasBaixadas));
+                    dadosEmendasGlobais = emendasBaixadas;
+                    showToast("Dados sincronizados com o servidor.", "success");
+                    aplicarFiltrosEOrdenacao();
+                } catch (error) {
+                    showToast("Erro ao buscar dados do servidor.", "error");
+                    console.error(error);
+                }
+            }
+        }
+
+        document.getElementById('btn-sincronizar').addEventListener('click', () => carregarEmendasDaMemoriaOuBanco(true));
+
+        function isAtrasada(emenda, etapaInfo) {
+            // Se concluída ou cancelada, não está atrasada
+            if(etapaInfo.pct === 100) return false;
+            
+            let statusAtual = "Recepção e Cadastro da Emenda";
+            if (emenda.historico_status && emenda.historico_status.length > 0) {
+                statusAtual = emenda.historico_status[emenda.historico_status.length - 1].status;
+            }
+            
+            if (statusAtual.includes("CANCELADA")) return false;
+
+            const tipoExec = emenda.tipo_execucao || "Direta";
+            const list = tipoExec === 'Indireta' ? ETAPAS_INDIRETA : ETAPAS_DIRETA;
+
+            // Encontra a etapa atual na lista
+            const currentIndex = list.findIndex(e => e.status === statusAtual);
+            
+            // Lógica baseada nas DATAS
+            if (currentIndex !== -1 && currentIndex < list.length - 1) {
+                // Se a data de HOJE for MAIOR que o prazo da PRÓXIMA etapa, ela está atrasada!
+                const nextStep = list[currentIndex + 1];
+                if (nextStep && nextStep.prazo) {
+                    const prazoDate = new Date(nextStep.prazo + "T23:59:59");
+                    const today = new Date();
+                    if (today > prazoDate) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function aplicarFiltrosEOrdenacao() {
+            let filtrados = [...dadosEmendasGlobais];
+
+            // 1. Get filter values
+            const busca = document.getElementById('filtro-busca').value.toLowerCase();
+            const autor = document.getElementById('filtro-autor').value;
+            const status = document.getElementById('filtro-status').value;
+            const soRemanejadas = document.getElementById('filtro-remanejada').checked;
+
+            // 2. Apply Filters
+            filtrados = filtrados.filter(emenda => {
+                let statusAtual = "Recepção e Cadastro da Emenda";
+                if (emenda.historico_status && emenda.historico_status.length > 0) {
+                    statusAtual = emenda.historico_status[emenda.historico_status.length - 1].status;
+                }
+                const tipoExec = emenda.tipo_execucao || "Direta";
+                const etapaInfo = getEtapaInfo(statusAtual, tipoExec);
+                
+                // Busca de texto
+                let passaBusca = true;
+                if (busca) {
+                    const textoBusca = `${emenda.numero_processo} ${emenda.numero_emenda} ${emenda.beneficiario} ${emenda.objeto}`.toLowerCase();
+                    passaBusca = textoBusca.includes(busca);
+                }
+
+                // Filtro Autor
+                let passaAutor = true;
+                if (autor === 'Bancada') passaAutor = (emenda.bancada && emenda.bancada.includes('Bancada'));
+                if (autor === 'Individual') passaAutor = (emenda.bancada === 'Individual' || (emenda.bancada && !emenda.bancada.includes('Bancada')));
+
+                // Filtro Status
+                let passaStatus = true;
+                if (status === 'Cancelada') passaStatus = statusAtual.includes("CANCELADA");
+                else if (status === 'Concluida') passaStatus = (etapaInfo.pct === 100 && !statusAtual.includes("CANCELADA"));
+                else if (status === 'Em Andamento') passaStatus = (etapaInfo.pct < 100 && !statusAtual.includes("CANCELADA"));
+                else if (status === 'Atrasada') passaStatus = isAtrasada(emenda, etapaInfo);
+
+                // Filtro Remanejada
+                let passaRemanejada = true;
+                if (soRemanejadas) passaRemanejada = emenda.remanejada === true;
+
+                return passaBusca && passaAutor && passaStatus && passaRemanejada;
+            });
+
+            // 3. Apply Sorting
+            filtrados.sort((a, b) => {
+                let valA, valB;
+
+                // Aux info for complex sorting
+                let statusA = a.historico_status && a.historico_status.length > 0 ? a.historico_status[a.historico_status.length - 1].status : "";
+                let statusB = b.historico_status && b.historico_status.length > 0 ? b.historico_status[b.historico_status.length - 1].status : "";
+                let infoA = getEtapaInfo(statusA, a.tipo_execucao || "Direta");
+                let infoB = getEtapaInfo(statusB, b.tipo_execucao || "Direta");
+
+                // Default specific logic: Canceladas at bottom, lowest progress first
+                if (currentSortColumn === 'progresso') {
+                    let isCanceladaA = statusA.includes("CANCELADA") ? 1 : 0;
+                    let isCanceladaB = statusB.includes("CANCELADA") ? 1 : 0;
+
+                    // If one is canceled and the other isn't, put canceled at the bottom
+                    if (isCanceladaA !== isCanceladaB) {
+                        return isCanceladaA - isCanceladaB;
+                    }
+
+                    valA = infoA.pct;
+                    valB = infoB.pct;
+                } else if (currentSortColumn === 'processo') {
+                    // Extract numbers for proper numeric sorting if possible
+                    valA = parseInt((a.numero_processo || "0").replace(/\D/g, '')) || 0;
+                    valB = parseInt((b.numero_processo || "0").replace(/\D/g, '')) || 0;
+                } else if (currentSortColumn === 'autor') {
+                    valA = (a.bancada || a.vereador || "").toLowerCase();
+                    valB = (b.bancada || b.vereador || "").toLowerCase();
+                } else if (currentSortColumn === 'beneficiario') {
+                    valA = (a.beneficiario || "").toLowerCase();
+                    valB = (b.beneficiario || "").toLowerCase();
+                } else if (currentSortColumn === 'valor') {
+                    valA = parseFloat(a.valor || 0);
+                    valB = parseFloat(b.valor || 0);
+                }
+
+                if (valA < valB) return currentSortDirection === 'asc' ? -1 : 1;
+                if (valA > valB) return currentSortDirection === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            renderizarTabela(filtrados);
+        }
+
+        // Event Listeners for Filters
+        document.getElementById('filtro-busca').addEventListener('input', aplicarFiltrosEOrdenacao);
+        document.getElementById('filtro-autor').addEventListener('change', aplicarFiltrosEOrdenacao);
+        document.getElementById('filtro-status').addEventListener('change', aplicarFiltrosEOrdenacao);
+        document.getElementById('filtro-remanejada').addEventListener('change', aplicarFiltrosEOrdenacao);
+
+        // Event Listeners for Sorting Headers
+        document.querySelectorAll('th[data-sort]').forEach(th => {
+            th.addEventListener('click', () => {
+                const column = th.getAttribute('data-sort');
+                if (currentSortColumn === column) {
+                    currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+                } else {
+                    currentSortColumn = column;
+                    currentSortDirection = 'asc';
+                }
+                
+                // Visual feedback
+                document.querySelectorAll('th[data-sort] span').forEach(span => {
+                    span.textContent = '↕';
+                    span.classList.remove('text-blue-400', 'opacity-100');
+                });
+                const activeSpan = th.querySelector('span');
+                activeSpan.textContent = currentSortDirection === 'asc' ? '↑' : '↓';
+                activeSpan.classList.add('text-blue-400', 'opacity-100');
+
+                aplicarFiltrosEOrdenacao();
+            });
+        });
+
+        function renderizarTabela(dados) {
+            if(!tabelaCorpo) return;
+            tabelaCorpo.innerHTML = ''; 
+
+            if (!dados || dados.length === 0) {
+                tabelaCorpo.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-slate-400">Nenhuma emenda encontrada.</td></tr>`;
+                return;
+            }
+
+            const currentUserEmail = auth.currentUser ? auth.currentUser.email : "";
+            const podeExcluir = ADMIN_EMAILS_EXCLUSAO.includes(currentUserEmail);
+
+            dados.forEach(emenda => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-700/30 transition border-b border-slate-700/50 last:border-0";
+                
+                const badgeRemanejada = emenda.remanejada ? `<span class="mt-1 px-2 py-0.5 inline-flex text-[10px] leading-4 font-bold rounded-md bg-purple-900/40 text-purple-400 border border-purple-800/50" title="Sofreu Remanejamento">🔄 Remanejada</span>` : '';
+                const tipoExec = emenda.tipo_execucao || "Direta";
+                
+                let statusAtual = "Recepção e Cadastro da Emenda";
+                if (emenda.historico_status && emenda.historico_status.length > 0) {
+                    statusAtual = emenda.historico_status[emenda.historico_status.length - 1].status;
+                }
+
+                const etapaInfo = getEtapaInfo(statusAtual, tipoExec);
+                const validPct = etapaInfo && etapaInfo.pct !== undefined ? etapaInfo.pct : 0;
+                
+                const isCanceled = statusAtual.includes("CANCELADA");
+                let progressBarColor = "bg-blue-500";
+                if(isCanceled) progressBarColor = "bg-red-500";
+                else if(validPct === 100) progressBarColor = "bg-green-500";
+                else if(statusAtual.includes("Impedimento") || statusAtual.includes("Aguardando")) progressBarColor = "bg-orange-500";
+
+                const atrasada = isAtrasada(emenda, etapaInfo);
+                const badgeAtrasada = atrasada && !isCanceled && validPct < 100 ? `<span class="ml-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-red-900/40 text-red-400 border border-red-800/50" title="Emenda classificada como atrasada">❗ ATRASADA</span>` : '';
+
+                // Apply opacity to canceled rows to make active ones pop out
+                if (isCanceled) {
+                    tr.classList.add('opacity-60');
+                }
+
+                const progressHtml = `
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-[11px] font-bold text-slate-300">${validPct}%</span>
+                        ${badgeAtrasada}
+                    </div>
+                    <div class="w-full bg-slate-700 rounded-full h-2.5 mb-1 border border-slate-600">
+                        <div class="${progressBarColor} h-2.5 rounded-full progress-bar-fill shadow-sm" style="width: ${validPct}%"></div>
+                    </div>
+                    <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+                        <span class="truncate max-w-full font-medium" title="${statusAtual}">${statusAtual}</span>
+                    </div>
+                `;
+
+                const btnExcluirHtml = podeExcluir ? `
+                    <button type="button" class="btn-excluir flex items-center gap-1.5 px-3 py-1.5 bg-red-900/20 hover:bg-red-900/40 text-red-400 font-medium rounded-md transition text-xs shadow-sm border border-red-800/30" title="Excluir Emenda Definitivamente" data-id="${emenda.id}">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        Excluir
+                    </button>
+                ` : '';
+
+                tr.innerHTML = `
+                    <td class="px-6 py-4">
+                        <div class="text-sm font-bold text-slate-200">${emenda.numero_processo || '-'}</div>
+                        <div class="text-xs text-slate-500">${emenda.numero_emenda || '-'}</div>
+                        ${badgeRemanejada}
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm text-slate-200 font-medium">${emenda.bancada || '-'}</div>
+                        <div class="text-xs text-slate-500">${emenda.vereador || '-'}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm font-medium text-slate-300" title="${emenda.beneficiario}">${(emenda.beneficiario || '-').length > 25 ? (emenda.beneficiario || '-').substring(0,25) + '...' : (emenda.beneficiario || '-')}</div>
+                        <div class="text-xs text-slate-500 font-mono mt-0.5">${tipoExec}</div>
+                    </td>
+                    <td class="px-6 py-4 text-sm font-bold text-emerald-400 whitespace-nowrap">R$ ${(emenda.valor || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                    <td class="px-6 py-4 w-1/4">
+                        ${progressHtml}
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <div class="flex justify-center gap-2 flex-wrap">
+                            <button type="button" class="btn-visualizar flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium rounded-md transition text-xs shadow-sm border border-slate-600" title="Visualizar Detalhes" data-id="${emenda.id}">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                Ver
+                            </button>
+                            <button type="button" class="btn-editar flex items-center gap-1.5 px-3 py-1.5 bg-blue-900/20 hover:bg-blue-900/40 text-blue-400 font-medium rounded-md transition text-xs shadow-sm border border-blue-800/30" title="Editar Emenda e Histórico" data-id="${emenda.id}">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                Editar
+                            </button>
+                            <button type="button" class="btn-inativar flex items-center gap-1.5 px-3 py-1.5 bg-orange-900/20 hover:bg-orange-900/40 text-orange-400 font-medium rounded-md transition text-xs shadow-sm border border-orange-800/30" title="Cancelar Emenda (Manter Histórico)" data-id="${emenda.id}">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+                                Cancelar
+                            </button>
+                            ${btnExcluirHtml}
+                        </div>
+                    </td>
+                `;
+                tabelaCorpo.appendChild(tr);
+            });
+        }
+
+        function limparEFecharModal() {
+            if(modalEmenda) modalEmenda.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            
+            // 1. Resetar o formulário físico
+            const form = document.getElementById('form-emenda');
+            if(form) form.reset();
+            
+            // 2. Limpar IDs e Variaveis Globais (Essencial para não sujar nova emenda)
+            const elId = document.getElementById('emenda_id');
+            if(elId) elId.value = '';
+            historicoAtualDaEdicao = [];
+            emendaOriginalSendoEditada = null;
+            
+            // 3. Esconder Paineis que só aparecem na edição
+            if(containerHistorico) containerHistorico.classList.add('hidden');
+            if(containerVersoesRemanejamento) containerVersoesRemanejamento.classList.add('hidden');
+            
+            // 4. Limpar as listas renderizadas
+            if(timelineLista) timelineLista.innerHTML = '';
+            if(listaVersoesRemanejamento) listaVersoesRemanejamento.innerHTML = '';
+            if(progressoText) {
+                progressoText.textContent = "0% Concluído";
+                progressoText.classList.add('hidden');
+            }
+
+            // 5. Reabilitar todos os campos caso tenham sido bloqueados na visualização
+            const formElements = document.querySelectorAll('#form-emenda input, #form-emenda select, #form-emenda textarea');
+            formElements.forEach(el => el.disabled = false);
+            if(btnSalvar) btnSalvar.classList.remove('hidden');
+            const boxAdicionarEtapa = document.getElementById('box-adicionar-etapa');
+            if(boxAdicionarEtapa) boxAdicionarEtapa.classList.remove('hidden');
+        }
+
+        if(btnFecharModal) btnFecharModal.addEventListener('click', limparEFecharModal);
+        if(btnCancelarModal) btnCancelarModal.addEventListener('click', limparEFecharModal);
+
+        if(btnNovaEmenda) {
+            btnNovaEmenda.addEventListener('click', () => {
+                limparEFecharModal(); // Garante limpeza TOTAL antes de abrir
+                
+                document.getElementById('modal-titulo').textContent = "Cadastrar Nova Emenda";
+                
+                // Valores padrão para uma nova emenda
+                if(selTipoExecucao) selTipoExecucao.value = "Direta";
+                carregarOpcoesStatus("Direta");
+                const dateInput = document.getElementById('nova_etapa_data');
+                if(dateInput) dateInput.valueAsDate = new Date();
+                
+                if(modalEmenda) modalEmenda.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            });
+        }
+
+        function renderizarHistoricoNoModal() {
+            if (!timelineLista) return;
+            timelineLista.innerHTML = '';
+            
+            const tipoExec = selTipoExecucao ? selTipoExecucao.value : "Direta";
+            
+            if(!historicoAtualDaEdicao || historicoAtualDaEdicao.length === 0) {
+                timelineLista.innerHTML = '<li class="text-sm text-slate-500 italic ml-4">Nenhum histórico registrado.</li>';
+                if (progressoText) {
+                    progressoText.textContent = "0% Concluído";
+                    progressoText.classList.remove('hidden');
+                }
+                return;
+            }
+
+            const historicoOrdenado = [...historicoAtualDaEdicao].sort((a, b) => new Date(a.data) - new Date(b.data));
+            
+            // Logica para calcular dias decorridos
+            historicoOrdenado.forEach((etapa, index) => {
+                if(index === 0) {
+                    etapa.diasDesdeAnterior = 0;
+                } else {
+                    try {
+                        const dataAnterior = new Date(historicoOrdenado[index-1].data);
+                        const dataAtual = new Date(etapa.data);
+                        const diffTime = Math.abs(dataAtual - dataAnterior);
+                        etapa.diasDesdeAnterior = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    } catch(e) { etapa.diasDesdeAnterior = 0; }
+                }
+            });
+
+            // Atualiza texto de progresso de forma segura
+            if (progressoText) {
+                const ultimoStatus = historicoOrdenado[historicoOrdenado.length - 1].status;
+                const etapaInfoAtual = getEtapaInfo(ultimoStatus, tipoExec);
+                const pctAtual = etapaInfoAtual ? etapaInfoAtual.pct : 0;
+                progressoText.textContent = `${pctAtual}% Concluído`;
+                progressoText.classList.remove('hidden');
+            }
+
+            const historicoReverso = [...historicoOrdenado].reverse();
+
+            historicoReverso.forEach((etapa) => {
+                let dataFormatada = etapa.data;
+                try {
+                    const partes = etapa.data.split('-');
+                    if(partes.length === 3) dataFormatada = `${partes[2]}/${partes[1]}/${partes[0]}`;
+                } catch(e){}
+
+                const etapaInfo = getEtapaInfo(etapa.status, tipoExec);
+                const validPct = etapaInfo ? etapaInfo.pct : 0;
+                
+                const badgeDias = etapa.diasDesdeAnterior > 0 ? `<span class="ml-2 text-[11px] font-bold text-orange-400 bg-orange-900/30 px-2 py-0.5 rounded-full shadow-sm border border-orange-800/50" title="Tempo na etapa anterior">⏳ +${etapa.diasDesdeAnterior} dias</span>` : '';
+                const infoUsuario = etapa.usuario ? `<span class="ml-2 text-[10px] text-slate-500 font-medium" title="Usuário do Sistema">👤 ${etapa.usuario}</span>` : '';
+                const infoResponsavel = etapa.responsavel_etapa ? `<div class="text-xs text-slate-400 mt-1"><span class="font-semibold text-slate-300">Responsável:</span> ${etapa.responsavel_etapa}</div>` : '';
+
+                const li = document.createElement('li');
+                li.className = "relative pl-6 timeline-item";
+                li.innerHTML = `
+                    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-1">
+                        <div>
+                            <span class="text-sm font-bold text-slate-200">${etapa.status}</span>
+                            <span class="ml-2 text-[10px] font-bold text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">${validPct}%</span>
+                            ${infoUsuario}
+                        </div>
+                        <div class="flex items-center mt-1 sm:mt-0">
+                            <span class="text-xs font-medium text-slate-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700 shadow-sm">${dataFormatada}</span>
+                            ${badgeDias}
+                        </div>
+                    </div>
+                    ${infoResponsavel}
+                    <p class="text-sm text-slate-400 mt-1 bg-slate-900/50 p-2 rounded border border-slate-700/50">${etapa.observacao || '<i>Nenhuma observação adicional.</i>'}</p>
+                `;
+                timelineLista.appendChild(li);
+            });
+        }
+
+        if(btnAdicionarEtapa) {
+            btnAdicionarEtapa.addEventListener('click', () => {
+                const dataEtapa = document.getElementById('nova_etapa_data').value;
+                const statusEtapa = document.getElementById('nova_etapa_status').value;
+                const obsEtapa = document.getElementById('nova_etapa_obs').value;
+                const responsavelEtapa = document.getElementById('nova_etapa_responsavel').value;
+
+                if(!dataEtapa || !statusEtapa) {
+                    showToast("Preencha a data e o status para adicionar a etapa.", "warning");
+                    return;
+                }
+
+                historicoAtualDaEdicao.push({
+                    data: dataEtapa,
+                    status: statusEtapa,
+                    observacao: obsEtapa,
+                    responsavel_etapa: responsavelEtapa,
+                    usuario: auth.currentUser ? auth.currentUser.email : 'Administrador'
+                });
+
+                document.getElementById('nova_etapa_obs').value = '';
+                document.getElementById('nova_etapa_responsavel').value = '';
+                showToast("Etapa adicionada! Salve a emenda para confirmar.", "success");
+                renderizarHistoricoNoModal();
+            });
+        }
+
+        if(tabelaCorpo) {
+            tabelaCorpo.addEventListener('click', (e) => {
+                const btnVisualizar = e.target.closest('.btn-visualizar');
+                const btnEditar = e.target.closest('.btn-editar');
+                const btnInativar = e.target.closest('.btn-inativar');
+                const btnExcluir = e.target.closest('.btn-excluir');
+                
+                if (btnVisualizar) preencherModalEdicao(btnVisualizar.dataset.id, true);
+                if (btnEditar) preencherModalEdicao(btnEditar.dataset.id, false);
+                if (btnInativar) inativarEmenda(btnInativar.dataset.id);
+                if (btnExcluir) excluirEmendaDefinitivamente(btnExcluir.dataset.id);
+            });
+        }
+
+        function preencherModalEdicao(id, somenteLeitura = false) {
+            limparEFecharModal(); // Limpa sujeira anterior preventivamente
+
+            const cacheAtual = JSON.parse(localStorage.getItem(CACHE_KEY)) || [];
+            const emenda = cacheAtual.find(e => e.id === id);
+            if(!emenda) return;
+
+            emendaOriginalSendoEditada = emenda; // Salva o estado original para auditar remanejamento
+
+            // Configurar Visualização ou Edição
+            const formElements = document.querySelectorAll('#form-emenda input, #form-emenda select, #form-emenda textarea');
+            formElements.forEach(el => el.disabled = somenteLeitura);
+            
+            const boxAdicionarEtapa = document.getElementById('box-adicionar-etapa');
+
+            if (somenteLeitura) {
+                document.getElementById('modal-titulo').textContent = "Detalhes da Emenda";
+                if(btnSalvar) btnSalvar.classList.add('hidden');
+                if(boxAdicionarEtapa) boxAdicionarEtapa.classList.add('hidden');
+            } else {
+                document.getElementById('modal-titulo').textContent = "Editar Emenda e Histórico";
+                if(btnSalvar) btnSalvar.classList.remove('hidden');
+                if(boxAdicionarEtapa) boxAdicionarEtapa.classList.remove('hidden');
+            }
+
+            if (containerHistorico) containerHistorico.classList.remove('hidden');
+
+            document.getElementById('emenda_id').value = emenda.id;
+            document.getElementById('num_processo').value = emenda.numero_processo || '';
+            document.getElementById('num_emenda').value = emenda.numero_emenda || '';
+            
+            // Set selects
+            const selBancada = document.getElementById('bancada');
+            if(emenda.bancada && selBancada) selBancada.value = emenda.bancada;
+            
+            const selVer = document.getElementById('vereador');
+            if(emenda.vereador && selVer) selVer.value = emenda.vereador;
+
+            const tipoExec = emenda.tipo_execucao || 'Direta';
+            if(selTipoExecucao) selTipoExecucao.value = tipoExec;
+            carregarOpcoesStatus(tipoExec);
+
+            document.getElementById('beneficiario').value = emenda.beneficiario || '';
+            document.getElementById('valor').value = emenda.valor || '';
+            document.getElementById('acao').value = emenda.acao || '';
+            document.getElementById('dotacao').value = emenda.dotacao || '';
+            document.getElementById('objeto').value = emenda.objeto || '';
+            
+            const cbRemanejada = document.getElementById('remanejada');
+            if(cbRemanejada) cbRemanejada.checked = emenda.remanejada || false;
+
+            // Renderizar Historico de Remanejamento
+            if (emenda.versoes_remanejamento && emenda.versoes_remanejamento.length > 0) {
+                if(containerVersoesRemanejamento) containerVersoesRemanejamento.classList.remove('hidden');
+                if(listaVersoesRemanejamento) {
+                    listaVersoesRemanejamento.innerHTML = '';
+                    emenda.versoes_remanejamento.forEach(v => {
+                        let dataF = new Date(v.data_alteracao).toLocaleDateString('pt-BR');
+                        listaVersoesRemanejamento.innerHTML += `
+                            <div class="bg-indigo-900/20 border border-indigo-800/30 p-4 rounded-lg text-sm shadow-sm">
+                                <div class="flex justify-between items-center mb-3 border-b border-indigo-800/30 pb-2">
+                                    <span class="font-bold text-indigo-400">Registrado em ${dataF}</span>
+                                    <span class="text-[10px] text-indigo-300 bg-indigo-900/50 border border-indigo-800/50 px-2 py-1 rounded font-medium">👤 ${v.usuario}</span>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="bg-slate-900/50 p-3 rounded border border-slate-700 opacity-75">
+                                        <h6 class="text-xs font-black text-red-400 uppercase mb-2">🔙 Como era antes:</h6>
+                                        <p class="mb-1 text-slate-300"><span class="font-medium text-slate-400">Beneficiário:</span> ${v.anterior.beneficiario}</p>
+                                        <p class="mb-1 text-slate-300"><span class="font-medium text-slate-400">Ação/Dotação:</span> ${v.anterior.acao} / ${v.anterior.dotacao}</p>
+                                        <p class="text-xs mt-2 text-slate-500 italic">${v.anterior.objeto}</p>
+                                    </div>
+                                    <div class="bg-slate-800 p-3 rounded border border-slate-600">
+                                        <h6 class="text-xs font-black text-green-400 uppercase mb-2">🆕 Como ficou:</h6>
+                                        <p class="mb-1 text-slate-200"><span class="font-medium text-slate-400">Beneficiário:</span> ${v.novo.beneficiario}</p>
+                                        <p class="mb-1 text-slate-200"><span class="font-medium text-slate-400">Ação/Dotação:</span> ${v.novo.acao} / ${v.novo.dotacao}</p>
+                                        <p class="text-xs mt-2 text-slate-300">${v.novo.objeto}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+            } else {
+                if(containerVersoesRemanejamento) containerVersoesRemanejamento.classList.add('hidden');
+            }
+
+            historicoAtualDaEdicao = emenda.historico_status ? [...emenda.historico_status] : [];
+            
+            const dateInput = document.getElementById('nova_etapa_data');
+            if(dateInput) dateInput.valueAsDate = new Date();
+            
+            renderizarHistoricoNoModal();
+            
+            if(modalEmenda) modalEmenda.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function inativarEmenda(id) {
+            showConfirm("Tem certeza que deseja marcar esta emenda como Cancelada?", async () => {
+                const emenda = dadosEmendasGlobais.find(e => e.id === id);
+                if(!emenda) return;
+
+                const historico = emenda.historico_status || [];
+                historico.push({
+                    data: new Date().toISOString().split('T')[0],
+                    status: "Emenda CANCELADA",
+                    observacao: "Cancelada diretamente pelo painel",
+                    usuario: auth.currentUser ? auth.currentUser.email : 'Administrador'
+                });
+
+                try {
+                    const docRef = doc(db, "emendas", id);
+                    await updateDoc(docRef, {
+                        historico_status: historico,
+                        data_atualizacao: new Date().toISOString()
+                    });
+
+                    const index = dadosEmendasGlobais.findIndex(e => e.id === id);
+                    if(index !== -1) dadosEmendasGlobais[index].historico_status = historico;
+                    localStorage.setItem(CACHE_KEY, JSON.stringify(dadosEmendasGlobais));
+                    
+                    showToast("Emenda cancelada com sucesso.", "success");
+                    aplicarFiltrosEOrdenacao();
+                } catch (error) {
+                    showToast("Erro ao inativar.", "error");
+                }
+            });
+        }
+
+        function excluirEmendaDefinitivamente(id) {
+            showConfirm("EXCLUSÃO DEFINITIVA: Tem certeza que deseja apagar esta emenda e todo o seu histórico do banco de dados? Esta ação não pode ser desfeita.", async () => {
+                try {
+                    await deleteDoc(doc(db, "emendas", id));
+                    
+                    dadosEmendasGlobais = dadosEmendasGlobais.filter(e => e.id !== id);
+                    localStorage.setItem(CACHE_KEY, JSON.stringify(dadosEmendasGlobais));
+                    
+                    showToast("Emenda excluída com sucesso do sistema.", "success");
+                    aplicarFiltrosEOrdenacao();
+                } catch (error) {
+                    console.error("Erro ao excluir documento: ", error);
+                    showToast("Erro ao tentar excluir a emenda.", "error");
+                }
+            });
+        }
+
+        if(btnSalvar) {
+            btnSalvar.addEventListener('click', async () => {
+                const form = document.getElementById('form-emenda');
+                if(!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+
+                const idEdicao = document.getElementById('emenda_id').value;
+                const tipoExec = selTipoExecucao ? selTipoExecucao.value : "Direta";
+                
+                const novaEmendaData = {
+                    numero_processo: document.getElementById('num_processo').value,
+                    numero_emenda: document.getElementById('num_emenda').value,
+                    bancada: document.getElementById('bancada').value,
+                    vereador: document.getElementById('vereador').value,
+                    tipo_execucao: tipoExec,
+                    beneficiario: document.getElementById('beneficiario').value,
+                    valor: parseFloat(document.getElementById('valor').value),
+                    acao: document.getElementById('acao').value,
+                    dotacao: document.getElementById('dotacao').value,
+                    objeto: document.getElementById('objeto').value,
+                    remanejada: document.getElementById('remanejada').checked,
+                    data_atualizacao: new Date().toISOString()
+                };
+
+                const btnNormalText = btnSalvar.innerHTML;
+                btnSalvar.innerHTML = `<svg class="animate-spin inline-block w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Salvando...`;
+                btnSalvar.disabled = true;
+
+                try {
+                    const cacheAtual = JSON.parse(localStorage.getItem(CACHE_KEY)) || [];
+
+                    if (idEdicao && idEdicao.trim() !== '') {
+                        // É UMA ATUALIZACAO (UPDATE)
+                        novaEmendaData.historico_status = historicoAtualDaEdicao;
+                        let versoesRemanejamento = emendaOriginalSendoEditada && emendaOriginalSendoEditada.versoes_remanejamento ? [...emendaOriginalSendoEditada.versoes_remanejamento] : [];
+                        
+                        // Logica de Auditoria de Remanejamento
+                        if (novaEmendaData.remanejada && emendaOriginalSendoEditada) {
+                            const mudouEstrutura = (
+                                novaEmendaData.beneficiario !== emendaOriginalSendoEditada.beneficiario ||
+                                novaEmendaData.acao !== emendaOriginalSendoEditada.acao ||
+                                novaEmendaData.dotacao !== emendaOriginalSendoEditada.dotacao ||
+                                novaEmendaData.objeto !== emendaOriginalSendoEditada.objeto
+                            );
+
+                            if (mudouEstrutura) {
+                                versoesRemanejamento.push({
+                                    data_alteracao: new Date().toISOString(),
+                                    usuario: auth.currentUser ? auth.currentUser.email : 'Administrador',
+                                    anterior: {
+                                        beneficiario: emendaOriginalSendoEditada.beneficiario || '-',
+                                        acao: emendaOriginalSendoEditada.acao || '-',
+                                        dotacao: emendaOriginalSendoEditada.dotacao || '-',
+                                        objeto: emendaOriginalSendoEditada.objeto || '-'
+                                    },
+                                    novo: {
+                                        beneficiario: novaEmendaData.beneficiario || '-',
+                                        acao: novaEmendaData.acao || '-',
+                                        dotacao: novaEmendaData.dotacao || '-',
+                                        objeto: novaEmendaData.objeto || '-'
+                                    }
+                                });
+                            }
+                        }
+                        novaEmendaData.versoes_remanejamento = versoesRemanejamento;
+                        
+                        // Atualiza no banco
+                        const docRef = doc(db, "emendas", idEdicao);
+                        await updateDoc(docRef, novaEmendaData);
+                        
+                        // Atualiza no cache e nas variáveis globais
+                        const index = dadosEmendasGlobais.findIndex(e => e.id === idEdicao);
+                        if(index !== -1) dadosEmendasGlobais[index] = { id: idEdicao, ...dadosEmendasGlobais[index], ...novaEmendaData };
+                        
+                        showToast("Emenda atualizada com sucesso!");
+                    } else {
+                        // É UMA NOVA CRIACAO (CREATE)
+                        novaEmendaData.data_cadastro = new Date().toISOString();
+                        
+                        // Cria a primeira etapa obrigatoria
+                        novaEmendaData.historico_status = [{
+                            data: new Date().toISOString().split('T')[0],
+                            status: "Recepção e Cadastro da Emenda",
+                            observacao: "Cadastro Inicial do Processo",
+                            usuario: auth.currentUser ? auth.currentUser.email : 'Administrador'
+                        }];
+
+                        // Salva no banco
+                        const docRef = await addDoc(collection(db, "emendas"), novaEmendaData);
+                        
+                        // Atualiza no cache e globais
+                        dadosEmendasGlobais.push({ id: docRef.id, ...novaEmendaData });
+                        showToast("Nova emenda cadastrada com sucesso!");
+                    }
+
+                    localStorage.setItem(CACHE_KEY, JSON.stringify(dadosEmendasGlobais));
+                    aplicarFiltrosEOrdenacao();
+                    limparEFecharModal(); 
+
+                } catch (error) {
+                    console.error(error);
+                    showToast("Erro de conexão ao salvar.", "error");
+                } finally {
+                    btnSalvar.innerHTML = btnNormalText;
+                    btnSalvar.disabled = false;
+                }
+            });
+        }
+    </script>
+</body>
+</html>
