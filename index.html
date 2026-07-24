@@ -63,10 +63,73 @@
         </div>
     </main>
 
+    <!-- Contador de Visitas -->
+    <div class="absolute bottom-6 left-6 flex items-center gap-2 bg-slate-800/60 border border-slate-700/50 backdrop-blur-md px-3 py-1.5 rounded-lg shadow-lg z-20">
+        <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+        <div class="flex flex-col">
+            <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider leading-none mb-0.5">Acessos</span>
+            <span id="contador-texto" class="text-sm text-slate-200 font-mono font-medium leading-none">...</span>
+        </div>
+    </div>
+
     <!-- Rodapé simples -->
-    <footer class="absolute bottom-6 text-center text-xs text-slate-500 w-full px-4">
+    <footer class="absolute bottom-6 text-center text-xs text-slate-500 w-full px-4 z-10">
         &copy; 2026 Gestão de Emendas. Município de Horizontina.
     </footer>
 
+    <!-- Script do Contador Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAdHnH9Q6c6GqE8mlhBxcNdcEB6n3G7QvU",
+            authDomain: "emendas-b63d1.firebaseapp.com",
+            projectId: "emendas-b63d1",
+            storageBucket: "emendas-b63d1.firebasestorage.app",
+            messagingSenderId: "819384266831",
+            appId: "1:819384266831:web:d94187838a57bbe0f67a3a"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const contadorRef = doc(db, "metricas", "acessos");
+        const elContador = document.getElementById('contador-texto');
+
+        async function registrarAcesso() {
+            try {
+                const docSnap = await getDoc(contadorRef);
+                const agora = new Date().getTime();
+                const ultimoAcesso = localStorage.getItem('ultimo_acesso_emendas');
+                let qtdeAtual = 0;
+
+                // Se o documento existe, pega a quantidade
+                if (docSnap.exists()) {
+                    qtdeAtual = docSnap.data().quantidade || 0;
+                }
+
+                // Só contabiliza +1 se a pessoa não acessou na última 1 hora (3600000 ms)
+                if (!ultimoAcesso || (agora - parseInt(ultimoAcesso)) > 3600000) {
+                    if (docSnap.exists()) {
+                        await updateDoc(contadorRef, { quantidade: increment(1) });
+                        qtdeAtual += 1;
+                    } else {
+                        await setDoc(contadorRef, { quantidade: 1 });
+                        qtdeAtual = 1;
+                    }
+                    localStorage.setItem('ultimo_acesso_emendas', agora.toString());
+                }
+
+                // Atualiza a tela com formatação (ex: 1.234)
+                elContador.textContent = qtdeAtual.toLocaleString('pt-BR');
+
+            } catch (error) {
+                console.error("Erro ao carregar contador:", error);
+                elContador.textContent = "Offline";
+            }
+        }
+
+        registrarAcesso();
+    </script>
 </body>
 </html>
