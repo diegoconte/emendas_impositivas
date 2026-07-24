@@ -278,7 +278,7 @@
                                 <div>
                                     <label class="block text-xs font-medium text-slate-400 mb-1">Marco Atingido</label>
                                     <select id="nova_etapa_status" class="w-full p-2 bg-slate-800 border border-slate-600 text-slate-200 rounded focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
-                                        <!-- Opções serão carregadas via JS dependendo do tipo de execução -->
+                                        <!-- Opções carregadas via JS -->
                                     </select>
                                 </div>
                             </div>
@@ -334,7 +334,7 @@
         import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-        // CONFIGURAÇÃO DO FIREBASE (suas chaves)
+        // CONFIGURAÇÃO DO FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyAdHnH9Q6c6GqE8mlhBxcNdcEB6n3G7QvU",
             authDomain: "emendas-b63d1.firebaseapp.com",
@@ -354,13 +354,51 @@
         let historicoAtualDaEdicao = [];
         let emendaOriginalSendoEditada = null;
         const ADMIN_EMAILS_EXCLUSAO = ["diegoconte@horizontina.rs.gov.br", "raquelcallegaro@horizontina.rs.gov.br"];
+        
+        // URL DA API DO GOOGLE APPS SCRIPT PARA ENVIO DE E-MAIL
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw7XRWUrEjikqALcHdyhLE4TVgNtWKA6fejRbmRxsuyGRE5NCxIQ-4B081FMM_Xqd4/exec";
 
         let dadosEmendasGlobais = [];
-        let currentSortColumn = 'progresso'; // Default sort
-        let currentSortDirection = 'asc';    // Lowest progress first
+        let currentSortColumn = 'progresso'; 
+        let currentSortDirection = 'asc';    
 
-        // DEFINIÇÃO DAS ETAPAS, PORCENTAGENS E DATAS LIMITE (PRAZOS)
-        // Ajuste os valores de "prazo" (AAAA-MM-DD) conforme o cronograma oficial do município.
+        // FUNÇÃO DE ENVIO DE E-MAIL
+        async function enviarNotificacaoEmail(processo, emenda, autor, acaoRealizada, detalhes) {
+            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL === "") {
+                console.warn("[E-MAIL] URL do Google Script não configurada.");
+                return;
+            }
+
+            const payload = {
+                processo: processo || "N/A",
+                emenda: emenda || "N/A",
+                autor: autor || "N/A",
+                acaoRealizada: acaoRealizada || "Ação não especificada",
+                detalhes: detalhes || "Sem detalhes adicionais.",
+                usuario: auth.currentUser ? auth.currentUser.email : "Administrador"
+            };
+
+            console.log("[E-MAIL] Preparando para enviar notificação. Dados:", payload);
+
+            try {
+                // Fetch usando text/plain e modo no-cors para evitar bloqueios do Google
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: "POST",
+                    mode: "no-cors", // <-- O SEGREDO: bypass de política de CORS do navegador
+                    headers: {
+                        "Content-Type": "text/plain;charset=utf-8",
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                // No modo 'no-cors', a resposta é "opaca", então não lemos com response.json()
+                console.log("[E-MAIL] Requisição disparada com sucesso! O e-mail deve chegar em segundos.");
+            } catch (error) {
+                console.error("[E-MAIL] Erro ao disparar e-mail:", error);
+            }
+        }
+
+        // DEFINIÇÃO DAS ETAPAS E DATAS LIMITE
         const ETAPAS_DIRETA = [
             { id: 0, status: "Emenda CANCELADA", pct: 100, class: "bg-red-900/30 text-red-400 border-red-800/50" },
             { id: 1, status: "Recepção e Cadastro da Emenda", pct: 3, prazo: "2026-02-15", class: "bg-slate-800 text-slate-300 border-slate-700" },
@@ -402,6 +440,7 @@
             { id: 16, status: "Aprovação Final das Contas", pct: 100, prazo: "2026-12-30", class: "bg-green-800/40 text-green-300 border-green-700/50" }
         ];
 
+        // REFERENCIAS DO DOM
         const loginScreen = document.getElementById('login-screen');
         const dashboardScreen = document.getElementById('dashboard-screen');
         const tabelaCorpo = document.getElementById('tabela-corpo');
@@ -531,7 +570,6 @@
             const cache = localStorage.getItem(CACHE_KEY);
             
             if (cache && !forcarSincronizacao) {
-                console.log("Lendo dados do Cache do Navegador (Economizando leituras Firebase)");
                 dadosEmendasGlobais = JSON.parse(cache);
                 aplicarFiltrosEOrdenacao();
             } else {
@@ -560,7 +598,6 @@
         document.getElementById('btn-sincronizar').addEventListener('click', () => carregarEmendasDaMemoriaOuBanco(true));
 
         function isAtrasada(emenda, etapaInfo) {
-            // Se concluída ou cancelada, não está atrasada
             if(etapaInfo.pct === 100) return false;
             
             let statusAtual = "Recepção e Cadastro da Emenda";
@@ -572,13 +609,9 @@
 
             const tipoExec = emenda.tipo_execucao || "Direta";
             const list = tipoExec === 'Indireta' ? ETAPAS_INDIRETA : ETAPAS_DIRETA;
-
-            // Encontra a etapa atual na lista
             const currentIndex = list.findIndex(e => e.status === statusAtual);
             
-            // Lógica baseada nas DATAS
             if (currentIndex !== -1 && currentIndex < list.length - 1) {
-                // Se a data de HOJE for MAIOR que o prazo da PRÓXIMA etapa, ela está atrasada!
                 const nextStep = list[currentIndex + 1];
                 if (nextStep && nextStep.prazo) {
                     const prazoDate = new Date(nextStep.prazo + "T23:59:59");
@@ -594,13 +627,11 @@
         function aplicarFiltrosEOrdenacao() {
             let filtrados = [...dadosEmendasGlobais];
 
-            // 1. Get filter values
             const busca = document.getElementById('filtro-busca').value.toLowerCase();
             const autor = document.getElementById('filtro-autor').value;
             const status = document.getElementById('filtro-status').value;
             const soRemanejadas = document.getElementById('filtro-remanejada').checked;
 
-            // 2. Apply Filters
             filtrados = filtrados.filter(emenda => {
                 let statusAtual = "Recepção e Cadastro da Emenda";
                 if (emenda.historico_status && emenda.historico_status.length > 0) {
@@ -609,56 +640,45 @@
                 const tipoExec = emenda.tipo_execucao || "Direta";
                 const etapaInfo = getEtapaInfo(statusAtual, tipoExec);
                 
-                // Busca de texto
                 let passaBusca = true;
                 if (busca) {
                     const textoBusca = `${emenda.numero_processo} ${emenda.numero_emenda} ${emenda.beneficiario} ${emenda.objeto}`.toLowerCase();
                     passaBusca = textoBusca.includes(busca);
                 }
 
-                // Filtro Autor
                 let passaAutor = true;
                 if (autor === 'Bancada') passaAutor = (emenda.bancada && emenda.bancada.includes('Bancada'));
                 if (autor === 'Individual') passaAutor = (emenda.bancada === 'Individual' || (emenda.bancada && !emenda.bancada.includes('Bancada')));
 
-                // Filtro Status
                 let passaStatus = true;
                 if (status === 'Cancelada') passaStatus = statusAtual.includes("CANCELADA");
                 else if (status === 'Concluida') passaStatus = (etapaInfo.pct === 100 && !statusAtual.includes("CANCELADA"));
                 else if (status === 'Em Andamento') passaStatus = (etapaInfo.pct < 100 && !statusAtual.includes("CANCELADA"));
                 else if (status === 'Atrasada') passaStatus = isAtrasada(emenda, etapaInfo);
 
-                // Filtro Remanejada
                 let passaRemanejada = true;
                 if (soRemanejadas) passaRemanejada = emenda.remanejada === true;
 
                 return passaBusca && passaAutor && passaStatus && passaRemanejada;
             });
 
-            // 3. Apply Sorting
             filtrados.sort((a, b) => {
                 let valA, valB;
 
-                // Aux info for complex sorting
                 let statusA = a.historico_status && a.historico_status.length > 0 ? a.historico_status[a.historico_status.length - 1].status : "";
                 let statusB = b.historico_status && b.historico_status.length > 0 ? b.historico_status[b.historico_status.length - 1].status : "";
                 let infoA = getEtapaInfo(statusA, a.tipo_execucao || "Direta");
                 let infoB = getEtapaInfo(statusB, b.tipo_execucao || "Direta");
 
-                // Default specific logic: Canceladas at bottom, lowest progress first
                 if (currentSortColumn === 'progresso') {
                     let isCanceladaA = statusA.includes("CANCELADA") ? 1 : 0;
                     let isCanceladaB = statusB.includes("CANCELADA") ? 1 : 0;
-
-                    // If one is canceled and the other isn't, put canceled at the bottom
                     if (isCanceladaA !== isCanceladaB) {
                         return isCanceladaA - isCanceladaB;
                     }
-
                     valA = infoA.pct;
                     valB = infoB.pct;
                 } else if (currentSortColumn === 'processo') {
-                    // Extract numbers for proper numeric sorting if possible
                     valA = parseInt((a.numero_processo || "0").replace(/\D/g, '')) || 0;
                     valB = parseInt((b.numero_processo || "0").replace(/\D/g, '')) || 0;
                 } else if (currentSortColumn === 'autor') {
@@ -680,13 +700,11 @@
             renderizarTabela(filtrados);
         }
 
-        // Event Listeners for Filters
         document.getElementById('filtro-busca').addEventListener('input', aplicarFiltrosEOrdenacao);
         document.getElementById('filtro-autor').addEventListener('change', aplicarFiltrosEOrdenacao);
         document.getElementById('filtro-status').addEventListener('change', aplicarFiltrosEOrdenacao);
         document.getElementById('filtro-remanejada').addEventListener('change', aplicarFiltrosEOrdenacao);
 
-        // Event Listeners for Sorting Headers
         document.querySelectorAll('th[data-sort]').forEach(th => {
             th.addEventListener('click', () => {
                 const column = th.getAttribute('data-sort');
@@ -697,7 +715,6 @@
                     currentSortDirection = 'asc';
                 }
                 
-                // Visual feedback
                 document.querySelectorAll('th[data-sort] span').forEach(span => {
                     span.textContent = '↕';
                     span.classList.remove('text-blue-400', 'opacity-100');
@@ -746,7 +763,6 @@
                 const atrasada = isAtrasada(emenda, etapaInfo);
                 const badgeAtrasada = atrasada && !isCanceled && validPct < 100 ? `<span class="ml-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-red-900/40 text-red-400 border border-red-800/50" title="Emenda classificada como atrasada">❗ ATRASADA</span>` : '';
 
-                // Apply opacity to canceled rows to make active ones pop out
                 if (isCanceled) {
                     tr.classList.add('opacity-60');
                 }
@@ -815,21 +831,17 @@
             if(modalEmenda) modalEmenda.classList.add('hidden');
             document.body.style.overflow = 'auto';
             
-            // 1. Resetar o formulário físico
             const form = document.getElementById('form-emenda');
             if(form) form.reset();
             
-            // 2. Limpar IDs e Variaveis Globais (Essencial para não sujar nova emenda)
             const elId = document.getElementById('emenda_id');
             if(elId) elId.value = '';
             historicoAtualDaEdicao = [];
             emendaOriginalSendoEditada = null;
             
-            // 3. Esconder Paineis que só aparecem na edição
             if(containerHistorico) containerHistorico.classList.add('hidden');
             if(containerVersoesRemanejamento) containerVersoesRemanejamento.classList.add('hidden');
             
-            // 4. Limpar as listas renderizadas
             if(timelineLista) timelineLista.innerHTML = '';
             if(listaVersoesRemanejamento) listaVersoesRemanejamento.innerHTML = '';
             if(progressoText) {
@@ -837,7 +849,6 @@
                 progressoText.classList.add('hidden');
             }
 
-            // 5. Reabilitar todos os campos caso tenham sido bloqueados na visualização
             const formElements = document.querySelectorAll('#form-emenda input, #form-emenda select, #form-emenda textarea');
             formElements.forEach(el => el.disabled = false);
             if(btnSalvar) btnSalvar.classList.remove('hidden');
@@ -850,11 +861,9 @@
 
         if(btnNovaEmenda) {
             btnNovaEmenda.addEventListener('click', () => {
-                limparEFecharModal(); // Garante limpeza TOTAL antes de abrir
-                
+                limparEFecharModal(); 
                 document.getElementById('modal-titulo').textContent = "Cadastrar Nova Emenda";
                 
-                // Valores padrão para uma nova emenda
                 if(selTipoExecucao) selTipoExecucao.value = "Direta";
                 carregarOpcoesStatus("Direta");
                 const dateInput = document.getElementById('nova_etapa_data');
@@ -882,7 +891,6 @@
 
             const historicoOrdenado = [...historicoAtualDaEdicao].sort((a, b) => new Date(a.data) - new Date(b.data));
             
-            // Logica para calcular dias decorridos
             historicoOrdenado.forEach((etapa, index) => {
                 if(index === 0) {
                     etapa.diasDesdeAnterior = 0;
@@ -896,7 +904,6 @@
                 }
             });
 
-            // Atualiza texto de progresso de forma segura
             if (progressoText) {
                 const ultimoStatus = historicoOrdenado[historicoOrdenado.length - 1].status;
                 const etapaInfoAtual = getEtapaInfo(ultimoStatus, tipoExec);
@@ -984,15 +991,14 @@
         }
 
         function preencherModalEdicao(id, somenteLeitura = false) {
-            limparEFecharModal(); // Limpa sujeira anterior preventivamente
+            limparEFecharModal(); 
 
             const cacheAtual = JSON.parse(localStorage.getItem(CACHE_KEY)) || [];
             const emenda = cacheAtual.find(e => e.id === id);
             if(!emenda) return;
 
-            emendaOriginalSendoEditada = emenda; // Salva o estado original para auditar remanejamento
+            emendaOriginalSendoEditada = emenda; 
 
-            // Configurar Visualização ou Edição
             const formElements = document.querySelectorAll('#form-emenda input, #form-emenda select, #form-emenda textarea');
             formElements.forEach(el => el.disabled = somenteLeitura);
             
@@ -1014,7 +1020,6 @@
             document.getElementById('num_processo').value = emenda.numero_processo || '';
             document.getElementById('num_emenda').value = emenda.numero_emenda || '';
             
-            // Set selects
             const selBancada = document.getElementById('bancada');
             if(emenda.bancada && selBancada) selBancada.value = emenda.bancada;
             
@@ -1034,7 +1039,6 @@
             const cbRemanejada = document.getElementById('remanejada');
             if(cbRemanejada) cbRemanejada.checked = emenda.remanejada || false;
 
-            // Renderizar Historico de Remanejamento
             if (emenda.versoes_remanejamento && emenda.versoes_remanejamento.length > 0) {
                 if(containerVersoesRemanejamento) containerVersoesRemanejamento.classList.remove('hidden');
                 if(listaVersoesRemanejamento) {
@@ -1106,6 +1110,11 @@
                     
                     showToast("Emenda cancelada com sucesso.", "success");
                     aplicarFiltrosEOrdenacao();
+
+                    // Dispara Email
+                    const autorParaEmail = emenda.vereador !== "Nenhum (Emenda de Bancada)" ? emenda.vereador : emenda.bancada;
+                    enviarNotificacaoEmail(emenda.numero_processo, emenda.numero_emenda, autorParaEmail, "CANCELOU A EMENDA", "A emenda foi marcada como cancelada no sistema.");
+
                 } catch (error) {
                     showToast("Erro ao inativar.", "error");
                 }
@@ -1115,6 +1124,8 @@
         function excluirEmendaDefinitivamente(id) {
             showConfirm("EXCLUSÃO DEFINITIVA: Tem certeza que deseja apagar esta emenda e todo o seu histórico do banco de dados? Esta ação não pode ser desfeita.", async () => {
                 try {
+                    const emendaExcluida = dadosEmendasGlobais.find(e => e.id === id);
+
                     await deleteDoc(doc(db, "emendas", id));
                     
                     dadosEmendasGlobais = dadosEmendasGlobais.filter(e => e.id !== id);
@@ -1122,6 +1133,13 @@
                     
                     showToast("Emenda excluída com sucesso do sistema.", "success");
                     aplicarFiltrosEOrdenacao();
+
+                    // Dispara Email
+                    if (emendaExcluida) {
+                        const autorParaEmail = emendaExcluida.vereador !== "Nenhum (Emenda de Bancada)" ? emendaExcluida.vereador : emendaExcluida.bancada;
+                        enviarNotificacaoEmail(emendaExcluida.numero_processo, emendaExcluida.numero_emenda, autorParaEmail, "EXCLUIU A EMENDA DEFINITIVAMENTE", "A emenda e todo o seu histórico foram apagados do banco de dados.");
+                    }
+
                 } catch (error) {
                     console.error("Erro ao excluir documento: ", error);
                     showToast("Erro ao tentar excluir a emenda.", "error");
@@ -1160,14 +1178,17 @@
                 btnSalvar.disabled = true;
 
                 try {
-                    const cacheAtual = JSON.parse(localStorage.getItem(CACHE_KEY)) || [];
+                    let emailAcao = "";
+                    let emailDetalhes = "";
 
                     if (idEdicao && idEdicao.trim() !== '') {
-                        // É UMA ATUALIZACAO (UPDATE)
+                        // ATUALIZACAO (UPDATE)
                         novaEmendaData.historico_status = historicoAtualDaEdicao;
                         let versoesRemanejamento = emendaOriginalSendoEditada && emendaOriginalSendoEditada.versoes_remanejamento ? [...emendaOriginalSendoEditada.versoes_remanejamento] : [];
                         
-                        // Logica de Auditoria de Remanejamento
+                        emailAcao = "ATUALIZOU A EMENDA";
+                        emailDetalhes = `O histórico/dados básicos foram atualizados. Novo status atual: ${historicoAtualDaEdicao.length > 0 ? historicoAtualDaEdicao[historicoAtualDaEdicao.length-1].status : 'Desconhecido'}`;
+
                         if (novaEmendaData.remanejada && emendaOriginalSendoEditada) {
                             const mudouEstrutura = (
                                 novaEmendaData.beneficiario !== emendaOriginalSendoEditada.beneficiario ||
@@ -1177,6 +1198,9 @@
                             );
 
                             if (mudouEstrutura) {
+                                emailAcao = "REMANEJOU A EMENDA";
+                                emailDetalhes = `Houve alteração na estrutura da emenda.<br><b>Era:</b> ${emendaOriginalSendoEditada.beneficiario} | Obj: ${emendaOriginalSendoEditada.objeto}<br><b>Ficou:</b> ${novaEmendaData.beneficiario} | Obj: ${novaEmendaData.objeto}`;
+                                
                                 versoesRemanejamento.push({
                                     data_alteracao: new Date().toISOString(),
                                     usuario: auth.currentUser ? auth.currentUser.email : 'Administrador',
@@ -1197,20 +1221,20 @@
                         }
                         novaEmendaData.versoes_remanejamento = versoesRemanejamento;
                         
-                        // Atualiza no banco
                         const docRef = doc(db, "emendas", idEdicao);
                         await updateDoc(docRef, novaEmendaData);
                         
-                        // Atualiza no cache e nas variáveis globais
                         const index = dadosEmendasGlobais.findIndex(e => e.id === idEdicao);
                         if(index !== -1) dadosEmendasGlobais[index] = { id: idEdicao, ...dadosEmendasGlobais[index], ...novaEmendaData };
                         
                         showToast("Emenda atualizada com sucesso!");
                     } else {
-                        // É UMA NOVA CRIACAO (CREATE)
+                        // CRIACAO (CREATE)
                         novaEmendaData.data_cadastro = new Date().toISOString();
                         
-                        // Cria a primeira etapa obrigatoria
+                        emailAcao = "CADASTROU NOVA EMENDA";
+                        emailDetalhes = `Beneficiário inicial: ${novaEmendaData.beneficiario}. Valor: R$ ${novaEmendaData.valor}`;
+
                         novaEmendaData.historico_status = [{
                             data: new Date().toISOString().split('T')[0],
                             status: "Recepção e Cadastro da Emenda",
@@ -1218,16 +1242,18 @@
                             usuario: auth.currentUser ? auth.currentUser.email : 'Administrador'
                         }];
 
-                        // Salva no banco
                         const docRef = await addDoc(collection(db, "emendas"), novaEmendaData);
-                        
-                        // Atualiza no cache e globais
                         dadosEmendasGlobais.push({ id: docRef.id, ...novaEmendaData });
                         showToast("Nova emenda cadastrada com sucesso!");
                     }
 
                     localStorage.setItem(CACHE_KEY, JSON.stringify(dadosEmendasGlobais));
                     aplicarFiltrosEOrdenacao();
+                    
+                    // DISPARA E-MAIL DEPOIS DE SALVAR NO BANCO
+                    const autorParaEmail = novaEmendaData.vereador !== "Nenhum (Emenda de Bancada)" ? novaEmendaData.vereador : novaEmendaData.bancada;
+                    enviarNotificacaoEmail(novaEmendaData.numero_processo, novaEmendaData.numero_emenda, autorParaEmail, emailAcao, emailDetalhes);
+
                     limparEFecharModal(); 
 
                 } catch (error) {

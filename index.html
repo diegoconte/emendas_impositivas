@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Emendas - Em Construção</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Animação suave de pulso para o ícone de construção */
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(0.95); }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 min-h-screen text-slate-100 flex flex-col items-center justify-center relative overflow-hidden">
+
+    <!-- Efeito visual de fundo (Blur/Glow) -->
+    <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-600/20 rounded-full mix-blend-multiply filter blur-3xl opacity-50 pointer-events-none"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-600/20 rounded-full mix-blend-multiply filter blur-3xl opacity-50 pointer-events-none"></div>
+
+    <main class="relative z-10 w-full max-w-lg px-6 flex flex-col items-center text-center">
+        <!-- Ícone de Construção -->
+        <div class="w-24 h-24 bg-slate-800/80 rounded-2xl border border-slate-700 flex items-center justify-center shadow-2xl mb-8 animate-pulse-slow backdrop-blur-sm">
+            <span class="text-5xl">🚧</span>
+        </div>
+
+        <!-- Textos Principais -->
+        <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
+            Site em Construção
+        </h1>
+        <p class="text-lg text-slate-400 mb-10 leading-relaxed">
+            Estamos preparando um portal completo e transparente para o acompanhamento das Emendas Impositivas do município. Em breve, cidadãos poderão consultar o andamento em tempo real.
+        </p>
+
+        <!-- Divisória visual -->
+        <div class="w-16 h-1 bg-slate-700 rounded-full mb-10"></div>
+
+        <!-- Seção do Administrador -->
+        <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 w-full backdrop-blur-md shadow-lg">
+            <div class="flex items-center justify-center gap-3 mb-3">
+                <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300">Acesso Restrito</h2>
+            </div>
+            <p class="text-sm text-slate-400 mb-5">
+                Caso você seja um gestor ou administrador credenciado, acesse o painel interno de gestão.
+            </p>
+            <a href="admin.html" class="inline-flex items-center justify-center w-full gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-blue-500 hover:scale-[1.02]">
+                Acessar Painel Admin
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </a>
+        </div>
+    </main>
+
+    <!-- Rodapé simples -->
+    <footer class="absolute bottom-6 text-center text-xs text-slate-500 w-full px-4">
+        &copy; 2026 Gestão de Emendas. Município de Horizontina.
+    </footer>
+
+</body>
+</html>
