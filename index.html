@@ -72,12 +72,13 @@
         </div>
     </div>
 
-    <!-- Rodapé simples -->
-    <footer class="absolute bottom-6 text-center text-xs text-slate-500 w-full px-4 z-10">
-        &copy; 2026 Gestão de Emendas. Município de Horizontina.
+    <!-- Rodapé simples com versão gerada automaticamente -->
+    <footer class="absolute bottom-6 text-center text-xs text-slate-500 w-full px-4 z-10 flex flex-col items-center gap-1">
+        <span>&copy; 2026 Gestão de Emendas. Município de Horizontina.</span>
+        <span id="app-version" class="text-[10px] font-mono text-slate-600 bg-slate-800/50 px-2 py-0.5 rounded-full border border-slate-700/50">Carregando versão...</span>
     </footer>
 
-    <!-- Script do Contador Firebase -->
+    <!-- Script do Contador Firebase e Gerador de Versão -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -103,12 +104,10 @@
                 const ultimoAcesso = localStorage.getItem('ultimo_acesso_emendas');
                 let qtdeAtual = 0;
 
-                // Se o documento existe, pega a quantidade
                 if (docSnap.exists()) {
                     qtdeAtual = docSnap.data().quantidade || 0;
                 }
 
-                // Só contabiliza +1 se a pessoa não acessou na última 1 hora (3600000 ms)
                 if (!ultimoAcesso || (agora - parseInt(ultimoAcesso)) > 3600000) {
                     if (docSnap.exists()) {
                         await updateDoc(contadorRef, { quantidade: increment(1) });
@@ -120,7 +119,6 @@
                     localStorage.setItem('ultimo_acesso_emendas', agora.toString());
                 }
 
-                // Atualiza a tela com formatação (ex: 1.234)
                 elContador.textContent = qtdeAtual.toLocaleString('pt-BR');
 
             } catch (error) {
@@ -129,6 +127,24 @@
             }
         }
 
+        function gerarVersaoAuto() {
+            try {
+                const dataMod = new Date(document.lastModified);
+                const ano = dataMod.getFullYear().toString().slice(-2);
+                const mes = String(dataMod.getMonth() + 1).padStart(2, '0');
+                const dia = String(dataMod.getDate()).padStart(2, '0');
+                const hora = String(dataMod.getHours()).padStart(2, '0');
+                const min = String(dataMod.getMinutes()).padStart(2, '0');
+                
+                // Formato Ex: v26.07.24.1630
+                const versaoString = `Build: v${ano}.${mes}.${dia}.${hora}${min}`;
+                document.getElementById('app-version').textContent = versaoString;
+            } catch(e) {
+                document.getElementById('app-version').textContent = 'v1.0.0';
+            }
+        }
+
+        gerarVersaoAuto();
         registrarAcesso();
     </script>
 </body>

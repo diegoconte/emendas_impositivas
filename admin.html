@@ -78,7 +78,10 @@
                 <div class="flex justify-between h-16 items-center">
                     <div class="flex items-center gap-3">
                         <span class="text-2xl">📊</span>
-                        <h1 class="text-xl font-bold text-slate-100 tracking-tight">Gestão de Emendas</h1>
+                        <div class="flex items-baseline gap-2">
+                            <h1 class="text-xl font-bold text-slate-100 tracking-tight">Gestão de Emendas</h1>
+                            <span id="app-version-admin" class="text-[10px] font-mono font-medium text-slate-400 bg-slate-900/50 px-2 py-0.5 rounded border border-slate-700 shadow-sm hidden sm:inline-block">Carregando...</span>
+                        </div>
                     </div>
                     <div class="flex items-center gap-4">
                         <span class="text-sm text-slate-400 hidden sm:block" id="user-email-display">admin@...</span>
@@ -133,7 +136,7 @@
                 </div>
                 
                 <div class="w-56 h-28 relative flex justify-center overflow-hidden z-10 shrink-0">
-                    <svg viewBox="0 0 200 100" class="w-full h-full drop-shadow-xl overflow-visible">
+                    <svg viewBox="0 -15 200 100" class="w-full h-full drop-shadow-xl overflow-visible">
                         <!-- Background arc -->
                         <path d="M 10 90 A 80 80 0 0 1 190 90" fill="none" stroke="#1e293b" stroke-width="16" stroke-linecap="round"/>
                         <!-- Expected arc -->
@@ -207,7 +210,7 @@
                         </thead>
                         <tbody id="tabela-corpo" class="divide-y divide-slate-700/50 bg-slate-800">
                             <tr id="linha-loading">
-                                <td colspan="6" class="px-6 py-8 text-center text-slate-400">
+                                <td colspan="7" class="px-6 py-8 text-center text-slate-400">
                                     <svg class="animate-spin inline-block w-5 h-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                                     Carregando emendas...
                                 </td>
@@ -402,6 +405,23 @@
         import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
+        // GERADOR DE VERSÃO AUTOMÁTICO VIA DATA DO DEPLOY
+        function gerarVersaoAuto() {
+            try {
+                const dataMod = new Date(document.lastModified);
+                const ano = dataMod.getFullYear().toString().slice(-2);
+                const mes = String(dataMod.getMonth() + 1).padStart(2, '0');
+                const dia = String(dataMod.getDate()).padStart(2, '0');
+                const hora = String(dataMod.getHours()).padStart(2, '0');
+                const min = String(dataMod.getMinutes()).padStart(2, '0');
+                
+                const versaoString = `Build: v${ano}.${mes}.${dia}.${hora}${min}`;
+                const elAdmin = document.getElementById('app-version-admin');
+                if (elAdmin) elAdmin.textContent = versaoString;
+            } catch(e) {}
+        }
+        gerarVersaoAuto();
+
         // CONFIGURAÇÃO DO FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyAdHnH9Q6c6GqE8mlhBxcNdcEB6n3G7QvU",
@@ -422,7 +442,9 @@
         let historicoAtualDaEdicao = [];
         let emendaOriginalSendoEditada = null;
         const ADMIN_EMAILS_EXCLUSAO = ["diegoconte@horizontina.rs.gov.br", "raquelcallegaro@horizontina.rs.gov.br"];
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw7XRWUrEjikqALcHdyhLE4TVgNtWKA6fejRbmRxsuyGRE5NCxIQ-4B081FMM_Xqd4/exec";
+        
+        // URL DA API DO GOOGLE APPS SCRIPT PARA ENVIO DE E-MAIL
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbywzhQij8S8i7D5dejObyGOpNQMxKsAkLR24ZbzArIuIvV2K6mijHCEboQNmQckWb6Y/exec";
 
         let dadosEmendasGlobais = [];
         let currentSortColumn = 'progresso'; 
@@ -449,17 +471,14 @@
             console.log("[E-MAIL] Preparando para enviar notificação. Dados:", payload);
 
             try {
-                // Fetch usando text/plain e modo no-cors para evitar bloqueios do Google
                 const response = await fetch(GOOGLE_SCRIPT_URL, {
                     method: "POST",
-                    mode: "no-cors", // <-- O SEGREDO: bypass de política de CORS do navegador
+                    mode: "no-cors",
                     headers: {
                         "Content-Type": "text/plain;charset=utf-8",
                     },
                     body: JSON.stringify(payload)
                 });
-
-                // No modo 'no-cors', a resposta é "opaca", então não lemos com response.json()
                 console.log("[E-MAIL] Requisição disparada com sucesso! O e-mail deve chegar em segundos.");
             } catch (error) {
                 console.error("[E-MAIL] Erro ao disparar e-mail:", error);
@@ -696,7 +715,6 @@
             const tipoExec = emenda.tipo_execucao || "Direta";
             const esperado = calcularProgressoEsperado(tipoExec);
             
-            // Atrasada matematicamente: o % atual é MENOR que o % esperado para hoje
             return etapaInfo.pct < esperado;
         }
 
@@ -748,7 +766,6 @@
             elEsperadoText.textContent = esperado.toFixed(1) + "%";
             elCenter.textContent = atual.toFixed(0) + "%";
 
-            // Offset de 0% = 251.2 | Offset de 100% = 0
             const valAtual = Math.min(Math.max(atual, 0), 100);
             const valEsperado = Math.min(Math.max(esperado, 0), 100);
             
@@ -756,17 +773,17 @@
             pathEsperado.style.strokeDashoffset = 251.2 - (valEsperado / 100) * 251.2;
 
             if (valAtual >= valEsperado && valAtual > 0) {
-                pathAtual.style.stroke = "#10b981"; // Verde
+                pathAtual.style.stroke = "#10b981"; 
                 elAtualText.style.color = "#10b981";
                 badge.textContent = "Adequado";
                 badge.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-900/40 text-emerald-400 border border-emerald-800/50";
             } else if (valAtual < valEsperado) {
-                pathAtual.style.stroke = "#ef4444"; // Vermelho
+                pathAtual.style.stroke = "#ef4444"; 
                 elAtualText.style.color = "#ef4444";
                 badge.textContent = "Atrasado";
                 badge.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-red-900/40 text-red-400 border border-red-800/50";
             } else {
-                pathAtual.style.stroke = "#3b82f6"; // Azul
+                pathAtual.style.stroke = "#3b82f6"; 
                 elAtualText.style.color = "#3b82f6";
                 badge.textContent = "Aguardando";
                 badge.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700 text-slate-300 border border-slate-600";
@@ -791,7 +808,6 @@
                 
                 let passaBusca = true;
                 if (busca) {
-                    // Agrupa todos os dados relevantes da emenda em um "textoão" invisível, tratando valores nulos
                     const textoBusca = `
                         ${emenda.numero_processo || ''} 
                         ${emenda.numero_emenda || ''} 
@@ -804,8 +820,6 @@
                         ${emenda.enquadramento || ''}
                     `.toLowerCase();
                     
-                    // Quebra o que você digitou por espaços (ex: "002 kennedy" vira ["002", "kennedy"])
-                    // E verifica se TODAS as palavras digitadas existem no textoBusca (ordem não importa)
                     const termosBusca = busca.split(' ').filter(t => t.trim() !== '');
                     passaBusca = termosBusca.every(termo => textoBusca.includes(termo));
                 }
@@ -898,7 +912,7 @@
             tabelaCorpo.innerHTML = ''; 
 
             if (!dados || dados.length === 0) {
-                tabelaCorpo.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-slate-400">Nenhuma emenda encontrada.</td></tr>`;
+                tabelaCorpo.innerHTML = `<tr><td colspan="7" class="px-6 py-8 text-center text-slate-400">Nenhuma emenda encontrada.</td></tr>`;
                 return;
             }
 
@@ -1004,7 +1018,6 @@
                 tabelaCorpo.appendChild(tr);
             });
 
-            // Listeners das Checkboxes da Tabela
             document.querySelectorAll('.check-emenda').forEach(cb => {
                 cb.addEventListener('change', (e) => {
                     if(e.target.checked) selecionadasGlobais.add(e.target.value);
@@ -1237,6 +1250,7 @@
             document.getElementById('emenda_id').value = emenda.id;
             document.getElementById('num_processo').value = emenda.numero_processo || '';
             document.getElementById('num_emenda').value = emenda.numero_emenda || '';
+            document.getElementById('prioridade').value = emenda.prioridade || '';
             
             const selBancada = document.getElementById('bancada');
             if(emenda.bancada && selBancada) selBancada.value = emenda.bancada;
@@ -1244,10 +1258,8 @@
             const selVer = document.getElementById('vereador');
             if(emenda.vereador && selVer) selVer.value = emenda.vereador;
 
-            document.getElementById('prioridade').value = emenda.prioridade || '';
             const selSec = document.getElementById('sec_executora');
             if(emenda.secretaria && selSec) selSec.value = emenda.secretaria;
-            document.getElementById('enquadramento').value = emenda.enquadramento || '';
 
             const tipoExec = emenda.tipo_execucao || 'Direta';
             if(selTipoExecucao) selTipoExecucao.value = tipoExec;
@@ -1256,6 +1268,7 @@
             document.getElementById('beneficiario').value = emenda.beneficiario || '';
             document.getElementById('valor').value = emenda.valor || '';
             document.getElementById('acao').value = emenda.acao || '';
+            document.getElementById('enquadramento').value = emenda.enquadramento || '';
             document.getElementById('dotacao').value = emenda.dotacao || '';
             document.getElementById('objeto').value = emenda.objeto || '';
             
