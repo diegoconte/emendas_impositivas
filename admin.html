@@ -424,6 +424,20 @@
                                     <input type="text" id="nova_etapa_obs" placeholder="Ex: Encaminhado ao setor..." class="w-full p-2 bg-slate-800 border border-slate-600 text-slate-200 rounded focus:ring-2 focus:ring-indigo-500 outline-none text-sm placeholder-slate-500">
                                 </div>
                             </div>
+
+                            <!-- NOVOS DADOS DA ORIGEM (PREFEITURA) -->
+                            <h6 class="text-[10px] font-bold text-slate-400 uppercase mb-2 mt-4 border-b border-indigo-800/30 pb-1">📍 Dados da Ação na Origem (Prefeitura)</h6>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-end">
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-400 mb-1">Data Real da Ação</label>
+                                    <input type="date" id="nova_etapa_data_original" class="w-full p-2 bg-slate-800 border border-slate-600 text-slate-200 rounded focus:ring-2 focus:ring-indigo-500 outline-none text-sm [color-scheme:dark]">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-400 mb-1">Quem fez (Usuário Origem)</label>
+                                    <input type="text" id="nova_etapa_usuario_original" placeholder="Ex: Charles (Compras)" class="w-full p-2 bg-slate-800 border border-slate-600 text-slate-200 rounded focus:ring-2 focus:ring-indigo-500 outline-none text-sm placeholder-slate-500">
+                                </div>
+                            </div>
+
                             <div class="mt-4 flex justify-end">
                                 <button type="button" id="btn-adicionar-etapa" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium py-2 px-4 rounded shadow transition flex items-center gap-2 border border-indigo-500">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
@@ -512,7 +526,6 @@
         let selecionadasGlobais = new Set();
         let filtradosGlobais = [];
 
-        // FUNÇÃO DE ENVIO DE E-MAIL
         async function enviarNotificacaoEmail(processo, emenda, autor, acaoRealizada, detalhes) {
             if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL === "") return;
 
@@ -577,7 +590,6 @@
             { id: 16, status: "Aprovação Final das Contas", pct: 100, prazo: "2026-12-30", class: "bg-green-800/40 text-green-300 border-green-700/50" }
         ];
 
-        // REFERENCIAS DO DOM
         const loginScreen = document.getElementById('login-screen');
         const dashboardScreen = document.getElementById('dashboard-screen');
         const tabelaCorpo = document.getElementById('tabela-corpo');
@@ -863,6 +875,7 @@
                 const tipoExec = emenda.tipo_execucao || "Direta";
                 const etapaInfo = getEtapaInfo(statusAtual, tipoExec);
                 
+                
                 let passaBusca = true;
                 if (busca) {
                     const textoBusca = `
@@ -875,6 +888,8 @@
                         ${emenda.vereador || ''} 
                         ${emenda.acao || ''} 
                         ${emenda.enquadramento || ''}
+                        ${statusAtual}
+                        ${tipoExec}
                     `.toLowerCase();
                     
                     const termosBusca = busca.split(' ').filter(t => t.trim() !== '');
@@ -1131,6 +1146,12 @@
             historicoAtualDaEdicao = [];
             emendaOriginalSendoEditada = null;
             
+            // Limpa os novos campos do modal ao fechar
+            const inputDataOrigem = document.getElementById('nova_etapa_data_original');
+            if(inputDataOrigem) inputDataOrigem.value = '';
+            const inputUserOrigem = document.getElementById('nova_etapa_usuario_original');
+            if(inputUserOrigem) inputUserOrigem.value = '';
+            
             if(containerHistorico) containerHistorico.classList.add('hidden');
             if(containerVersoesRemanejamento) containerVersoesRemanejamento.classList.add('hidden');
             
@@ -1220,6 +1241,11 @@
                 const infoUsuario = etapa.usuario ? `<span class="ml-2 text-[10px] text-slate-500 font-medium" title="Usuário do Sistema">👤 ${etapa.usuario}</span>` : '';
                 const infoResponsavel = etapa.responsavel_etapa ? `<div class="text-xs text-slate-400 mt-1"><span class="font-semibold text-slate-300">Responsável:</span> ${etapa.responsavel_etapa}</div>` : '';
 
+                // Renderiza as tags de auditoria Dupla
+                const tagOrigem = etapa.usuario_original ? `<div class="text-[10px] text-emerald-400/90 font-medium mt-1.5 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg> Origem: ${etapa.usuario_original} (${etapa.data_original ? new Date(etapa.data_original + "T00:00:00").toLocaleDateString('pt-BR') : '-'})</div>` : '';
+                const tagChecagem = etapa.usuario_checagem ? `<div class="text-[10px] text-purple-400/90 font-medium mt-0.5 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg> Checado por: ${etapa.usuario_checagem} (${etapa.data_checagem ? new Date(etapa.data_checagem + "T00:00:00").toLocaleDateString('pt-BR') : '-'})</div>` : '';
+
+
                 const li = document.createElement('li');
                 li.className = "relative pl-6 timeline-item";
                 li.innerHTML = `
@@ -1235,6 +1261,8 @@
                         </div>
                     </div>
                     ${infoResponsavel}
+                    ${tagOrigem}
+                    ${tagChecagem}
                     <p class="text-sm text-slate-400 mt-1 bg-slate-900/50 p-2 rounded border border-slate-700/50">${etapa.observacao || '<i>Nenhuma observação adicional.</i>'}</p>
                 `;
                 timelineLista.appendChild(li);
@@ -1248,6 +1276,14 @@
                 const obsEtapa = document.getElementById('nova_etapa_obs').value;
                 const responsavelEtapa = document.getElementById('nova_etapa_responsavel').value;
 
+                // Captura os novos campos
+                const dataOriginal = document.getElementById('nova_etapa_data_original').value;
+                const usuarioOriginal = document.getElementById('nova_etapa_usuario_original').value;
+                
+                // Captura a data de hoje (momento em que o sistema está sendo alimentado)
+                const dataChecagem = new Date().toISOString().split('T')[0];
+                const usuarioLogado = auth.currentUser ? auth.currentUser.email.split('@')[0] : 'Administrador';
+
                 if(!dataEtapa || !statusEtapa) {
                     showToast("Preencha a data e o status para adicionar a etapa.", "warning");
                     return;
@@ -1258,11 +1294,19 @@
                     status: statusEtapa,
                     observacao: obsEtapa,
                     responsavel_etapa: responsavelEtapa,
-                    usuario: auth.currentUser ? auth.currentUser.email : 'Administrador'
+                    usuario: auth.currentUser ? auth.currentUser.email : 'Administrador',
+                    // Vincula os campos de Rastreio Duplo
+                    data_original: dataOriginal,
+                    usuario_original: usuarioOriginal,
+                    data_checagem: dataChecagem,
+                    usuario_checagem: usuarioLogado
                 });
 
                 document.getElementById('nova_etapa_obs').value = '';
                 document.getElementById('nova_etapa_responsavel').value = '';
+                document.getElementById('nova_etapa_data_original').value = '';
+                document.getElementById('nova_etapa_usuario_original').value = '';
+
                 showToast("Etapa adicionada! Salve a emenda para confirmar.", "success");
                 renderizarHistoricoNoModal();
             });
