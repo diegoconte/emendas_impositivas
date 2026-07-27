@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Admin - Emendas Impositivas</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -97,7 +98,11 @@
                     <h2 class="text-2xl font-bold text-slate-100">Painel Geral</h2>
                     <p class="text-sm text-slate-400 mt-1">Acompanhamento e evolução dos processos.</p>
                 </div>
-                <div class="flex gap-3 w-full sm:w-auto">
+                <div class="flex flex-wrap gap-3 w-full sm:w-auto">
+                    <a href="relatorio.html" target="_blank" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-emerald-900/50 hover:bg-emerald-800 text-emerald-300 hover:text-emerald-100 font-bold py-2.5 px-4 rounded-lg shadow-sm transition border border-emerald-700/50">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Relatório Semanal
+                    </a>
                     <a href="dashboard.html" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-indigo-900/50 hover:bg-indigo-800 text-indigo-300 hover:text-indigo-100 font-bold py-2.5 px-4 rounded-lg shadow-sm transition border border-indigo-700/50">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                         Dashboard
@@ -699,30 +704,37 @@
         });
 
         async function carregarEmendasDaMemoriaOuBanco(forcarSincronizacao = false) {
-            const cache = localStorage.getItem(CACHE_KEY);
-            
-            if (cache && !forcarSincronizacao) {
-                dadosEmendasGlobais = JSON.parse(cache);
+            // Removido o bloqueio passivo do Cache. Sempre vai buscar no banco ao abrir a tela.
+            // Isso garante que você está vendo o que a Yasmin fez minutos atrás.
+            if(linhaLoading) linhaLoading.style.display = 'table-row';
+            if(tabelaCorpo) tabelaCorpo.innerHTML = '';
+            if(tabelaCorpo && linhaLoading) tabelaCorpo.appendChild(linhaLoading);
+
+            try {
+                // BUSCA DIRETO DA FONTE DA VERDADE (FIREBASE)
+                const querySnapshot = await getDocs(collection(db, "emendas"));
+                const emendasBaixadas = [];
+                querySnapshot.forEach((doc) => {
+                    emendasBaixadas.push({ id: doc.id, ...doc.data() });
+                });
+
+                localStorage.setItem(CACHE_KEY, JSON.stringify(emendasBaixadas));
+                dadosEmendasGlobais = emendasBaixadas;
+                
+                if (forcarSincronizacao) {
+                     showToast("Dados sincronizados com o servidor.", "success");
+                }
+                
                 aplicarFiltrosEOrdenacao();
-            } else {
-                if(linhaLoading) linhaLoading.style.display = 'table-row';
-                if(tabelaCorpo) tabelaCorpo.innerHTML = '';
-                if(tabelaCorpo && linhaLoading) tabelaCorpo.appendChild(linhaLoading);
-
-                try {
-                    const querySnapshot = await getDocs(collection(db, "emendas"));
-                    const emendasBaixadas = [];
-                    querySnapshot.forEach((doc) => {
-                        emendasBaixadas.push({ id: doc.id, ...doc.data() });
-                    });
-
-                    localStorage.setItem(CACHE_KEY, JSON.stringify(emendasBaixadas));
-                    dadosEmendasGlobais = emendasBaixadas;
-                    showToast("Dados sincronizados com o servidor.", "success");
+            } catch (error) {
+                showToast("Erro ao buscar dados do servidor.", "error");
+                console.error(error);
+                
+                // Fallback de emergência: Tenta usar o cache só se a internet cair.
+                const cache = localStorage.getItem(CACHE_KEY);
+                if (cache) {
+                    dadosEmendasGlobais = JSON.parse(cache);
                     aplicarFiltrosEOrdenacao();
-                } catch (error) {
-                    showToast("Erro ao buscar dados do servidor.", "error");
-                    console.error(error);
                 }
             }
         }
@@ -1273,8 +1285,9 @@
         function preencherModalEdicao(id, somenteLeitura = false) {
             limparEFecharModal(); 
 
-            const cacheAtual = JSON.parse(localStorage.getItem(CACHE_KEY)) || [];
-            const emenda = cacheAtual.find(e => e.id === id);
+            // Alterado para buscar SEMPRE da variável global que acabou de ser sincronizada
+            // em vez de buscar do localStorage cru.
+            const emenda = dadosEmendasGlobais.find(e => e.id === id);
             if(!emenda) return;
 
             emendaOriginalSendoEditada = emenda; 
@@ -1478,7 +1491,10 @@
 
                     if (idEdicao && idEdicao.trim() !== '') {
                         // ATUALIZACAO (UPDATE)
+                        // AQUI ESTAVA O PROBLEMA: Estávamos enviando cegamente o histórico inteiro clonado.
+                        // Se no meio tempo alguém salvou, ele apagava o da pessoa.
                         novaEmendaData.historico_status = historicoAtualDaEdicao;
+                        
                         let versoesRemanejamento = emendaOriginalSendoEditada && emendaOriginalSendoEditada.versoes_remanejamento ? [...emendaOriginalSendoEditada.versoes_remanejamento] : [];
                         
                         emailAcao = "ATUALIZOU A EMENDA";
@@ -1558,6 +1574,227 @@
                     btnSalvar.innerHTML = btnNormalText;
                     btnSalvar.disabled = false;
                 }
+            });
+        }
+
+        const elTabTabela = document.getElementById('btn-tab-tabela');
+        const elTabDash = document.getElementById('btn-tab-dash');
+        const viewTabelaContainer = document.querySelector('.bg-slate-800.rounded-xl.shadow-sm.border.border-slate-700.overflow-hidden');
+        const viewDashContainer = document.getElementById('view-dashboard');
+        const filtroContainer = document.querySelector('.bg-slate-800.p-4.rounded-xl.shadow-sm.border.border-slate-700.mb-6.flex');
+
+        if(elTabTabela && elTabDash && viewTabelaContainer && viewDashContainer && filtroContainer) {
+            
+            elTabTabela.addEventListener('click', () => {
+                elTabTabela.className = "px-5 py-2 bg-blue-600 text-white rounded-md text-sm font-bold shadow-sm transition";
+                elTabDash.className = "px-5 py-2 text-slate-400 hover:text-slate-100 hover:bg-slate-700 rounded-md text-sm font-bold transition flex items-center gap-2";
+                
+                viewDashContainer.classList.add('hidden');
+                viewDashContainer.classList.remove('flex');
+                
+                viewTabelaContainer.classList.remove('hidden');
+                filtroContainer.classList.remove('hidden');
+                filtroContainer.classList.add('flex');
+            });
+
+            elTabDash.addEventListener('click', () => {
+                elTabDash.className = "px-5 py-2 bg-blue-600 text-white rounded-md text-sm font-bold shadow-sm transition flex items-center gap-2";
+                elTabTabela.className = "px-5 py-2 text-slate-400 hover:text-slate-100 hover:bg-slate-700 rounded-md text-sm font-bold transition";
+                
+                viewTabelaContainer.classList.add('hidden');
+                filtroContainer.classList.add('hidden');
+                filtroContainer.classList.remove('flex');
+
+                viewDashContainer.classList.remove('hidden');
+                viewDashContainer.classList.add('flex');
+                
+                renderizarDashboard(filtradosGlobais);
+            });
+        }
+
+        let graficosInstanciados = {};
+
+        function getChartColor(index) {
+            const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4', '#f97316', '#6366f1', '#14b8a6', '#f43f5e'];
+            return colors[index % colors.length];
+        }
+
+        function formatarMoedaAbreviada(valor) {
+            if (valor >= 1000000) return (valor / 1000000).toFixed(1).replace('.', ',') + 'M';
+            if (valor >= 1000) return (valor / 1000).toFixed(1).replace('.', ',') + 'k';
+            return valor.toString();
+        }
+
+        function renderizarDashboard(dados) {
+            if(!dados || dados.length === 0) return;
+
+            let cGeral = { NoPrazo: 0, Atrasada: 0, Concluida: 0, Cancelada: 0 };
+            let cTipo = { Direta: 0, Indireta: 0 };
+            let cEng = { Sim: 0, Nao: 0 };
+            let cRem = { Sim: 0, Nao: 0 };
+            let cSec = {}; let vSec = {};
+            let cAut = {}; let vAut = {};
+            let cPri = {}; let cCont = {};
+            let gargalos = {}; let evolucao = {};
+            let vTipo = { Direta: 0, Indireta: 0 };
+            let topBen = {}; let atrasadasList = [];
+
+            dados.forEach(e => {
+                const tipoExec = e.tipo_execucao || "Direta";
+                let statusAtual = "Recepção e Cadastro da Emenda";
+                if (e.historico_status && e.historico_status.length > 0) {
+                    statusAtual = e.historico_status[e.historico_status.length - 1].status;
+                }
+                const etapaInfo = getEtapaInfo(statusAtual, tipoExec);
+                const isCanc = statusAtual.includes("CANCELADA");
+                const isAtras = isAtrasada(e, etapaInfo);
+                const valor = parseFloat(e.valor || 0);
+
+                if (isCanc) cGeral.Cancelada++;
+                else if (etapaInfo.pct === 100) cGeral.Concluida++;
+                else if (isAtras) { cGeral.Atrasada++; atrasadasList.push(e); }
+                else cGeral.NoPrazo++;
+
+                cTipo[tipoExec]++;
+                vTipo[tipoExec] += valor;
+                e.projeto_engenharia ? cEng.Sim++ : cEng.Nao++;
+                e.remanejada ? cRem.Sim++ : cRem.Nao++;
+
+                const sec = e.secretaria || "Sem Sec.";
+                cSec[sec] = (cSec[sec] || 0) + 1;
+                vSec[sec] = (vSec[sec] || 0) + valor;
+
+                const autor = (e.vereador && e.vereador !== "Nenhum (Emenda de Bancada)") ? e.vereador : (e.bancada || "Sem Autor");
+                cAut[autor] = (cAut[autor] || 0) + 1;
+                vAut[autor] = (vAut[autor] || 0) + valor;
+
+                const pri = e.prioridade ? e.prioridade.split(' ')[0] : "S/P";
+                cPri[pri] = (cPri[pri] || 0) + 1;
+
+                const cont = e.enquadramento || "N/C";
+                cCont[cont] = (cCont[cont] || 0) + 1;
+
+                const ben = e.beneficiario || "Desconhecido";
+                topBen[ben] = (topBen[ben] || 0) + valor;
+
+                if (e.historico_status && e.historico_status.length > 0) {
+                    const hist = [...e.historico_status].sort((a,b) => new Date(a.data) - new Date(b.data));
+                    hist.forEach((etapa, idx) => {
+                        const mesAno = etapa.data.substring(0, 7);
+                        evolucao[mesAno] = (evolucao[mesAno] || 0) + 1;
+
+                        if (idx > 0) {
+                            const dAnt = new Date(hist[idx-1].data);
+                            const dAtu = new Date(etapa.data);
+                            const dias = Math.ceil(Math.abs(dAtu - dAnt) / (1000*60*60*24));
+                            const nomeAnt = hist[idx-1].status;
+                            if(!gargalos[nomeAnt]) gargalos[nomeAnt] = [];
+                            gargalos[nomeAnt].push(dias);
+                        }
+                    });
+                }
+            });
+
+            const renderDoughnut = (id, labels, data, colors) => {
+                if(graficosInstanciados[id]) graficosInstanciados[id].destroy();
+                graficosInstanciados[id] = new Chart(document.getElementById(id), {
+                    type: 'doughnut',
+                    data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 1, borderColor: '#1e293b' }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#94a3b8', font: { size: 10 } } } } }
+                });
+            };
+
+            const renderBar = (id, labels, data, color, isCurrency=false) => {
+                if(graficosInstanciados[id]) graficosInstanciados[id].destroy();
+                graficosInstanciados[id] = new Chart(document.getElementById(id), {
+                    type: 'bar',
+                    data: { labels, datasets: [{ data, backgroundColor: color, borderRadius: 4 }] },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => isCurrency ? 'R$ '+c.raw.toLocaleString('pt-BR') : c.raw } } },
+                        scales: { 
+                            y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8', callback: (v) => isCurrency ? formatarMoedaAbreviada(v) : v } },
+                            x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 }, maxRotation: 45 } }
+                        }
+                    }
+                });
+            };
+
+            const renderHBar = (id, labels, data, color, appendDias=false) => {
+                if(graficosInstanciados[id]) graficosInstanciados[id].destroy();
+                graficosInstanciados[id] = new Chart(document.getElementById(id), {
+                    type: 'bar',
+                    data: { labels, datasets: [{ data, backgroundColor: color, borderRadius: 4 }] },
+                    options: {
+                        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => appendDias ? c.raw + ' dias' : c.raw } } },
+                        scales: { 
+                            x: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
+                            y: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } }
+                        }
+                    }
+                });
+            };
+
+            renderDoughnut('chart-status-geral', ['No Prazo', 'Atrasada', 'Concluída', 'Cancelada'], [cGeral.NoPrazo, cGeral.Atrasada, cGeral.Concluida, cGeral.Cancelada], ['#3b82f6', '#ef4444', '#10b981', '#475569']);
+            renderDoughnut('chart-tipo-exec', ['Direta', 'Indireta'], [cTipo.Direta, cTipo.Indireta], ['#3b82f6', '#8b5cf6']);
+            renderDoughnut('chart-eng', ['Exige', 'Não Exige'], [cEng.Sim, cEng.Nao], ['#f59e0b', '#334155']);
+            renderDoughnut('chart-rem', ['Remanejada', 'Original'], [cRem.Sim, cRem.Nao], ['#d946ef', '#334155']);
+
+            let sortSec = Object.keys(cSec).sort((a,b)=>cSec[b]-cSec[a]);
+            renderBar('chart-q-sec', sortSec, sortSec.map(k=>cSec[k]), '#3b82f6');
+            let sortVSec = Object.keys(vSec).sort((a,b)=>vSec[b]-vSec[a]);
+            renderBar('chart-v-sec', sortVSec, sortVSec.map(k=>vSec[k]), '#10b981', true);
+
+            let sortAut = Object.keys(cAut).sort((a,b)=>cAut[b]-cAut[a]);
+            renderBar('chart-q-bancada', sortAut, sortAut.map(k=>cAut[k]), '#8b5cf6');
+            let sortVAut = Object.keys(vAut).sort((a,b)=>vAut[b]-vAut[a]);
+            renderBar('chart-v-bancada', sortVAut, sortVAut.map(k=>vAut[k]), '#10b981', true);
+
+            let sortPri = Object.keys(cPri).sort((a,b)=>parseInt(a)-parseInt(b));
+            renderBar('chart-prioridades', sortPri, sortPri.map(k=>cPri[k]), '#f59e0b');
+
+            renderHBar('chart-enquadramento', Object.keys(cCont), Object.values(cCont), '#14b8a6');
+
+            let gargLabels = []; let gargData = [];
+            for(const [etapa, diasArr] of Object.entries(gargalos)) {
+                if(!etapa.includes("CANCELADA")) {
+                    gargLabels.push(etapa.length > 25 ? etapa.substring(0,25)+'...' : etapa);
+                    gargData.push(Math.round(diasArr.reduce((a,b)=>a+b,0)/diasArr.length));
+                }
+            }
+            renderHBar('chart-gargalos', gargLabels, gargData, '#ef4444', true);
+
+            renderDoughnut('chart-v-tipo', ['Direta', 'Indireta'], [vTipo.Direta, vTipo.Indireta], ['#3b82f6', '#8b5cf6']);
+
+            const listBen = document.getElementById('list-top-beneficiarios');
+            listBen.innerHTML = '';
+            let sortBen = Object.keys(topBen).sort((a,b)=>topBen[b]-topBen[a]).slice(0,5);
+            sortBen.forEach((b, i) => {
+                listBen.innerHTML += `<li class="flex justify-between items-center bg-slate-900/50 p-2 rounded border border-slate-700 hover:bg-slate-800 transition"><div class="flex items-center gap-2"><span class="text-xs font-bold text-slate-500">${i+1}º</span><span class="text-xs text-slate-200 truncate w-32" title="${b}">${b}</span></div><span class="text-xs font-bold text-emerald-400">R$ ${topBen[b].toLocaleString('pt-BR')}</span></li>`;
+            });
+
+            const listCrit = document.getElementById('list-criticas');
+            listCrit.innerHTML = '';
+            if(atrasadasList.length === 0) listCrit.innerHTML = '<li class="text-center text-xs text-emerald-400 mt-8">Nenhuma emenda atrasada!</li>';
+            else {
+                atrasadasList.sort((a,b)=>{
+                    let da = a.historico_status && a.historico_status.length>0 ? new Date(a.historico_status[a.historico_status.length-1].data) : new Date(0);
+                    let db = b.historico_status && b.historico_status.length>0 ? new Date(b.historico_status[b.historico_status.length-1].data) : new Date(0);
+                    return da - db;
+                }).slice(0,5).forEach(c => {
+                    let dUlt = c.historico_status && c.historico_status.length>0 ? c.historico_status[c.historico_status.length-1].data : '';
+                    let dParada = dUlt ? Math.floor((new Date() - new Date(dUlt))/(1000*60*60*24)) : '?';
+                    listCrit.innerHTML += `<li class="bg-red-900/20 p-2 rounded border border-red-800/30 hover:bg-red-900/40 transition"><div class="flex justify-between items-center"><span class="text-xs font-bold text-slate-200">${c.numero_emenda}</span><span class="text-[9px] font-bold text-red-400 bg-red-900/50 px-1.5 py-0.5 rounded">${dParada} dias parada</span></div><p class="text-[10px] text-slate-400 mt-1 truncate" title="${c.historico_status ? c.historico_status[c.historico_status.length-1].status : ''}">${c.historico_status ? c.historico_status[c.historico_status.length-1].status : ''}</p></li>`;
+                });
+            }
+
+            if(graficosInstanciados['chart-evolucao']) graficosInstanciados['chart-evolucao'].destroy();
+            let keysEvo = Object.keys(evolucao).sort();
+            graficosInstanciados['chart-evolucao'] = new Chart(document.getElementById('chart-evolucao'), {
+                type: 'line',
+                data: { labels: keysEvo, datasets: [{ label: 'Movimentações', data: keysEvo.map(k=>evolucao[k]), borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.2)', borderWidth: 3, pointBackgroundColor: '#3b82f6', fill: true, tension: 0.3 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8', stepSize: 1 } }, x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } } } }
             });
         }
     </script>

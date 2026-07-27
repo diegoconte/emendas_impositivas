@@ -63,9 +63,16 @@
             </p>
         </div>
 
-        <div class="mb-6">
-            <h3 class="text-2xl font-bold text-slate-100">Painel de Acompanhamento Público</h3>
-            <p class="text-slate-400 text-sm mt-1">Consulte abaixo o andamento geral das emendas inseridas no sistema.</p>
+        <div class="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-end gap-2">
+            <div>
+                <h3 class="text-2xl font-bold text-slate-100">Painel de Acompanhamento Público</h3>
+                <p class="text-slate-400 text-sm mt-1">Consulte abaixo o andamento geral das emendas inseridas no sistema.</p>
+            </div>
+            <!-- Indicador de Dados em Cache -->
+            <div id="status-sincronizacao" class="hidden items-center gap-1.5 bg-slate-800/80 px-3 py-1.5 rounded-md border border-slate-700 shadow-sm">
+                <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                <span class="text-[10px] font-mono text-slate-300 uppercase tracking-wide">Modo Economia: Exibindo dados em Cache</span>
+            </div>
         </div>
 
         <div class="bg-slate-800 rounded-xl shadow-xl border border-slate-700 overflow-hidden">
@@ -84,7 +91,7 @@
                         <tr>
                             <td colspan="5" class="px-6 py-12 text-center text-slate-400">
                                 <svg class="animate-spin inline-block w-8 h-8 mb-4 text-blue-500" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                <p class="text-sm font-medium">Buscando dados públicos em tempo real...</p>
+                                <p class="text-sm font-medium">Carregando dados públicos...</p>
                             </td>
                         </tr>
                     </tbody>
@@ -114,7 +121,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        // Importando ferramentas extras para habilitar o cache
+        import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, getDocs, getDocsFromServer, getDocsFromCache, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         // Configuração do Firebase
         const firebaseConfig = {
@@ -127,13 +135,55 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        
+        // Ativando a Persistência de Dados Offline (Cache Local) para economizar leituras na página pública
+        const db = initializeFirestore(app, {
+            localCache: persistentLocalCache({tabManager: persistentMultipleTabManager()})
+        });
 
-        // 1. CARREGAR TABELA DE EMENDAS PÚBLICAS
+        const TEMPO_CACHE_MILISSEGUNDOS = 4 * 60 * 60 * 1000; // 4 horas
+
+        // 1. CARREGAR TABELA DE EMENDAS PÚBLICAS (ESTRATÉGIA DE CACHE)
         async function carregarTabelaPublica() {
             const tbody = document.getElementById('tabela-publica-corpo');
+            const colRef = collection(db, "emendas");
+            let querySnapshot;
+            let usouCache = false;
+
             try {
-                const querySnapshot = await getDocs(collection(db, "emendas"));
+                // Lógica de expiração do cache
+                const ultimaSincronizacao = localStorage.getItem('ultima_sincronizacao_publica');
+                const agora = new Date().getTime();
+
+                if (ultimaSincronizacao && (agora - parseInt(ultimaSincronizacao)) < TEMPO_CACHE_MILISSEGUNDOS) {
+                    // Tenta puxar estritamente do Cache
+                    try {
+                        console.log("Tentando puxar dados do Cache Local...");
+                        querySnapshot = await getDocsFromCache(colRef);
+                        
+                        if (!querySnapshot.empty) {
+                            usouCache = true;
+                            document.getElementById('status-sincronizacao').classList.remove('hidden');
+                            document.getElementById('status-sincronizacao').classList.add('flex');
+                        } else {
+                            // Cache estava vazio, força servidor
+                            console.log("Cache vazio. Puxando do Servidor...");
+                            querySnapshot = await getDocsFromServer(colRef);
+                            localStorage.setItem('ultima_sincronizacao_publica', agora.toString());
+                        }
+                    } catch (cacheError) {
+                        // Se der erro no cache, força servidor
+                        console.log("Erro no cache. Puxando do Servidor...", cacheError);
+                        querySnapshot = await getDocsFromServer(colRef);
+                        localStorage.setItem('ultima_sincronizacao_publica', agora.toString());
+                    }
+                } else {
+                    // Tempo expirou ou primeira vez, puxa do servidor
+                    console.log("Tempo de cache expirado ou primeiro acesso. Puxando do Servidor...");
+                    querySnapshot = await getDocsFromServer(colRef);
+                    localStorage.setItem('ultima_sincronizacao_publica', agora.toString());
+                }
+
                 const emendas = [];
                 querySnapshot.forEach((doc) => {
                     emendas.push({ id: doc.id, ...doc.data() });
@@ -190,7 +240,7 @@
 
             } catch (error) {
                 console.error("Erro ao carregar emendas:", error);
-                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-red-400">Erro ao carregar os dados. O painel pode estar restrito no momento.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-red-400">Erro ao carregar os dados públicos. Tente novamente mais tarde.</td></tr>`;
             }
         }
 
@@ -200,6 +250,7 @@
             const elContador = document.getElementById('contador-texto');
             
             try {
+                // Para o contador, não usamos cache, pois queremos o número real
                 const docSnap = await getDoc(contadorRef);
                 const agora = new Date().getTime();
                 const ultimoAcesso = localStorage.getItem('ultimo_acesso_emendas');
