@@ -136,7 +136,7 @@
                 </div>
                 
                 <div class="w-56 h-28 relative flex justify-center overflow-hidden z-10 shrink-0">
-                    <svg viewBox="0 -15 200 100" class="w-full h-full drop-shadow-xl overflow-visible">
+                    <svg viewBox="0 -15 200 115" class="w-full h-full drop-shadow-xl overflow-visible">
                         <!-- Background arc -->
                         <path d="M 10 90 A 80 80 0 0 1 190 90" fill="none" stroke="#1e293b" stroke-width="16" stroke-linecap="round"/>
                         <!-- Expected arc -->
@@ -155,7 +155,7 @@
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="h-5 w-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
-                    <input type="text" id="filtro-busca" placeholder="Buscar processo, emenda ou beneficiário..." class="block w-full pl-10 pr-3 py-2 border border-slate-600 rounded-lg bg-slate-900 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent sm:text-sm transition">
+                    <input type="text" id="filtro-busca" placeholder="Buscar processo, emenda, secretaria..." class="block w-full pl-10 pr-3 py-2 border border-slate-600 rounded-lg bg-slate-900 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent sm:text-sm transition">
                 </div>
                 
                 <div class="w-full md:w-2/3 flex flex-col sm:flex-row gap-3">
@@ -191,13 +191,13 @@
                                     <input type="checkbox" id="check-todos" class="w-4 h-4 text-blue-600 bg-slate-800 border-slate-600 rounded focus:ring-blue-500 cursor-pointer" title="Selecionar Todos">
                                 </th>
                                 <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-slate-800/50 transition group" data-sort="processo">
-                                    <div class="flex items-center gap-1">Processo / Emenda <span class="text-slate-600 group-hover:text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">↕</span></div>
+                                    <div class="flex items-center gap-1">Emenda / Prioridade <span class="text-slate-600 group-hover:text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">↕</span></div>
                                 </th>
                                 <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-slate-800/50 transition group" data-sort="autor">
                                     <div class="flex items-center gap-1">Autoria <span class="text-slate-600 group-hover:text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">↕</span></div>
                                 </th>
                                 <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-slate-800/50 transition group" data-sort="beneficiario">
-                                    <div class="flex items-center gap-1">Beneficiário (Tipo) <span class="text-slate-600 group-hover:text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">↕</span></div>
+                                    <div class="flex items-center gap-1">Beneficiário (Gestor) <span class="text-slate-600 group-hover:text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">↕</span></div>
                                 </th>
                                 <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-slate-800/50 transition group" data-sort="valor">
                                     <div class="flex items-center gap-1">Valor <span class="text-slate-600 group-hover:text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">↕</span></div>
@@ -251,7 +251,24 @@
                             
                             <div>
                                 <label class="block text-sm font-medium text-slate-400 mb-1">Ordem de Prioridade</label>
-                                <input type="text" id="prioridade" placeholder="Ex: 1º Primeira" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-slate-100 placeholder-slate-600">
+                                <select id="prioridade" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-slate-100">
+                                    <option value="">Selecione...</option>
+                                    <option value="1º Primeira">1º Primeira</option>
+                                    <option value="2º Segunda">2º Segunda</option>
+                                    <option value="3º Terceira">3º Terceira</option>
+                                    <option value="4º Quarta">4º Quarta</option>
+                                    <option value="5º Quinta">5º Quinta</option>
+                                    <option value="6º Sexta">6º Sexta</option>
+                                    <option value="7º Sétima">7º Sétima</option>
+                                    <option value="8º Oitava">8º Oitava</option>
+                                    <option value="9º Nona">9º Nona</option>
+                                    <option value="10º Décima">10º Décima</option>
+                                    <option value="11º Décima Primeira">11º Décima Primeira</option>
+                                    <option value="12º Décima Segunda">12º Décima Segunda</option>
+                                    <option value="13º Décima Terceira">13º Décima Terceira</option>
+                                    <option value="14º Décima Quarta">14º Décima Quarta</option>
+                                    <option value="15º Décima Quinta">15º Décima Quinta</option>
+                                </select>
                             </div>
 
                             <div>
@@ -290,7 +307,7 @@
                             </div>
 
                             <div>
-                                <label class="block text-sm font-medium text-slate-400 mb-1">Secretaria Executora</label>
+                                <label class="block text-sm font-medium text-slate-400 mb-1">Secretaria Executora / Gestora</label>
                                 <select id="sec_executora" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-slate-100">
                                     <option value="">Selecione...</option>
                                     <option value="SMECJL">SMECJL</option>
@@ -308,28 +325,63 @@
                                 <label class="block text-sm font-medium text-slate-400 mb-1">Beneficiário (Secretaria ou Entidade)</label>
                                 <input type="text" id="beneficiario" placeholder="Ex: SMECJL ou ACEHOR" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-slate-100 placeholder-slate-600" required>
                             </div>
+                            
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-slate-400 mb-1 flex items-center gap-2">
+                                    Enquadramento Contábil 
+                                    <span class="px-1.5 py-0.5 rounded text-[10px] bg-slate-700 text-slate-300 border border-slate-600" title="Baseado nos Arts. 12 e 13 da Lei 4.320/64">Lei 4.320/64</span>
+                                </label>
+                                <select id="enquadramento" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-slate-100" required>
+                                    <option value="">Selecione a classificação econômica da despesa...</option>
+                                    
+                                    <optgroup label="Despesas Correntes (Custeio e Transferências)" class="text-blue-400 bg-slate-800">
+                                        <option value="Material de consumo" class="text-slate-100 bg-slate-900">Material de consumo</option>
+                                        <option value="Outros serviços de terceiros - Pessoa Física" class="text-slate-100 bg-slate-900">Outros serviços de terceiros - Pessoa Física</option>
+                                        <option value="Outros serviços de terceiros - Pessoa Jurídica" class="text-slate-100 bg-slate-900">Outros serviços de terceiros - Pessoa Jurídica</option>
+                                        <option value="Subvenções sociais" class="text-slate-100 bg-slate-900">Subvenções sociais</option>
+                                        <option value="Subvenções econômicas" class="text-slate-100 bg-slate-900">Subvenções econômicas</option>
+                                        <option value="Contribuições" class="text-slate-100 bg-slate-900">Contribuições</option>
+                                        <option value="Outras despesas de pessoal decorrentes de contratos de terceirização" class="text-slate-100 bg-slate-900">Outras despesas de pessoal / Terceirização</option>
+                                    </optgroup>
+                                    
+                                    <optgroup label="Despesas de Capital (Investimentos, Inversões e Transferências)" class="text-emerald-400 bg-slate-800">
+                                        <option value="Obras e instalações" class="text-slate-100 bg-slate-900">Obras e instalações</option>
+                                        <option value="Equipamento e material permanente" class="text-slate-100 bg-slate-900">Equipamento e material permanente</option>
+                                        <option value="Aquisição de imóveis" class="text-slate-100 bg-slate-900">Aquisição de imóveis</option>
+                                        <option value="Auxílios" class="text-slate-100 bg-slate-900">Auxílios</option>
+                                        <option value="Material, bem ou serviço de distribuição gratuita" class="text-slate-100 bg-slate-900">Material, bem ou serviço de distribuição gratuita</option>
+                                    </optgroup>
+                                    
+                                    <optgroup label="Outros" class="text-slate-400 bg-slate-800">
+                                        <option value="Outros / Não especificado" class="text-slate-100 bg-slate-900">Outros / Não especificado</option>
+                                    </optgroup>
+                                </select>
+                            </div>
 
                             <div>
                                 <label class="block text-sm font-medium text-slate-400 mb-1">Ação</label>
                                 <input type="text" id="acao" placeholder="Ex: 2237" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-slate-100 placeholder-slate-600">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-slate-400 mb-1">Enquadramento Contábil</label>
-                                <input type="text" id="enquadramento" placeholder="Ex: Material de consumo" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-slate-100 placeholder-slate-600">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-slate-400 mb-1">Dotação</label>
+                                <label class="block text-sm font-medium text-slate-400 mb-1">Dotação / Ficha</label>
                                 <input type="text" id="dotacao" placeholder="Ex: 2226" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-slate-100 placeholder-slate-600">
                             </div>
-                            <div>
+                            
+                            <div class="md:col-span-2">
                                 <label class="block text-sm font-medium text-slate-400 mb-1">Valor Total (R$)</label>
-                                <input type="number" step="0.01" id="valor" placeholder="Ex: 19660.00" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-slate-100 placeholder-slate-600" required>
+                                <input type="number" step="0.01" id="valor" placeholder="Ex: 19660.00" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-emerald-400 font-bold placeholder-slate-600" required>
                             </div>
                         </div>
 
-                        <div class="mt-4 flex items-center bg-slate-900/50 p-3 rounded-lg border border-slate-700">
-                            <input id="remanejada" type="checkbox" class="w-5 h-5 text-blue-500 bg-slate-800 border-slate-600 rounded focus:ring-blue-500 focus:ring-offset-slate-900 cursor-pointer">
-                            <label for="remanejada" class="ml-3 text-sm font-medium text-slate-300 cursor-pointer select-none">Esta emenda sofreu remanejamento do Legislativo</label>
+                        <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="flex items-center bg-slate-900/50 p-3 rounded-lg border border-slate-700">
+                                <input id="remanejada" type="checkbox" class="w-5 h-5 text-purple-500 bg-slate-800 border-slate-600 rounded focus:ring-purple-500 focus:ring-offset-slate-900 cursor-pointer">
+                                <label for="remanejada" class="ml-3 text-sm font-medium text-slate-300 cursor-pointer select-none">Emenda Remanejada</label>
+                            </div>
+                            <div class="flex items-center bg-slate-900/50 p-3 rounded-lg border border-slate-700">
+                                <input id="projeto_engenharia" type="checkbox" class="w-5 h-5 text-amber-500 bg-slate-800 border-slate-600 rounded focus:ring-amber-500 focus:ring-offset-slate-900 cursor-pointer">
+                                <label for="projeto_engenharia" class="ml-3 text-sm font-medium text-slate-300 cursor-pointer select-none">Precisa de Projeto de Engenharia</label>
+                            </div>
                         </div>
 
                         <div class="mt-4">
@@ -414,7 +466,6 @@
                 const dia = String(dataMod.getDate()).padStart(2, '0');
                 const hora = String(dataMod.getHours()).padStart(2, '0');
                 const min = String(dataMod.getMinutes()).padStart(2, '0');
-                
                 const versaoString = `Build: v${ano}.${mes}.${dia}.${hora}${min}`;
                 const elAdmin = document.getElementById('app-version-admin');
                 if (elAdmin) elAdmin.textContent = versaoString;
@@ -444,7 +495,7 @@
         const ADMIN_EMAILS_EXCLUSAO = ["diegoconte@horizontina.rs.gov.br", "raquelcallegaro@horizontina.rs.gov.br"];
         
         // URL DA API DO GOOGLE APPS SCRIPT PARA ENVIO DE E-MAIL
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbywzhQij8S8i7D5dejObyGOpNQMxKsAkLR24ZbzArIuIvV2K6mijHCEboQNmQckWb6Y/exec";
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw7XRWUrEjikqALcHdyhLE4TVgNtWKA6fejRbmRxsuyGRE5NCxIQ-4B081FMM_Xqd4/exec";
 
         let dadosEmendasGlobais = [];
         let currentSortColumn = 'progresso'; 
@@ -454,10 +505,7 @@
 
         // FUNÇÃO DE ENVIO DE E-MAIL
         async function enviarNotificacaoEmail(processo, emenda, autor, acaoRealizada, detalhes) {
-            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL === "") {
-                console.warn("[E-MAIL] URL do Google Script não configurada.");
-                return;
-            }
+            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL === "") return;
 
             const payload = {
                 processo: processo || "N/A",
@@ -468,21 +516,14 @@
                 usuario: auth.currentUser ? auth.currentUser.email : "Administrador"
             };
 
-            console.log("[E-MAIL] Preparando para enviar notificação. Dados:", payload);
-
             try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                await fetch(GOOGLE_SCRIPT_URL, {
                     method: "POST",
                     mode: "no-cors",
-                    headers: {
-                        "Content-Type": "text/plain;charset=utf-8",
-                    },
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
                     body: JSON.stringify(payload)
                 });
-                console.log("[E-MAIL] Requisição disparada com sucesso! O e-mail deve chegar em segundos.");
-            } catch (error) {
-                console.error("[E-MAIL] Erro ao disparar e-mail:", error);
-            }
+            } catch (error) { console.error("[E-MAIL] Erro:", error); }
         }
 
         // DEFINIÇÃO DAS ETAPAS E DATAS LIMITE
@@ -924,6 +965,9 @@
                 tr.className = "hover:bg-slate-700/30 transition border-b border-slate-700/50 last:border-0";
                 
                 const badgeRemanejada = emenda.remanejada ? `<span class="mt-1 px-2 py-0.5 inline-flex text-[10px] leading-4 font-bold rounded-md bg-purple-900/40 text-purple-400 border border-purple-800/50" title="Sofreu Remanejamento">🔄 Remanejada</span>` : '';
+                const badgeEngenharia = emenda.projeto_engenharia ? `<span class="mt-1 ml-1 px-2 py-0.5 inline-flex text-[10px] leading-4 font-bold rounded-md bg-amber-900/40 text-amber-400 border border-amber-800/50" title="Exige Projeto de Engenharia">🏗️ Eng</span>` : '';
+                const prioridadeHtml = emenda.prioridade ? `<div class="text-xs font-semibold text-blue-400 mt-0.5" title="Ordem de Prioridade">⭐ ${emenda.prioridade}</div>` : '';
+
                 const tipoExec = emenda.tipo_execucao || "Direta";
                 
                 let statusAtual = "Recepção e Cadastro da Emenda";
@@ -975,7 +1019,8 @@
                     <td class="px-6 py-4">
                         <div class="text-sm font-bold text-slate-200">${emenda.numero_processo || '-'}</div>
                         <div class="text-xs text-slate-500">${emenda.numero_emenda || '-'}</div>
-                        ${badgeRemanejada}
+                        ${prioridadeHtml}
+                        ${badgeRemanejada} ${badgeEngenharia}
                     </td>
                     <td class="px-6 py-4">
                         <div class="text-sm text-slate-200 font-medium">${emenda.bancada || '-'}</div>
@@ -1250,30 +1295,36 @@
             document.getElementById('emenda_id').value = emenda.id;
             document.getElementById('num_processo').value = emenda.numero_processo || '';
             document.getElementById('num_emenda').value = emenda.numero_emenda || '';
-            document.getElementById('prioridade').value = emenda.prioridade || '';
             
+            let pri = emenda.prioridade || '';
+            if (pri === '1º Primeiro') pri = '1º Primeira'; // Corrige inconsistência de gênero, caso exista
+            document.getElementById('prioridade').value = pri;
+
             const selBancada = document.getElementById('bancada');
             if(emenda.bancada && selBancada) selBancada.value = emenda.bancada;
             
             const selVer = document.getElementById('vereador');
             if(emenda.vereador && selVer) selVer.value = emenda.vereador;
 
-            const selSec = document.getElementById('sec_executora');
-            if(emenda.secretaria && selSec) selSec.value = emenda.secretaria;
-
             const tipoExec = emenda.tipo_execucao || 'Direta';
             if(selTipoExecucao) selTipoExecucao.value = tipoExec;
             carregarOpcoesStatus(tipoExec);
 
+            const selSec = document.getElementById('sec_executora');
+            if(emenda.secretaria && selSec) selSec.value = emenda.secretaria;
+
             document.getElementById('beneficiario').value = emenda.beneficiario || '';
-            document.getElementById('valor').value = emenda.valor || '';
-            document.getElementById('acao').value = emenda.acao || '';
             document.getElementById('enquadramento').value = emenda.enquadramento || '';
+            document.getElementById('acao').value = emenda.acao || '';
             document.getElementById('dotacao').value = emenda.dotacao || '';
+            document.getElementById('valor').value = emenda.valor || '';
             document.getElementById('objeto').value = emenda.objeto || '';
             
             const cbRemanejada = document.getElementById('remanejada');
             if(cbRemanejada) cbRemanejada.checked = emenda.remanejada || false;
+
+            const cbEng = document.getElementById('projeto_engenharia');
+            if(cbEng) cbEng.checked = emenda.projeto_engenharia || false;
 
             if (emenda.versoes_remanejamento && emenda.versoes_remanejamento.length > 0) {
                 if(containerVersoesRemanejamento) containerVersoesRemanejamento.classList.remove('hidden');
@@ -1403,12 +1454,13 @@
                     secretaria: document.getElementById('sec_executora') ? document.getElementById('sec_executora').value : "",
                     tipo_execucao: tipoExec,
                     beneficiario: document.getElementById('beneficiario').value,
+                    enquadramento: document.getElementById('enquadramento').value,
                     valor: parseFloat(document.getElementById('valor').value),
                     acao: document.getElementById('acao').value,
-                    enquadramento: document.getElementById('enquadramento').value,
                     dotacao: document.getElementById('dotacao').value,
                     objeto: document.getElementById('objeto').value,
                     remanejada: document.getElementById('remanejada').checked,
+                    projeto_engenharia: document.getElementById('projeto_engenharia').checked,
                     data_atualizacao: new Date().toISOString()
                 };
 
