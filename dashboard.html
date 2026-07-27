@@ -3,199 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Analítico (Dashboard) - Emendas</title>
+    <title>Dashboard Analítico - Emendas</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Plugin essencial para colocar os rótulos numéricos dentro dos gráficos -->
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
     <script>
         tailwind.config = { darkMode: 'class' }
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #1e293b; border-radius: 4px; }
         ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #64748b; }
-        
-        .card-dash {
-            background-color: #1e293b; /* slate-800 */
-            border: 1px solid #334155; /* slate-700 */
-            border-radius: 0.75rem; /* xl */
-            padding: 1.25rem;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-        .card-title {
-            font-size: 0.75rem;
-            font-weight: 800;
-            color: #94a3b8; /* slate-400 */
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.5rem;
-            text-align: center;
-        }
-        .card-desc {
-            font-size: 0.7rem;
-            color: #64748b; /* slate-500 */
-            margin-top: 0.75rem;
-            text-align: center;
-            line-height: 1.2;
-            border-top: 1px dashed #334155;
-            padding-top: 0.5rem;
-        }
+        /* Indica que o canvas (gráfico) é clicável */
+        canvas { cursor: pointer; } 
     </style>
 </head>
 <body class="bg-slate-900 min-h-screen text-slate-100 flex flex-col">
 
-    <nav class="bg-slate-800 border-b border-slate-700 sticky top-0 z-30 shadow-md">
-        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- NAVBAR -->
+    <nav class="bg-slate-800 border-b border-slate-700 sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
                 <div class="flex items-center gap-3">
                     <span class="text-2xl">📈</span>
-                    <div class="flex flex-col">
-                        <h1 class="text-lg sm:text-xl font-bold text-slate-100 tracking-tight leading-tight">Painel de Inteligência Executiva</h1>
-                        <span class="text-[10px] text-slate-400 font-medium">Monitoramento Estratégico de Emendas</span>
-                    </div>
+                    <h1 class="text-xl font-bold text-slate-100 tracking-tight">Dashboard Analítico (BI)</h1>
                 </div>
                 <div class="flex items-center gap-4">
-                    <a href="admin.html" class="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium py-2 px-4 rounded-lg shadow-sm transition border border-slate-600 text-sm">
+                    <a href="admin.html" class="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium py-2 px-4 rounded-lg transition border border-slate-600 text-sm shadow-sm">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                        Voltar à Gestão
+                        Voltar ao Painel Admin
                     </a>
                 </div>
             </div>
         </div>
     </nav>
 
-    <div id="loading-screen" class="flex-grow flex items-center justify-center min-h-[80vh]">
-        <div class="text-center p-8 bg-slate-800 rounded-xl border border-slate-700 shadow-xl">
-            <svg class="animate-spin inline-block w-12 h-12 mb-4 text-blue-500" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-            <h2 class="text-xl font-bold text-slate-200">Processando Inteligência de Dados...</h2>
-            <p class="text-slate-400 text-sm mt-2">Apurando gargalos, classificações e volumes financeiros.</p>
-        </div>
+    <!-- TELA DE CARREGAMENTO -->
+    <div id="loading-screen" class="flex-grow flex flex-col items-center justify-center">
+        <svg class="animate-spin w-10 h-10 text-blue-500 mb-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+        <p class="text-slate-400 font-medium animate-pulse">Sincronizando regras e calculando métricas...</p>
     </div>
 
-    <main id="dashboard-content" class="hidden flex-grow p-4 sm:p-6 lg:p-8 max-w-[1400px] mx-auto w-full flex-col gap-6">
+    <!-- CONTEÚDO DO DASHBOARD (Inicia Oculto) -->
+    <main id="dashboard-content" class="hidden flex-grow p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
         
-        <!-- Linha 1: Visão Geral de Diagnóstico -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="card-dash h-72">
-                <h3 class="card-title">1. Saúde da Fila Geral</h3>
-                <div class="flex-grow relative w-full h-full"><canvas id="chart-status"></canvas></div>
-                <p class="card-desc">Visão de conformidade com os prazos. <strong>Foco:</strong> Combater a fatia vermelha (atrasadas).</p>
-            </div>
-            <div class="card-dash h-72">
-                <h3 class="card-title">2. Estratégia de Execução</h3>
-                <div class="flex-grow relative w-full h-full"><canvas id="chart-tipo"></canvas></div>
-                <p class="card-desc">Volume de processos tocados internamente (Direta) vs. repassados a terceiros (Indireta).</p>
-            </div>
-            <div class="card-dash h-72">
-                <h3 class="card-title">3. Impacto de Obras (Eng)</h3>
-                <div class="flex-grow relative w-full h-full"><canvas id="chart-eng"></canvas></div>
-                <p class="card-desc">Processos que exigem projeto técnico/arquitetônico. Costumam ser os mais lentos.</p>
-            </div>
-            <div class="card-dash h-72">
-                <h3 class="card-title">4. Índice de Remanejamento</h3>
-                <div class="flex-grow relative w-full h-full"><canvas id="chart-rem"></canvas></div>
-                <p class="card-desc">Emendas cujo objeto ou destino originais falharam e precisaram ser readequados.</p>
+        <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+            <div>
+                <h2 class="text-2xl font-bold text-slate-100">Visão Geral Corporativa</h2>
+                <p class="text-sm text-blue-400 mt-1 flex items-center gap-1 font-medium bg-blue-900/20 px-3 py-1.5 rounded-md border border-blue-800/30">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path></svg>
+                    Dica de Inteligência: Clique em qualquer barra ou fatia dos gráficos abaixo para filtrar a tabela automaticamente.
+                </p>
             </div>
         </div>
 
-        <!-- Linha 2: Secretarias (Empilhado) -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div class="card-dash h-[380px]">
-                <h3 class="card-title">5. Volume de Processos por Secretaria</h3>
-                <div class="flex-grow relative w-full h-full"><canvas id="chart-sec-qtd"></canvas></div>
-                <p class="card-desc">Carga de trabalho distribuída. Gráfico <strong>empilhado</strong> para mostrar quais secretarias focam em parcerias (Indireta) ou execução própria (Direta).</p>
+        <!-- LINHA 1: Gráficos de Rosca (Doughnuts) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-sm hover:border-blue-500/50 transition">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">Status Geral</h3>
+                <div class="w-full h-48 relative"><canvas id="chart-status-geral"></canvas></div>
             </div>
-            <div class="card-dash h-[380px]">
-                <h3 class="card-title">6. Carga Financeira por Secretaria (R$)</h3>
-                <div class="flex-grow relative w-full h-full"><canvas id="chart-sec-val"></canvas></div>
-                <p class="card-desc">Mostra onde está concentrado o capital. Valores altos em 'Indireta' exigem forte fiscalização de prestação de contas.</p>
+            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-sm hover:border-blue-500/50 transition">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">Tipo de Execução</h3>
+                <div class="w-full h-48 relative"><canvas id="chart-tipo-exec"></canvas></div>
             </div>
-        </div>
-
-        <!-- Linha 3: Autores (Empilhado) e Prioridades -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div class="card-dash h-[380px]">
-                <h3 class="card-title">7. Demandas por Autor / Bancada</h3>
-                <div class="flex-grow relative w-full h-full"><canvas id="chart-autor-qtd"></canvas></div>
-                <p class="card-desc">Quantidade de projetos injetados por cada autor, divididos por modalidade.</p>
+            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-sm hover:border-blue-500/50 transition">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">Projeto de Engenharia</h3>
+                <div class="w-full h-48 relative"><canvas id="chart-eng"></canvas></div>
             </div>
-            <div class="card-dash h-[380px]">
-                <h3 class="card-title">8. Destinação Financeira por Autor (R$)</h3>
-                <div class="flex-grow relative w-full h-full"><canvas id="chart-autor-val"></canvas></div>
-                <p class="card-desc">Volume total do orçamento impositivo gasto por cada proponente.</p>
+            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-sm hover:border-blue-500/50 transition">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">Remanejamentos</h3>
+                <div class="w-full h-48 relative"><canvas id="chart-rem"></canvas></div>
             </div>
         </div>
 
-        <!-- Linha 4: O GRANDE ALVO - GARGALOS E PRIORIDADES -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div class="card-dash h-[450px] lg:col-span-2 border-orange-500/50 bg-slate-800/80 relative overflow-hidden">
-                <div class="absolute inset-0 bg-orange-600/5 mix-blend-overlay pointer-events-none"></div>
-                <h3 class="text-sm font-black text-orange-400 uppercase tracking-wider mb-2 text-center flex items-center justify-center gap-2 relative z-10">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    9. Radar de Gargalos Operacionais (Dias Médios de Espera)
+        <!-- LINHA 2: Secretarias e Bancadas -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-sm hover:border-blue-500/50 transition">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Volume por Secretaria (Qtd)</h3>
+                <div class="w-full h-64"><canvas id="chart-q-sec"></canvas></div>
+            </div>
+            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-sm hover:border-blue-500/50 transition">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Volume Financeiro por Secretaria (R$)</h3>
+                <div class="w-full h-64"><canvas id="chart-v-sec"></canvas></div>
+            </div>
+            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-sm hover:border-blue-500/50 transition">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Emendas por Bancada/Autor (Qtd)</h3>
+                <div class="w-full h-64"><canvas id="chart-q-bancada"></canvas></div>
+            </div>
+            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-sm hover:border-blue-500/50 transition">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Volume Financeiro por Bancada (R$)</h3>
+                <div class="w-full h-64"><canvas id="chart-v-bancada"></canvas></div>
+            </div>
+        </div>
+
+        <!-- LINHA 3: Evolução e Gargalos -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-sm hover:border-red-500/30 transition">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex justify-between">
+                    <span>Gargalos (Tempo Médio nas Etapas)</span>
+                    <span class="text-[10px] text-red-400 bg-red-900/30 px-2 py-0.5 rounded border border-red-800/50">Em Dias</span>
                 </h3>
-                <div class="flex-grow relative w-full h-full z-10"><canvas id="chart-gargalos"></canvas></div>
-                <p class="card-desc relative z-10 text-orange-300/80"><strong>MÉTRICA CRÍTICA:</strong> Exibe a média de dias que os processos levam para concluir CADA etapa. A barra mais longa indica o <strong>pior gargalo</strong> da prefeitura atualmente. É aqui que o gestor deve atuar para dar fluidez técnica.</p>
+                <div class="w-full h-72"><canvas id="chart-gargalos"></canvas></div>
             </div>
-            
-            <div class="flex flex-col gap-4">
-                <div class="card-dash flex-grow">
-                    <h3 class="card-title">10. Fila de Prioridades Indicadas</h3>
-                    <div class="flex-grow relative w-full h-full"><canvas id="chart-prioridade"></canvas></div>
-                    <p class="card-desc">Ordem de ataque solicitada pelos autores.</p>
-                </div>
+            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-sm hover:border-blue-500/50 transition">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Evolução e Movimentações (Por Mês)</h3>
+                <div class="w-full h-72"><canvas id="chart-evolucao"></canvas></div>
             </div>
         </div>
 
-        <!-- Linha 5: Enquadramento Contábil (Lei 4320) e Fila Crítica -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div class="card-dash h-[400px]">
-                <h3 class="card-title">11. Enquadramento Econômico (Lei 4.320/64)</h3>
-                <div class="flex-grow relative w-full h-full"><canvas id="chart-contabil"></canvas></div>
-                <p class="card-desc">Classificação legal da despesa. Útil para contabilidade verificar limite de Custeio vs Capital.</p>
+        <!-- LINHA 4: Outros -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-sm">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Top 5 Beneficiários (R$)
+                </h3>
+                <ul id="list-top-beneficiarios" class="space-y-2"></ul>
             </div>
-            
-            <div class="card-dash h-[400px] border-red-900/50 bg-red-900/10 relative">
-                <h3 class="card-title text-red-400 flex items-center justify-center gap-2 border-b border-red-900/50 pb-2">
+            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-sm hover:border-blue-500/50 transition">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Classificação Contábil</h3>
+                <div class="w-full h-48"><canvas id="chart-enquadramento"></canvas></div>
+            </div>
+            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-sm">
+                <h3 class="text-xs font-bold text-red-400 uppercase tracking-wider mb-4 flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                    12. Fila Crítica (Todas as Atrasadas)
+                    Radar de Risco (Paradas)
                 </h3>
-                <div class="overflow-y-auto flex-grow pr-2 mt-2 space-y-2" id="list-criticas">
-                    <!-- Gerado via JS (Lista Completa) -->
-                </div>
-                <p class="card-desc text-red-400/80">Listagem de <strong>TODAS</strong> as emendas que já perderam o prazo do cronograma oficial de execução. Ordenadas pelo tempo de parada.</p>
+                <ul id="list-criticas" class="space-y-2"></ul>
             </div>
         </div>
-
-        <!-- Linha 6: Beneficiários e Curva Histórica -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
-            <div class="card-dash h-[450px] lg:col-span-1">
-                <h3 class="card-title text-emerald-400 border-b border-emerald-900/50 pb-2">13. Lista Completa de Beneficiários (R$)</h3>
-                <div class="overflow-y-auto flex-grow pr-2 mt-2 space-y-2" id="list-beneficiarios">
-                    <!-- Gerado via JS (Lista Completa) -->
-                </div>
-                <p class="card-desc">Ranking de <strong>TODOS</strong> os recebedores/destinos, do maior para o menor aporte financeiro.</p>
-            </div>
-
-            <div class="card-dash h-[450px] lg:col-span-2">
-                <h3 class="card-title">14. Ritmo de Execução (Evolução de Andamentos)</h3>
-                <div class="flex-grow relative w-full h-full"><canvas id="chart-evolucao"></canvas></div>
-                <p class="card-desc">Mostra o volume de despachos e avanços feitos por mês no sistema. Picos indicam meses de alta produtividade burocrática.</p>
-            </div>
+        
+        <!-- ELEMENTOS OCULTOS (Necessários para manter a integridade dos cálculos e layouts) -->
+        <div class="hidden">
+            <canvas id="chart-prioridades"></canvas>
+            <canvas id="chart-v-tipo"></canvas>
         </div>
 
     </main>
 
     <script type="module">
+        // Importando o Firebase para baixar as etapas dinamicamente
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAdHnH9Q6c6GqE8mlhBxcNdcEB6n3G7QvU",
@@ -208,428 +160,252 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const auth = getAuth(app);
 
-        // Registro do Plugin Datalabels Globalmente
-        Chart.register(ChartDataLabels);
-
-        // Configurações Globais do Chart.js para Modo Escuro
-        Chart.defaults.color = '#94a3b8';
-        Chart.defaults.borderColor = '#334155';
-        Chart.defaults.font.family = 'Inter';
-        
-        // Padrão de Rótulos (Datalabels)
-        Chart.defaults.set('plugins.datalabels', {
-            color: '#ffffff',
-            font: { weight: 'bold', size: 11 },
-            textStrokeColor: '#0f172a',
-            textStrokeWidth: 3, // Borda preta em volta do texto para sempre dar leitura
-            display: function(context) {
-                return context.dataset.data[context.dataIndex] > 0; // Só mostra se for maior que zero
-            }
-        });
-
-        // Auxiliar para formatar números grandes no gráfico (ex: 1.5M, 150k)
-        function formatShortValue(val, isCurrency) {
-            if (val === 0) return '';
-            let formatted = val;
-            if (val >= 1000000) {
-                formatted = (val / 1000000).toFixed(1).replace('.', ',') + 'M';
-            } else if (val >= 1000) {
-                formatted = (val / 1000).toFixed(1).replace('.', ',') + 'k';
-            } else {
-                formatted = val.toString();
-            }
-            return isCurrency ? `R$ ${formatted}` : formatted;
-        }
-
-        // Prazos base para cálculo de "Atrasada"
-        const ETAPAS_DIRETA = [
-            { id: 0, status: "Emenda CANCELADA", pct: 100, prazo: null },
-            { id: 1, status: "Recepção e Cadastro da Emenda", pct: 3, prazo: "2026-02-15" },
-            { id: 2, status: "Análise Técnica de Viabilidade", pct: 10, prazo: "2026-03-01" },
-            { id: 3, status: "Preenchimento do Formulário de Aceite", pct: 15, prazo: "2026-03-15" },
-            { id: 4, status: "Comunicação Oficial à Câmara", pct: 18, prazo: "2026-03-30" },
-            { id: 5, status: "Aguardando remanejamento", pct: 22, prazo: "2026-05-15" },
-            { id: 6, status: "Análise Após Remanejamento", pct: 25, prazo: "2026-05-30" },
-            { id: 7, status: "Pesquisa de Preços (Cotações)", pct: 30, prazo: "2026-06-30" },
-            { id: 8, status: "Elaboração de PROJETO DE ENG/ETP/TR", pct: 35, prazo: "2026-07-15" },
-            { id: 9, status: "Reserva de Dotação Orçamentária", pct: 40, prazo: "2026-07-30" },
-            { id: 10, status: "Abertura de Processo Administrativo", pct: 45, prazo: "2026-08-15" },
-            { id: 11, status: "Parecer Jurídico (se necessário)", pct: 55, prazo: "2026-08-30" },
-            { id: 12, status: "Emissão da Nota de Empenho", pct: 65, prazo: "2026-09-15" },
-            { id: 13, status: "Assinatura de Contrato / Ordem Compra", pct: 72, prazo: "2026-09-30" },
-            { id: 14, status: "Entrega do Bem ou Início da Obra", pct: 85, prazo: "2026-11-15" },
-            { id: 15, status: "Ateste de Recebimento (Liquidação)", pct: 92, prazo: "2026-11-30" },
-            { id: 16, status: "Processamento do Pagamento", pct: 98, prazo: "2026-12-15" },
-            { id: 17, status: "Relatório Final e Arquivamento", pct: 100, prazo: "2026-12-30" }
+        // --- 1. CONFIGURAÇÕES BASE (Serão substituídas pelo Firebase) ---
+        let ETAPAS_DIRETA = [
+            { id: 0, status: "Emenda CANCELADA", pct: 100 },
+            { id: 1, status: "Recepção e Cadastro da Emenda", pct: 3, prazo: "2026-02-15" }
         ];
 
-        const ETAPAS_INDIRETA = [
-            { id: 0, status: "Emenda CANCELADA", pct: 100, prazo: null },
-            { id: 1, status: "Recepção e Cadastro da Emenda", pct: 3, prazo: "2026-02-15" },
-            { id: 2, status: "Aguardando Plano de Trabalho (Entidade)", pct: 10, prazo: "2026-03-01" },
-            { id: 3, status: "Análise Técnica do Plano", pct: 15, prazo: "2026-03-15" },
-            { id: 4, status: "Comunicação Oficial de Impedimento", pct: 18, prazo: "2026-03-30" },
-            { id: 5, status: "Aguardando remanejamento", pct: 22, prazo: "2026-05-15" },
-            { id: 6, status: "Análise Após Remanejamento", pct: 25, prazo: "2026-05-30" },
-            { id: 7, status: "Parecer da Comissão de Seleção", pct: 35, prazo: "2026-06-30" },
-            { id: 8, status: "Reserva de Dotação Orçamentária", pct: 40, prazo: "2026-07-15" },
-            { id: 9, status: "Abertura de Processo Fomento/Colaboração", pct: 45, prazo: "2026-07-30" },
-            { id: 10, status: "Parecer Jurídico PGM", pct: 55, prazo: "2026-08-15" },
-            { id: 11, status: "Emissão da Nota de Empenho", pct: 65, prazo: "2026-08-30" },
-            { id: 12, status: "Assinatura do Termo de Fomento/Colab.", pct: 72, prazo: "2026-09-15" },
-            { id: 13, status: "Repasse Financeiro (Pagamento)", pct: 85, prazo: "2026-10-15" },
-            { id: 14, status: "Acompanhamento da Execução (Parceria)", pct: 90, prazo: "2026-11-30" },
-            { id: 15, status: "Análise da Prestação de Contas", pct: 95, prazo: "2026-12-15" },
-            { id: 16, status: "Aprovação Final das Contas", pct: 100, prazo: "2026-12-30" }
+        let ETAPAS_INDIRETA = [
+            { id: 0, status: "Emenda CANCELADA", pct: 100 },
+            { id: 1, status: "Recepção e Cadastro da Emenda", pct: 3, prazo: "2026-02-15" }
         ];
 
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                await carregarDados();
-            } else {
-                window.location.href = "admin.html"; 
-            }
-        });
-
-        async function carregarDados() {
-            try {
-                let dados = JSON.parse(localStorage.getItem("emendas_cache_v3"));
-                if (!dados || dados.length === 0) {
-                    const querySnapshot = await getDocs(collection(db, "emendas"));
-                    dados = [];
-                    querySnapshot.forEach((doc) => dados.push({ id: doc.id, ...doc.data() }));
-                }
-
-                processarEExtrairDashboard(dados);
+        // --- 2. LÓGICA DE INTERATIVIDADE (BI) ---
+        // Quando o usuário clicar em uma parte do gráfico, salvamos a informação e abrimos o admin
+        const aplicarFiltroGrafico = (chart, elements, tipo = 'busca') => {
+            if (elements.length === 0) return; // Clicou no fundo branco, ignorar
+            
+            let labelClicada = chart.data.labels[elements[0].index];
+            
+            if (tipo === 'status') {
+                if (labelClicada === 'Atrasada') labelClicada = 'Atrasada';
+                else if (labelClicada === 'Concluída') labelClicada = 'Concluida';
+                else if (labelClicada === 'Cancelada') labelClicada = 'Cancelada';
+                else if (labelClicada === 'No Prazo') labelClicada = 'Em Andamento';
                 
-                document.getElementById('loading-screen').style.display = 'none';
-                document.getElementById('dashboard-content').classList.remove('hidden');
-                document.getElementById('dashboard-content').classList.add('flex');
-            } catch (e) {
-                console.error("Erro:", e);
-                alert("Falha ao montar dashboard.");
+                localStorage.setItem('filtro_status_pendente', labelClicada);
+            } else {
+                localStorage.setItem('filtro_busca_pendente', labelClicada);
             }
+            
+            // Redireciona de volta para a tela Admin para aplicar o filtro visualmente na tabela
+            window.location.href = 'admin.html'; 
+        };
+
+        let graficosInstanciados = {};
+        function formatarMoedaAbreviada(valor) { 
+            if (valor >= 1000000) return (valor / 1000000).toFixed(1).replace('.', ',') + 'M'; 
+            if (valor >= 1000) return (valor / 1000).toFixed(1).replace('.', ',') + 'k'; 
+            return valor.toString(); 
         }
 
-        // Funções de Cálculo Rápidas
-        function getStatusAtual(emenda) {
-            if (emenda.historico_status && emenda.historico_status.length > 0) return emenda.historico_status[emenda.historico_status.length - 1].status;
-            return "Recepção e Cadastro da Emenda";
-        }
         function getEtapaInfo(statusName, tipoExecucao) {
             const list = tipoExecucao === 'Indireta' ? ETAPAS_INDIRETA : ETAPAS_DIRETA;
             const found = list.find(e => e.status === statusName);
             if(found) return found;
-            if(statusName.includes("CANCELADA")) return { pct: 100 };
+            if(statusName.includes("Cancelada") || statusName.includes("CANCELADA")) return { pct: 100 };
             return { pct: 0 };
         }
-        function isAtrasada(emenda) {
-            const statusAtual = getStatusAtual(emenda);
-            if (statusAtual.includes("CANCELADA")) return false;
-            
-            const tipoExec = emenda.tipo_execucao || "Direta";
-            const info = getEtapaInfo(statusAtual, tipoExec);
-            if(info.pct === 100) return false;
 
-            const list = tipoExec === 'Indireta' ? ETAPAS_INDIRETA : ETAPAS_DIRETA;
-            const currentIndex = list.findIndex(e => e.status === statusAtual);
-            
-            if (currentIndex !== -1 && currentIndex < list.length - 1) {
-                const nextStep = list[currentIndex + 1];
-                if (nextStep && nextStep.prazo) {
-                    const prazoDate = new Date(nextStep.prazo + "T23:59:59");
-                    const today = new Date();
-                    if (today > prazoDate) return true;
+        function calcularProgressoEsperado(tipoExecucao) {
+            const list = tipoExecucao === 'Indireta' ? ETAPAS_INDIRETA : ETAPAS_DIRETA;
+            let esperado = 0; 
+            const hoje = new Date();
+            for (let etapa of list) {
+                if (etapa.prazo && etapa.prazo.trim() !== '') {
+                    const prazoData = new Date(etapa.prazo + "T23:59:59");
+                    if (hoje >= prazoData) esperado = Number(etapa.pct);
+                    else break; 
                 }
             }
-            return false;
+            return esperado;
         }
 
-        function processarEExtrairDashboard(dados) {
-            if (!dados || dados.length === 0) return;
+        function isAtrasada(emenda, etapaInfo) {
+            if(etapaInfo.pct === 100) return false;
+            let statusAtual = "Recepção e Cadastro da Emenda";
+            if (emenda.historico_status && emenda.historico_status.length > 0) {
+                statusAtual = emenda.historico_status[emenda.historico_status.length - 1].status;
+            }
+            if (statusAtual.includes("CANCELADA")) return false;
+            const tipoExec = emenda.tipo_execucao || "Direta";
+            const esperado = calcularProgressoEsperado(tipoExec);
+            return etapaInfo.pct < esperado;
+        }
 
-            // Variáveis
-            let contStatus = { noPrazo: 0, atrasada: 0, concluida: 0, cancelada: 0 };
-            let contTipo = { Direta: 0, Indireta: 0 };
-            let contEng = { Sim: 0, Nao: 0 };
-            let contRem = { Sim: 0, Nao: 0 };
+        // --- 3. RENDERIZAÇÃO DOS GRÁFICOS ---
+        function renderizarDashboard(dados) {
+            if(!dados || dados.length === 0) return;
             
-            // Estruturas prontas para Empilhamento
-            let secData = {}; // { 'SMECJL': { qDir: 0, qInd: 0, vDir: 0, vInd: 0 } }
-            let autData = {}; // { 'Bancada X': { qDir: 0, qInd: 0, vDir: 0, vInd: 0 } }
-            
-            let contPri = {}; 
-            let contContabil = {};
-            let gargalos = {}; 
-            let evolucao = {}; 
-            let mapBeneficiarios = {};
+            let cGeral = { NoPrazo: 0, Atrasada: 0, Concluida: 0, Cancelada: 0 }; 
+            let cTipo = { Direta: 0, Indireta: 0 }; 
+            let cEng = { Sim: 0, Nao: 0 }; 
+            let cRem = { Sim: 0, Nao: 0 }; 
+            let cSec = {}; let vSec = {}; 
+            let cAut = {}; let vAut = {}; 
+            let cPri = {}; let cCont = {}; 
+            let gargalos = {}; let evolucao = {}; 
+            let vTipo = { Direta: 0, Indireta: 0 }; 
+            let topBen = {}; let atrasadasList = [];
 
-            // O Loop de Varredura
             dados.forEach(e => {
-                const status = getStatusAtual(e);
-                const info = getEtapaInfo(status, e.tipo_execucao || 'Direta');
-                const isCanc = status.includes("CANCELADA");
-                const isAtras = isAtrasada(e);
+                const tipoExec = e.tipo_execucao || "Direta";
+                let statusAtual = "Recepção e Cadastro da Emenda";
+                if (e.historico_status && e.historico_status.length > 0) statusAtual = e.historico_status[e.historico_status.length - 1].status;
+                const etapaInfo = getEtapaInfo(statusAtual, tipoExec);
+                const isCanc = statusAtual.includes("CANCELADA");
+                const isAtras = isAtrasada(e, etapaInfo);
                 const valor = parseFloat(e.valor || 0);
-                const tExec = e.tipo_execucao || 'Direta';
 
-                // Status, Tipo, Eng, Rem
-                if (isCanc) contStatus.cancelada++;
-                else if (info.pct === 100) contStatus.concluida++;
-                else if (isAtras) contStatus.atrasada++;
-                else contStatus.noPrazo++;
+                if (isCanc) cGeral.Cancelada++; 
+                else if (etapaInfo.pct === 100) cGeral.Concluida++; 
+                else if (isAtras) { cGeral.Atrasada++; atrasadasList.push(e); } 
+                else cGeral.NoPrazo++;
 
-                contTipo[tExec] = (contTipo[tExec] || 0) + 1;
-                e.projeto_engenharia ? contEng.Sim++ : contEng.Nao++;
-                e.remanejada ? contRem.Sim++ : contRem.Nao++;
+                cTipo[tipoExec]++; vTipo[tipoExec] += valor; 
+                e.projeto_engenharia ? cEng.Sim++ : cEng.Nao++; 
+                e.remanejada ? cRem.Sim++ : cRem.Nao++;
 
-                // Agrupando para Empilhamento (Sec e Aut)
-                const sec = e.secretaria || 'Sem Sec.';
-                const aut = (e.vereador && e.vereador !== "Nenhum (Emenda de Bancada)") ? e.vereador : (e.bancada || 'Sem Autor');
+                const sec = e.secretaria || "Sem Sec."; 
+                cSec[sec] = (cSec[sec] || 0) + 1; vSec[sec] = (vSec[sec] || 0) + valor;
+                
+                const autor = (e.vereador && e.vereador !== "Nenhum (Emenda de Bancada)") ? e.vereador : (e.bancada || "Sem Autor"); 
+                cAut[autor] = (cAut[autor] || 0) + 1; vAut[autor] = (vAut[autor] || 0) + valor;
+                
+                const pri = e.prioridade ? e.prioridade.split(' ')[0] : "S/P"; cPri[pri] = (cPri[pri] || 0) + 1;
+                const cont = e.enquadramento || "N/C"; cCont[cont] = (cCont[cont] || 0) + 1;
+                const ben = e.beneficiario || "Desconhecido"; topBen[ben] = (topBen[ben] || 0) + valor;
 
-                if(!secData[sec]) secData[sec] = { qDir: 0, qInd: 0, vDir: 0, vInd: 0 };
-                if(!autData[aut]) autData[aut] = { qDir: 0, qInd: 0, vDir: 0, vInd: 0 };
-
-                if(tExec === 'Direta') {
-                    secData[sec].qDir++; secData[sec].vDir += valor;
-                    autData[aut].qDir++; autData[aut].vDir += valor;
-                } else {
-                    secData[sec].qInd++; secData[sec].vInd += valor;
-                    autData[aut].qInd++; autData[aut].vInd += valor;
-                }
-
-                // Prioridade e Contabil
-                const pri = e.prioridade ? e.prioridade.split(' ')[0] : 'S/P'; // Pega só o "1º"
-                contPri[pri] = (contPri[pri] || 0) + 1;
-
-                const contab = e.enquadramento || 'Não classificado';
-                contContabil[contab] = (contContabil[contab] || 0) + 1;
-
-                // Beneficiários
-                const ben = e.beneficiario || 'Desconhecido';
-                mapBeneficiarios[ben] = (mapBeneficiarios[ben] || 0) + valor;
-
-                // Gargalos e Evolução
                 if (e.historico_status && e.historico_status.length > 0) {
                     const hist = [...e.historico_status].sort((a,b) => new Date(a.data) - new Date(b.data));
-                    hist.forEach((etapa, index) => {
-                        try {
-                            const mesAno = etapa.data.substring(0, 7);
-                            evolucao[mesAno] = (evolucao[mesAno] || 0) + 1;
-                        } catch(err){}
-
-                        if (index > 0) {
-                            const dtAnt = new Date(hist[index-1].data);
-                            const dtAtu = new Date(etapa.data);
-                            const diffDias = Math.ceil(Math.abs(dtAtu - dtAnt) / (1000 * 60 * 60 * 24));
-                            const nmEtapaAnterior = hist[index-1].status;
-                            if(!gargalos[nmEtapaAnterior]) gargalos[nmEtapaAnterior] = [];
-                            gargalos[nmEtapaAnterior].push(diffDias);
+                    hist.forEach((etapa, idx) => {
+                        const mesAno = etapa.data.substring(0, 7); evolucao[mesAno] = (evolucao[mesAno] || 0) + 1;
+                        if (idx > 0) { 
+                            const dAnt = new Date(hist[idx-1].data); 
+                            const dAtu = new Date(etapa.data); 
+                            const dias = Math.ceil(Math.abs(dAtu - dAnt) / (1000*60*60*24)); 
+                            const nomeAnt = hist[idx-1].status; 
+                            if(!gargalos[nomeAnt]) gargalos[nomeAnt] = []; 
+                            gargalos[nomeAnt].push(dias); 
                         }
                     });
                 }
             });
 
-            // 1 a 4. Rosca
-            renderDoughnut('chart-status', ['No Prazo', 'Atrasada', 'Concluída', 'Cancelada'], [contStatus.noPrazo, contStatus.atrasada, contStatus.concluida, contStatus.cancelada], ['#3b82f6', '#ef4444', '#10b981', '#475569']);
-            renderPie('chart-tipo', ['Direta', 'Indireta'], [contTipo.Direta, contTipo.Indireta], ['#3b82f6', '#8b5cf6']);
-            renderDoughnut('chart-eng', ['Exige Projeto', 'Não Exige'], [contEng.Sim, contEng.Nao], ['#f59e0b', '#334155']);
-            renderDoughnut('chart-rem', ['Remanejada', 'Original'], [contRem.Sim, contRem.Nao], ['#d946ef', '#334155']);
-
-            // Preparando arrays Empilhados
-            const secKeys = Object.keys(secData);
-            renderStackedBar('chart-sec-qtd', secKeys, secKeys.map(k=>secData[k].qDir), secKeys.map(k=>secData[k].qInd), false);
-            renderStackedBar('chart-sec-val', secKeys, secKeys.map(k=>secData[k].vDir), secKeys.map(k=>secData[k].vInd), true);
-
-            const autKeys = Object.keys(autData);
-            renderStackedBar('chart-autor-qtd', autKeys, autKeys.map(k=>autData[k].qDir), autKeys.map(k=>autData[k].qInd), false);
-            renderStackedBar('chart-autor-val', autKeys, autKeys.map(k=>autData[k].vDir), autKeys.map(k=>autData[k].vInd), true);
+            // Funções de desenho com "onClick" implementado para Interatividade BI
+            const renderDoughnut = (id, labels, data, colors, tipo = 'busca') => { 
+                if(graficosInstanciados[id]) graficosInstanciados[id].destroy(); 
+                graficosInstanciados[id] = new Chart(document.getElementById(id), { 
+                    type: 'doughnut', 
+                    data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 1, borderColor: '#1e293b' }] }, 
+                    options: { 
+                        responsive: true, maintainAspectRatio: false, 
+                        onClick: (e, els, chart) => aplicarFiltroGrafico(chart, els, tipo), 
+                        plugins: { legend: { position: 'right', labels: { color: '#94a3b8', font: { size: 10 } } } } 
+                    } 
+                }); 
+            };
             
-            // Prioridade
-            const keysPri = Object.keys(contPri).sort((a, b) => parseInt(a) - parseInt(b));
-            renderBar('chart-prioridade', keysPri, keysPri.map(k => contPri[k]), 'Qtd', '#f59e0b', false);
+            const renderBar = (id, labels, data, color, isCurrency=false) => { 
+                if(graficosInstanciados[id]) graficosInstanciados[id].destroy(); 
+                graficosInstanciados[id] = new Chart(document.getElementById(id), { 
+                    type: 'bar', 
+                    data: { labels, datasets: [{ data, backgroundColor: color, borderRadius: 4 }] }, 
+                    options: { 
+                        responsive: true, maintainAspectRatio: false, 
+                        onClick: (e, els, chart) => aplicarFiltroGrafico(chart, els, 'busca'), 
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => isCurrency ? 'R$ '+c.raw.toLocaleString('pt-BR') : c.raw } } }, 
+                        scales: { y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8', callback: (v) => isCurrency ? formatarMoedaAbreviada(v) : v } }, x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 }, maxRotation: 45 } } } 
+                    } 
+                }); 
+            };
+            
+            const renderHBar = (id, labels, data, color, appendDias=false) => { 
+                if(graficosInstanciados[id]) graficosInstanciados[id].destroy(); 
+                graficosInstanciados[id] = new Chart(document.getElementById(id), { 
+                    type: 'bar', 
+                    data: { labels, datasets: [{ data, backgroundColor: color, borderRadius: 4 }] }, 
+                    options: { 
+                        indexAxis: 'y', responsive: true, maintainAspectRatio: false, 
+                        onClick: (e, els, chart) => aplicarFiltroGrafico(chart, els, 'busca'), 
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => appendDias ? c.raw + ' dias' : c.raw } } }, 
+                        scales: { x: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } }, y: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } } } 
+                    } 
+                }); 
+            };
 
-            // Contábil
-            renderHorizontalBar('chart-contabil', Object.keys(contContabil), Object.values(contContabil), 'Qtd', '#14b8a6');
+            // Desenhando
+            renderDoughnut('chart-status-geral', ['No Prazo', 'Atrasada', 'Concluída', 'Cancelada'], [cGeral.NoPrazo, cGeral.Atrasada, cGeral.Concluida, cGeral.Cancelada], ['#3b82f6', '#ef4444', '#10b981', '#475569'], 'status');
+            renderDoughnut('chart-tipo-exec', ['Direta', 'Indireta'], [cTipo.Direta, cTipo.Indireta], ['#3b82f6', '#8b5cf6']);
+            renderDoughnut('chart-eng', ['Exige', 'Não Exige'], [cEng.Sim, cEng.Nao], ['#f59e0b', '#334155']);
+            renderDoughnut('chart-rem', ['Remanejada', 'Original'], [cRem.Sim, cRem.Nao], ['#d946ef', '#334155']);
 
-            // Gargalos (Média de Dias)
-            let labelsGargalo = []; let dadosGargalo = [];
-            for (const [etapa, diasArray] of Object.entries(gargalos)) {
-                if (!etapa.includes("CANCELADA")) {
-                    const soma = diasArray.reduce((a,b) => a+b, 0);
-                    labelsGargalo.push(etapa.length > 30 ? etapa.substring(0,30)+'...' : etapa);
-                    dadosGargalo.push(Math.round(soma / diasArray.length));
-                }
-            }
-            renderHorizontalBar('chart-gargalos', labelsGargalo, dadosGargalo, 'Dias', '#ef4444', true); // destaque vermelho/laranja
+            let sortSec = Object.keys(cSec).sort((a,b)=>cSec[b]-cSec[a]); renderBar('chart-q-sec', sortSec, sortSec.map(k=>cSec[k]), '#3b82f6');
+            let sortVSec = Object.keys(vSec).sort((a,b)=>vSec[b]-vSec[a]); renderBar('chart-v-sec', sortVSec, sortVSec.map(k=>vSec[k]), '#10b981', true);
+            let sortAut = Object.keys(cAut).sort((a,b)=>cAut[b]-cAut[a]); renderBar('chart-q-bancada', sortAut, sortAut.map(k=>cAut[k]), '#8b5cf6');
+            let sortVAut = Object.keys(vAut).sort((a,b)=>vAut[b]-vAut[a]); renderBar('chart-v-bancada', sortVAut, sortVAut.map(k=>vAut[k]), '#10b981', true);
+            let sortPri = Object.keys(cPri).sort((a,b)=>parseInt(a)-parseInt(b)); renderBar('chart-prioridades', sortPri, sortPri.map(k=>cPri[k]), '#f59e0b');
+            renderHBar('chart-enquadramento', Object.keys(cCont), Object.values(cCont), '#14b8a6');
 
-            // Evolução
-            const keysEvo = Object.keys(evolucao).sort();
-            renderLine('chart-evolucao', keysEvo, keysEvo.map(k => evolucao[k]), 'Movimentações');
+            let gargLabels = []; let gargData = [];
+            for(const [etapa, diasArr] of Object.entries(gargalos)) { if(!etapa.includes("CANCELADA")) { gargLabels.push(etapa.length > 25 ? etapa.substring(0,25)+'...' : etapa); gargData.push(Math.round(diasArr.reduce((a,b)=>a+b,0)/diasArr.length)); } }
+            renderHBar('chart-gargalos', gargLabels, gargData, '#ef4444', true);
+            
+            renderDoughnut('chart-v-tipo', ['Direta', 'Indireta'], [vTipo.Direta, vTipo.Indireta], ['#3b82f6', '#8b5cf6']);
 
-            // Render Beneficiarios COMPLETOS
-            const arrBen = Object.keys(mapBeneficiarios).map(k => ({ nome: k, val: mapBeneficiarios[k] }));
-            arrBen.sort((a,b) => b.val - a.val); 
-            const elBen = document.getElementById('list-beneficiarios');
-            arrBen.forEach((b, idx) => {
-                elBen.innerHTML += `
-                    <div class="flex justify-between items-center bg-slate-900/50 p-2.5 rounded border border-slate-700 hover:bg-slate-800 transition">
-                        <div class="flex items-center gap-2 overflow-hidden">
-                            <span class="text-xs font-bold text-slate-500 w-5">${idx+1}º</span>
-                            <span class="text-sm text-slate-200 truncate whitespace-nowrap" title="${b.nome}">${b.nome}</span>
-                        </div>
-                        <span class="text-sm font-bold text-emerald-400 shrink-0">R$ ${b.val.toLocaleString('pt-BR', {minimumFractionDigits:2})}</span>
-                    </div>
-                `;
-            });
+            const listBen = document.getElementById('list-top-beneficiarios'); listBen.innerHTML = '';
+            let sortBen = Object.keys(topBen).sort((a,b)=>topBen[b]-topBen[a]).slice(0,5);
+            sortBen.forEach((b, i) => { listBen.innerHTML += `<li class="flex justify-between items-center bg-slate-900/50 p-2 rounded border border-slate-700 hover:bg-slate-800 transition"><div class="flex items-center gap-2"><span class="text-xs font-bold text-slate-500">${i+1}º</span><span class="text-xs text-slate-200 truncate w-32" title="${b}">${b}</span></div><span class="text-xs font-bold text-emerald-400">R$ ${topBen[b].toLocaleString('pt-BR')}</span></li>`; });
 
-            // Render Críticas COMPLETAS
-            const elCrit = document.getElementById('list-criticas');
-            const criticas = dados.filter(e => isAtrasada(e));
-            criticas.sort((a,b) => {
-                let da = a.historico_status && a.historico_status.length > 0 ? new Date(a.historico_status[a.historico_status.length-1].data) : new Date(0);
-                let db = b.historico_status && b.historico_status.length > 0 ? new Date(b.historico_status[b.historico_status.length-1].data) : new Date(0);
-                return da - db; 
-            });
-
-            if (criticas.length === 0) {
-                elCrit.innerHTML = `<div class="text-center text-emerald-500 font-bold text-sm mt-8 p-4 bg-emerald-900/20 rounded border border-emerald-800/50">🎉 Sensacional! Nenhuma emenda atrasada.</div>`;
-            } else {
-                criticas.forEach(c => {
-                    const status = getStatusAtual(c);
-                    const dtUltima = c.historico_status && c.historico_status.length > 0 ? c.historico_status[c.historico_status.length-1].data : 'Desconhecida';
-                    let diasParada = 0;
-                    try { diasParada = Math.floor((new Date() - new Date(dtUltima)) / (1000*60*60*24)); } catch(e){}
-
-                    elCrit.innerHTML += `
-                        <div class="bg-red-900/30 p-3 rounded border border-red-800/50 hover:bg-red-900/50 transition">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-sm font-bold text-slate-100">${c.numero_processo || c.numero_emenda}</span>
-                                <span class="text-[10px] font-black text-red-300 bg-red-900 px-2 py-0.5 rounded shadow">Parada há ${diasParada} dias</span>
-                            </div>
-                            <p class="text-xs text-slate-300 truncate" title="${status}">Etapa: ${status}</p>
-                            <p class="text-[10px] text-slate-500 mt-1">Autor: ${c.vereador !== "Nenhum (Emenda de Bancada)" ? c.vereador : c.bancada}</p>
-                        </div>
-                    `;
+            const listCrit = document.getElementById('list-criticas'); listCrit.innerHTML = '';
+            if(atrasadasList.length === 0) listCrit.innerHTML = '<li class="text-center text-xs text-emerald-400 mt-8">Nenhuma emenda atrasada!</li>';
+            else {
+                atrasadasList.sort((a,b)=>{ let da = a.historico_status && a.historico_status.length>0 ? new Date(a.historico_status[a.historico_status.length-1].data) : new Date(0); let db = b.historico_status && b.historico_status.length>0 ? new Date(b.historico_status[b.historico_status.length-1].data) : new Date(0); return da - db; }).slice(0,5).forEach(c => {
+                    let dUlt = c.historico_status && c.historico_status.length>0 ? c.historico_status[c.historico_status.length-1].data : '';
+                    let dParada = dUlt ? Math.floor((new Date() - new Date(dUlt))/(1000*60*60*24)) : '?';
+                    listCrit.innerHTML += `<li class="bg-red-900/20 p-2 rounded border border-red-800/30 hover:bg-red-900/40 transition cursor-pointer" onclick="localStorage.setItem('filtro_busca_pendente', '${c.numero_emenda}'); window.location.href='admin.html';"><div class="flex justify-between items-center"><span class="text-xs font-bold text-slate-200">${c.numero_emenda}</span><span class="text-[9px] font-bold text-red-400 bg-red-900/50 px-1.5 py-0.5 rounded">${dParada} dias parada</span></div><p class="text-[10px] text-slate-400 mt-1 truncate" title="${c.historico_status ? c.historico_status[c.historico_status.length-1].status : ''}">${c.historico_status ? c.historico_status[c.historico_status.length-1].status : ''}</p></li>`;
                 });
             }
+
+            if(graficosInstanciados['chart-evolucao']) graficosInstanciados['chart-evolucao'].destroy();
+            let keysEvo = Object.keys(evolucao).sort();
+            graficosInstanciados['chart-evolucao'] = new Chart(document.getElementById('chart-evolucao'), { type: 'line', data: { labels: keysEvo, datasets: [{ label: 'Movimentações', data: keysEvo.map(k=>evolucao[k]), borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.2)', borderWidth: 3, pointBackgroundColor: '#3b82f6', fill: true, tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8', stepSize: 1 } }, x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } } } } });
         }
 
-        function renderDoughnut(id, labels, data, colorsParam) {
-            new Chart(document.getElementById(id), {
-                type: 'doughnut',
-                data: { labels: labels, datasets: [{ data: data, backgroundColor: colorsParam, borderWidth: 1, borderColor: '#1e293b' }] },
-                options: { 
-                    responsive: true, maintainAspectRatio: false, 
-                    plugins: { 
-                        legend: { position: 'right', labels: { boxWidth: 10, font: { size: 10 } } },
-                        datalabels: { formatter: (val) => val > 0 ? val : '' }
-                    } 
+        // --- 4. ORQUESTRAÇÃO DE CARREGAMENTO ---
+        async function inicializarBI() {
+            try {
+                // 4.1 Baixa as Etapas Oficiais
+                const configRef = doc(db, "configuracoes", "etapas");
+                const snap = await getDoc(configRef);
+                if (snap.exists()) {
+                    const data = snap.data();
+                    if (data.direta && data.direta.length > 0) ETAPAS_DIRETA = data.direta;
+                    if (data.indireta && data.indireta.length > 0) ETAPAS_INDIRETA = data.indireta;
                 }
-            });
+            } catch(e) { console.warn("Usando etapas nativas. Falha ao baixar do Firebase:", e); }
+
+            // 4.2 Baixa as Emendas
+            let dadosEmendas = [];
+            try {
+                const querySnapshot = await getDocs(collection(db, "emendas"));
+                querySnapshot.forEach((doc) => { dadosEmendas.push({ id: doc.id, ...doc.data() }); });
+                localStorage.setItem("emendas_cache_v3", JSON.stringify(dadosEmendas));
+            } catch(e) {
+                console.warn("Sem internet? Usando cache local de emendas.");
+                const cache = localStorage.getItem("emendas_cache_v3");
+                if(cache) dadosEmendas = JSON.parse(cache);
+            }
+
+            // 4.3 Oculta loading e renderiza a tela
+            document.getElementById('loading-screen').classList.add('hidden');
+            document.getElementById('dashboard-content').classList.remove('hidden');
+            renderizarDashboard(dadosEmendas);
         }
 
-        function renderPie(id, labels, data, colorsParam) {
-            new Chart(document.getElementById(id), {
-                type: 'pie',
-                data: { labels: labels, datasets: [{ data: data, backgroundColor: colorsParam, borderWidth: 1, borderColor: '#1e293b' }] },
-                options: { 
-                    responsive: true, maintainAspectRatio: false, 
-                    plugins: { 
-                        legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } },
-                        datalabels: { formatter: (val) => val > 0 ? val : '' }
-                    } 
-                }
-            });
-        }
-
-        function renderStackedBar(id, labels, dataDir, dataInd, isCurrency) {
-            new Chart(document.getElementById(id), {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        { label: 'Direta (Sec.)', data: dataDir, backgroundColor: '#3b82f6', borderRadius: 2 },
-                        { label: 'Indireta (Parceria)', data: dataInd, backgroundColor: '#8b5cf6', borderRadius: 2 }
-                    ]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    scales: { 
-                        x: { stacked: true, grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 45 } },
-                        y: { stacked: true, grid: { color: '#334155' }, ticks: { callback: (val) => isCurrency ? formatShortValue(val, true) : val } }
-                    },
-                    plugins: { 
-                        legend: { position: 'top', labels: { boxWidth: 10, font: { size: 10 } } },
-                        tooltip: { callbacks: { label: (ctx) => isCurrency ? ` R$ ${ctx.raw.toLocaleString('pt-BR')}` : ` ${ctx.raw}` } },
-                        datalabels: {
-                            formatter: (val) => val > 0 ? formatShortValue(val, isCurrency) : ''
-                        }
-                    }
-                }
-            });
-        }
-
-        function renderBar(id, labels, data, datasetLabel, color, isCurrency) {
-            new Chart(document.getElementById(id), {
-                type: 'bar',
-                data: { labels: labels, datasets: [{ label: datasetLabel, data: data, backgroundColor: color, borderRadius: 4 }] },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { display: false },
-                        tooltip: { callbacks: { label: (ctx) => isCurrency ? ` R$ ${ctx.raw.toLocaleString('pt-BR')}` : ` ${ctx.raw}` } },
-                        datalabels: { align: 'end', anchor: 'end', formatter: (val) => val > 0 ? formatShortValue(val, isCurrency) : '' }
-                    },
-                    scales: { 
-                        y: { beginAtZero: true, grid: { color: '#334155' }, ticks: { callback: (val) => isCurrency ? formatShortValue(val, true) : val } },
-                        x: { grid: { display: false }, ticks: { font: { size: 10 } } }
-                    },
-                    layout: { padding: { top: 20 } } // Espaço extra pra label em cima
-                }
-            });
-        }
-
-        function renderHorizontalBar(id, labels, data, datasetLabel, color, appendDias = false) {
-            new Chart(document.getElementById(id), {
-                type: 'bar',
-                data: { labels: labels, datasets: [{ label: datasetLabel, data: data, backgroundColor: color, borderRadius: 4 }] },
-                options: {
-                    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { display: false },
-                        datalabels: { align: 'end', anchor: 'end', formatter: (val) => val > 0 ? (appendDias ? `${val} d` : val) : '' }
-                    },
-                    scales: { 
-                        x: { beginAtZero: true, grid: { color: '#334155' } },
-                        y: { grid: { display: false }, ticks: { font: { size: 10 } } }
-                    },
-                    layout: { padding: { right: 30 } } // Espaço pra label lateral
-                }
-            });
-        }
-
-        function renderLine(id, labels, data, datasetLabel) {
-            new Chart(document.getElementById(id), {
-                type: 'line',
-                data: { labels: labels, datasets: [{ label: datasetLabel, data: data, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.2)', borderWidth: 3, pointBackgroundColor: '#3b82f6', fill: true, tension: 0.3 }] },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { display: false },
-                        datalabels: { align: 'top', font: { size: 10 } }
-                    },
-                    scales: { 
-                        y: { beginAtZero: true, grid: { color: '#334155' }, ticks: { stepSize: 1 } },
-                        x: { grid: { display: false } }
-                    },
-                    layout: { padding: { top: 20 } }
-                }
-            });
-        }
-
+        inicializarBI();
     </script>
 </body>
 </html>

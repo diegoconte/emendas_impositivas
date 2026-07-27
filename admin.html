@@ -37,11 +37,12 @@
         }
     </style>
 </head>
-<body class="bg-slate-900 min-h-screen text-slate-100">
+<body class="bg-slate-900 min-h-screen text-slate-100 flex flex-col">
 
     <div id="toast-container" class="fixed bottom-4 right-4 z-[100] flex flex-col gap-2"></div>
 
-    <div id="confirm-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-[60] flex items-center justify-center backdrop-blur-sm transition-opacity">
+    <!-- MODAL CONFIRMAÇÃO PADRÃO -->
+    <div id="confirm-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-[80] flex items-center justify-center backdrop-blur-sm transition-opacity">
         <div class="bg-slate-800 rounded-xl shadow-2xl p-6 w-full max-w-sm mx-4 transform transition-all border border-slate-700">
             <h3 class="text-lg font-bold text-slate-100 mb-2" id="confirm-title">Atenção</h3>
             <p class="text-slate-400 mb-6" id="confirm-message">Tem certeza que deseja realizar esta ação?</p>
@@ -52,6 +53,7 @@
         </div>
     </div>
 
+    <!-- TELA DE LOGIN -->
     <div id="login-screen" class="flex items-center justify-center min-h-screen bg-slate-900">
         <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl w-full max-w-md mx-4 border border-slate-700">
             <div class="text-center mb-8">
@@ -73,7 +75,8 @@
         </div>
     </div>
 
-    <div id="dashboard-screen" class="hidden flex-col min-h-screen">
+    <!-- TELA PRINCIPAL (DASHBOARD) -->
+    <div id="dashboard-screen" class="hidden flex-col flex-grow">
         <nav class="bg-slate-800 border-b border-slate-700 sticky top-0 z-30">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-16 items-center">
@@ -99,12 +102,16 @@
                     <p class="text-sm text-slate-400 mt-1">Acompanhamento e evolução dos processos.</p>
                 </div>
                 <div class="flex flex-wrap gap-3 w-full sm:w-auto">
+                    <button id="btn-exportar-csv" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-green-800 border border-green-600 text-green-100 hover:bg-green-700 font-medium py-2.5 px-4 rounded-lg shadow-sm transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Exportar CSV
+                    </button>
                     <a href="relatorio.html" target="_blank" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-emerald-900/50 hover:bg-emerald-800 text-emerald-300 hover:text-emerald-100 font-bold py-2.5 px-4 rounded-lg shadow-sm transition border border-emerald-700/50">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         Relatório Semanal
                     </a>
                     <a href="dashboard.html" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-indigo-900/50 hover:bg-indigo-800 text-indigo-300 hover:text-indigo-100 font-bold py-2.5 px-4 rounded-lg shadow-sm transition border border-indigo-700/50">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2h-2a2 2 0 01-2-2z"></path></svg>
                         Dashboard
                     </a>
                     <button id="btn-sincronizar" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-slate-800 border border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-slate-100 font-medium py-2.5 px-4 rounded-lg shadow-sm transition">
@@ -191,10 +198,10 @@
                 </div>
             </div>
 
-            <div class="bg-slate-800 rounded-xl shadow-sm border border-slate-700 overflow-hidden">
-                <div class="overflow-x-auto">
+            <div class="bg-slate-800 rounded-xl shadow-sm border border-slate-700 overflow-hidden mb-6">
+                <div class="overflow-x-auto max-h-[600px]">
                     <table class="w-full text-left border-collapse">
-                        <thead class="bg-slate-900/50 border-b border-slate-700 select-none">
+                        <thead class="bg-slate-900 border-b border-slate-700 select-none sticky top-0 z-20 shadow-md">
                             <tr>
                                 <th class="px-4 py-4 w-10 text-center">
                                     <input type="checkbox" id="check-todos" class="w-4 h-4 text-blue-600 bg-slate-800 border-slate-600 rounded focus:ring-blue-500 cursor-pointer" title="Selecionar Todos">
@@ -228,9 +235,18 @@
                     </table>
                 </div>
             </div>
+
+            <!-- RODAPÉ COM BOTÃO DE CONFIGURAÇÃO DE ETAPAS -->
+            <div class="text-center mt-8 pb-4">
+                <button id="btn-abrir-config-etapas" class="inline-flex items-center gap-2 text-xs font-medium text-slate-500 hover:text-slate-300 bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg border border-slate-700 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    Configurar Prazos e Etapas Base
+                </button>
+            </div>
         </main>
     </div>
 
+    <!-- MODAL DE CADASTRO/EDIÇÃO DE EMENDA -->
     <div id="modal-emenda" class="hidden fixed inset-0 bg-black bg-opacity-70 z-[50] flex items-center justify-center backdrop-blur-sm p-4 sm:p-6 transition-opacity">
         <div class="bg-slate-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[95vh] flex flex-col overflow-hidden border border-slate-700">
             
@@ -475,12 +491,57 @@
         </div>
     </div>
 
+    <!-- MODAL DE CONFIGURAÇÃO DE ETAPAS -->
+    <div id="modal-etapas-config" class="hidden fixed inset-0 bg-black bg-opacity-70 z-[70] flex items-center justify-center backdrop-blur-sm p-4 transition-opacity">
+        <div class="bg-slate-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden border border-slate-700">
+            <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center bg-slate-900/50">
+                <div class="flex items-center gap-3">
+                    <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        Configurar Prazos e Etapas
+                    </h3>
+                </div>
+                <button id="btn-fechar-etapas" class="text-slate-400 hover:text-slate-200 transition text-2xl leading-none">&times;</button>
+            </div>
+            
+            <div class="px-6 py-3 bg-slate-800 border-b border-slate-700 flex gap-4">
+                <button id="tab-direta" class="px-4 py-2 font-bold text-sm text-blue-400 border-b-2 border-blue-400 focus:outline-none">Execução Direta</button>
+                <button id="tab-indireta" class="px-4 py-2 font-bold text-sm text-slate-400 border-b-2 border-transparent hover:text-slate-200 focus:outline-none">Execução Indireta</button>
+            </div>
+
+            <div class="p-6 overflow-y-auto flex-grow bg-slate-900/30">
+                <div class="mb-4 p-3 bg-orange-900/20 border border-orange-800/30 rounded text-xs text-orange-300">
+                    <strong class="text-orange-400">Atenção:</strong> Sinta-se livre para alterar datas e porcentagens. No entanto, evite alterar o <strong>Nome da Etapa</strong> caso já existam emendas usando aquele nome no histórico, para não perder o vínculo de cálculo. A primeira e a última etapa não devem ser apagadas ou alteradas drasticamente.
+                </div>
+                
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="text-xs text-slate-400 uppercase tracking-wider border-b border-slate-700">
+                            <th class="pb-2 w-10 text-center">Nº</th>
+                            <th class="pb-2">Nome da Etapa (Status)</th>
+                            <th class="pb-2 w-24 text-center">Progresso (%)</th>
+                            <th class="pb-2 w-40 text-center">Prazo Limite (Esperado)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-config-etapas" class="divide-y divide-slate-700/50">
+                        <!-- Carregado via JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="px-6 py-4 border-t border-slate-700 bg-slate-900/50 flex justify-end gap-3">
+                <button type="button" id="btn-cancelar-etapas" class="px-5 py-2.5 bg-slate-800 border border-slate-600 text-slate-300 font-medium rounded-lg hover:bg-slate-700 hover:text-slate-100 transition">Cancelar</button>
+                <button type="button" id="btn-salvar-etapas" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-md transition flex items-center gap-2 border border-blue-500">Salvar no Servidor</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        // Importado getDoc e setDoc para carregar e salvar as etapas
+        import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-        // GERADOR DE VERSÃO AUTOMÁTICO VIA DATA DO DEPLOY
         function gerarVersaoAuto() {
             try {
                 const dataMod = new Date(document.lastModified);
@@ -496,7 +557,6 @@
         }
         gerarVersaoAuto();
 
-        // CONFIGURAÇÃO DO FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyAdHnH9Q6c6GqE8mlhBxcNdcEB6n3G7QvU",
             authDomain: "emendas-b63d1.firebaseapp.com",
@@ -511,13 +571,10 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        // VARIAVEIS GLOBAIS
         const CACHE_KEY = "emendas_cache_v3";
         let historicoAtualDaEdicao = [];
         let emendaOriginalSendoEditada = null;
         const ADMIN_EMAILS_EXCLUSAO = ["diegoconte@horizontina.rs.gov.br", "raquelcallegaro@horizontina.rs.gov.br"];
-        
-        // URL DA API DO GOOGLE APPS SCRIPT PARA ENVIO DE E-MAIL
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw7XRWUrEjikqALcHdyhLE4TVgNtWKA6fejRbmRxsuyGRE5NCxIQ-4B081FMM_Xqd4/exec";
 
         let dadosEmendasGlobais = [];
@@ -526,30 +583,8 @@
         let selecionadasGlobais = new Set();
         let filtradosGlobais = [];
 
-        async function enviarNotificacaoEmail(processo, emenda, autor, acaoRealizada, detalhes) {
-            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL === "") return;
-
-            const payload = {
-                processo: processo || "N/A",
-                emenda: emenda || "N/A",
-                autor: autor || "N/A",
-                acaoRealizada: acaoRealizada || "Ação não especificada",
-                detalhes: detalhes || "Sem detalhes adicionais.",
-                usuario: auth.currentUser ? auth.currentUser.email : "Administrador"
-            };
-
-            try {
-                await fetch(GOOGLE_SCRIPT_URL, {
-                    method: "POST",
-                    mode: "no-cors",
-                    headers: { "Content-Type": "text/plain;charset=utf-8" },
-                    body: JSON.stringify(payload)
-                });
-            } catch (error) { console.error("[E-MAIL] Erro:", error); }
-        }
-
-        // DEFINIÇÃO DAS ETAPAS E DATAS LIMITE
-        const ETAPAS_DIRETA = [
+        // VARIAVEIS DE ETAPAS AGORA SÃO LET (Para podermos substituir com dados do Firebase)
+        let ETAPAS_DIRETA = [
             { id: 0, status: "Emenda CANCELADA", pct: 100, class: "bg-red-900/30 text-red-400 border-red-800/50" },
             { id: 1, status: "Recepção e Cadastro da Emenda", pct: 3, prazo: "2026-02-15", class: "bg-slate-800 text-slate-300 border-slate-700" },
             { id: 2, status: "Análise Técnica de Viabilidade", pct: 10, prazo: "2026-03-01", class: "bg-blue-900/30 text-blue-400 border-blue-800/50" },
@@ -570,7 +605,7 @@
             { id: 17, status: "Relatório Final e Arquivamento", pct: 100, prazo: "2026-12-30", class: "bg-slate-700/50 text-slate-300 border-slate-600" }
         ];
 
-        const ETAPAS_INDIRETA = [
+        let ETAPAS_INDIRETA = [
             { id: 0, status: "Emenda CANCELADA", pct: 100, class: "bg-red-900/30 text-red-400 border-red-800/50" },
             { id: 1, status: "Recepção e Cadastro da Emenda", pct: 3, prazo: "2026-02-15", class: "bg-slate-800 text-slate-300 border-slate-700" },
             { id: 2, status: "Aguardando Plano de Trabalho (Entidade)", pct: 10, prazo: "2026-03-01", class: "bg-orange-900/30 text-orange-400 border-orange-800/50" },
@@ -589,6 +624,32 @@
             { id: 15, status: "Análise da Prestação de Contas", pct: 95, prazo: "2026-12-15", class: "bg-orange-900/30 text-orange-400 border-orange-800/50" },
             { id: 16, status: "Aprovação Final das Contas", pct: 100, prazo: "2026-12-30", class: "bg-green-800/40 text-green-300 border-green-700/50" }
         ];
+
+        // FUNÇÃO PARA BUSCAR ETAPAS DO FIREBASE
+        async function carregarEtapasDoBanco() {
+            try {
+                const configRef = doc(db, "configuracoes", "etapas");
+                const snap = await getDoc(configRef);
+                if (snap.exists()) {
+                    const data = snap.data();
+                    if (data.direta && data.direta.length > 0) ETAPAS_DIRETA = data.direta;
+                    if (data.indireta && data.indireta.length > 0) ETAPAS_INDIRETA = data.indireta;
+                } else {
+                    // Cria o documento pela primeira vez se não existir
+                    await setDoc(configRef, { direta: ETAPAS_DIRETA, indireta: ETAPAS_INDIRETA });
+                }
+            } catch (e) {
+                console.error("Usando etapas locais (falha ao ler Firebase):", e);
+            }
+        }
+
+        async function enviarNotificacaoEmail(processo, emenda, autor, acaoRealizada, detalhes) {
+            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL === "") return;
+            const payload = { processo: processo || "N/A", emenda: emenda || "N/A", autor: autor || "N/A", acaoRealizada: acaoRealizada || "Ação não especificada", detalhes: detalhes || "Sem detalhes adicionais.", usuario: auth.currentUser ? auth.currentUser.email : "Administrador" };
+            try {
+                await fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) });
+            } catch (error) { console.error("[E-MAIL] Erro:", error); }
+        }
 
         const loginScreen = document.getElementById('login-screen');
         const dashboardScreen = document.getElementById('dashboard-screen');
@@ -630,13 +691,9 @@
 
             toast.className = `flex items-center gap-3 ${bgClass} border backdrop-blur-md text-white px-4 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-y-10 opacity-0`;
             toast.innerHTML = `<span>${icon}</span> <span class="font-medium text-sm">${mensagem}</span>`;
-            
             container.appendChild(toast);
             setTimeout(() => toast.classList.remove('translate-y-10', 'opacity-0'), 10);
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'translate-x-10');
-                setTimeout(() => toast.remove(), 300);
-            }, 4000);
+            setTimeout(() => { toast.classList.add('opacity-0', 'translate-x-10'); setTimeout(() => toast.remove(), 300); }, 4000);
         }
 
         function showConfirm(mensagem, onConfirm) {
@@ -644,10 +701,8 @@
             const msgEl = document.getElementById('confirm-message');
             const btnOk = document.getElementById('btn-confirm-ok');
             const btnCancel = document.getElementById('btn-confirm-cancel');
-
             msgEl.textContent = mensagem;
             modal.classList.remove('hidden');
-
             btnOk.onclick = null; btnCancel.onclick = null;
             btnCancel.onclick = () => modal.classList.add('hidden');
             btnOk.onclick = () => { modal.classList.add('hidden'); onConfirm(); };
@@ -657,7 +712,6 @@
             if(!selNovaEtapaStatus) return;
             selNovaEtapaStatus.innerHTML = '';
             const list = tipoExecucao === 'Indireta' ? ETAPAS_INDIRETA : ETAPAS_DIRETA;
-            
             list.forEach(etapa => {
                 const opt = document.createElement('option');
                 opt.value = etapa.status;
@@ -672,12 +726,13 @@
             });
         }
 
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 document.getElementById('user-email-display').textContent = user.email;
                 loginScreen.classList.add('hidden');
                 dashboardScreen.classList.remove('hidden');
                 dashboardScreen.classList.add('flex');
+                await carregarEtapasDoBanco(); // Carrega as etapas do firebase antes das emendas
                 carregarEmendasDaMemoriaOuBanco();
             } else {
                 loginScreen.classList.remove('hidden');
@@ -716,38 +771,43 @@
         });
 
         async function carregarEmendasDaMemoriaOuBanco(forcarSincronizacao = false) {
-            // Removido o bloqueio passivo do Cache. Sempre vai buscar no banco ao abrir a tela.
-            // Isso garante que você está vendo o que a Yasmin fez minutos atrás.
             if(linhaLoading) linhaLoading.style.display = 'table-row';
             if(tabelaCorpo) tabelaCorpo.innerHTML = '';
             if(tabelaCorpo && linhaLoading) tabelaCorpo.appendChild(linhaLoading);
 
             try {
-                // BUSCA DIRETO DA FONTE DA VERDADE (FIREBASE)
+                if (forcarSincronizacao) await carregarEtapasDoBanco(); // Recarrega as etapas junto se forçado
+
                 const querySnapshot = await getDocs(collection(db, "emendas"));
                 const emendasBaixadas = [];
-                querySnapshot.forEach((doc) => {
-                    emendasBaixadas.push({ id: doc.id, ...doc.data() });
-                });
+                querySnapshot.forEach((doc) => { emendasBaixadas.push({ id: doc.id, ...doc.data() }); });
 
                 localStorage.setItem(CACHE_KEY, JSON.stringify(emendasBaixadas));
                 dadosEmendasGlobais = emendasBaixadas;
+                if (forcarSincronizacao) showToast("Dados sincronizados com o servidor.", "success");
+                 localStorage.setItem(CACHE_KEY, JSON.stringify(emendasBaixadas));
+                dadosEmendasGlobais = emendasBaixadas;
+                if (forcarSincronizacao) showToast("Dados sincronizados com o servidor.", "success");
                 
-                if (forcarSincronizacao) {
-                     showToast("Dados sincronizados com o servidor.", "success");
+                // --- INÍCIO DA RECEPÇÃO DOS GRÁFICOS ---
+                const filtroBusca = localStorage.getItem('filtro_busca_pendente');
+                const filtroStatus = localStorage.getItem('filtro_status_pendente');
+                
+                if (filtroBusca) {
+                    document.getElementById('filtro-busca').value = filtroBusca;
+                    localStorage.removeItem('filtro_busca_pendente');
                 }
-                
+                if (filtroStatus) {
+                    document.getElementById('filtro-status').value = filtroStatus;
+                    localStorage.removeItem('filtro_status_pendente');
+                }
+                // --- FIM DA RECEPÇÃO DOS GRÁFICOS ---
                 aplicarFiltrosEOrdenacao();
             } catch (error) {
                 showToast("Erro ao buscar dados do servidor.", "error");
                 console.error(error);
-                
-                // Fallback de emergência: Tenta usar o cache só se a internet cair.
                 const cache = localStorage.getItem(CACHE_KEY);
-                if (cache) {
-                    dadosEmendasGlobais = JSON.parse(cache);
-                    aplicarFiltrosEOrdenacao();
-                }
+                if (cache) { dadosEmendasGlobais = JSON.parse(cache); aplicarFiltrosEOrdenacao(); }
             }
         }
 
@@ -757,15 +817,11 @@
             const list = tipoExecucao === 'Indireta' ? ETAPAS_INDIRETA : ETAPAS_DIRETA;
             let esperado = 0; 
             const hoje = new Date();
-            
             for (let etapa of list) {
-                if (etapa.prazo) {
+                if (etapa.prazo && etapa.prazo.trim() !== '') {
                     const prazoData = new Date(etapa.prazo + "T23:59:59");
-                    if (hoje >= prazoData) {
-                        esperado = etapa.pct;
-                    } else {
-                        break; 
-                    }
+                    if (hoje >= prazoData) esperado = Number(etapa.pct);
+                    else break; 
                 }
             }
             return esperado;
@@ -773,17 +829,13 @@
 
         function isAtrasada(emenda, etapaInfo) {
             if(etapaInfo.pct === 100) return false;
-            
             let statusAtual = "Recepção e Cadastro da Emenda";
             if (emenda.historico_status && emenda.historico_status.length > 0) {
                 statusAtual = emenda.historico_status[emenda.historico_status.length - 1].status;
             }
-            
             if (statusAtual.includes("CANCELADA")) return false;
-
             const tipoExec = emenda.tipo_execucao || "Direta";
             const esperado = calcularProgressoEsperado(tipoExec);
-            
             return etapaInfo.pct < esperado;
         }
 
@@ -805,9 +857,7 @@
                 return;
             }
 
-            let somaAtual = 0;
-            let somaEsperado = 0;
-
+            let somaAtual = 0; let somaEsperado = 0;
             dadosAtivos.forEach(emenda => {
                 const statusAtual = emenda.historico_status && emenda.historico_status.length > 0 ? emenda.historico_status[emenda.historico_status.length - 1].status : "Recepção e Cadastro da Emenda";
                 const tipoExec = emenda.tipo_execucao || "Direta";
@@ -817,10 +867,7 @@
                 somaEsperado += calcularProgressoEsperado(tipoExec);
             });
 
-            const mediaAtual = somaAtual / dadosAtivos.length;
-            const mediaEsperada = somaEsperado / dadosAtivos.length;
-
-            renderizarGauge(mediaAtual, mediaEsperada);
+            renderizarGauge(somaAtual / dadosAtivos.length, somaEsperado / dadosAtivos.length);
         }
 
         function renderizarGauge(atual, esperado) {
@@ -875,7 +922,6 @@
                 const tipoExec = emenda.tipo_execucao || "Direta";
                 const etapaInfo = getEtapaInfo(statusAtual, tipoExec);
                 
-                
                 let passaBusca = true;
                 if (busca) {
                     const textoBusca = `
@@ -914,7 +960,6 @@
 
             filtrados.sort((a, b) => {
                 let valA, valB;
-
                 let statusA = a.historico_status && a.historico_status.length > 0 ? a.historico_status[a.historico_status.length - 1].status : "";
                 let statusB = b.historico_status && b.historico_status.length > 0 ? b.historico_status[b.historico_status.length - 1].status : "";
                 let infoA = getEtapaInfo(statusA, a.tipo_execucao || "Direta");
@@ -923,11 +968,8 @@
                 if (currentSortColumn === 'progresso') {
                     let isCanceladaA = statusA.includes("CANCELADA") ? 1 : 0;
                     let isCanceladaB = statusB.includes("CANCELADA") ? 1 : 0;
-                    if (isCanceladaA !== isCanceladaB) {
-                        return isCanceladaA - isCanceladaB;
-                    }
-                    valA = infoA.pct;
-                    valB = infoB.pct;
+                    if (isCanceladaA !== isCanceladaB) return isCanceladaA - isCanceladaB;
+                    valA = infoA.pct; valB = infoB.pct;
                 } else if (currentSortColumn === 'processo') {
                     valA = parseInt((a.numero_processo || "0").replace(/\D/g, '')) || 0;
                     valB = parseInt((b.numero_processo || "0").replace(/\D/g, '')) || 0;
@@ -960,21 +1002,13 @@
         document.querySelectorAll('th[data-sort]').forEach(th => {
             th.addEventListener('click', () => {
                 const column = th.getAttribute('data-sort');
-                if (currentSortColumn === column) {
-                    currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
-                } else {
-                    currentSortColumn = column;
-                    currentSortDirection = 'asc';
-                }
+                if (currentSortColumn === column) currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+                else { currentSortColumn = column; currentSortDirection = 'asc'; }
                 
-                document.querySelectorAll('th[data-sort] span').forEach(span => {
-                    span.textContent = '↕';
-                    span.classList.remove('text-blue-400', 'opacity-100');
-                });
+                document.querySelectorAll('th[data-sort] span').forEach(span => { span.textContent = '↕'; span.classList.remove('text-blue-400', 'opacity-100'); });
                 const activeSpan = th.querySelector('span');
                 activeSpan.textContent = currentSortDirection === 'asc' ? '↑' : '↓';
                 activeSpan.classList.add('text-blue-400', 'opacity-100');
-
                 aplicarFiltrosEOrdenacao();
             });
         });
@@ -1019,90 +1053,38 @@
                 const atrasada = isAtrasada(emenda, etapaInfo);
                 const badgeAtrasada = atrasada && !isCanceled && validPct < 100 ? `<span class="ml-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-red-900/40 text-red-400 border border-red-800/50" title="Emenda classificada como atrasada">❗ ATRASADA</span>` : '';
 
-                if (isCanceled) {
-                    tr.classList.add('opacity-60');
-                }
+                if (isCanceled) tr.classList.add('opacity-60');
 
                 const progressHtml = `
                     <div class="flex items-center justify-between mb-1">
-                        <div class="flex items-center gap-2">
-                            <span class="text-[11px] font-bold text-slate-300">Atual: ${validPct}%</span>
-                            ${!isCanceled ? `<span class="text-[10px] font-medium text-slate-500">Esp: ${pctEsperado}%</span>` : ''}
-                        </div>
+                        <div class="flex items-center gap-2"><span class="text-[11px] font-bold text-slate-300">Atual: ${validPct}%</span>${!isCanceled ? `<span class="text-[10px] font-medium text-slate-500">Esp: ${pctEsperado}%</span>` : ''}</div>
                         ${badgeAtrasada}
                     </div>
-                    <div class="w-full bg-slate-700 rounded-full h-2.5 mb-1 border border-slate-600">
-                        <div class="${progressBarColor} h-2.5 rounded-full progress-bar-fill shadow-sm" style="width: ${validPct}%"></div>
-                    </div>
-                    <div class="flex justify-between text-[10px] text-slate-400 mt-1">
-                        <span class="truncate max-w-full font-medium" title="${statusAtual}">${statusAtual}</span>
-                    </div>
+                    <div class="w-full bg-slate-700 rounded-full h-2.5 mb-1 border border-slate-600"><div class="${progressBarColor} h-2.5 rounded-full progress-bar-fill shadow-sm" style="width: ${validPct}%"></div></div>
+                    <div class="flex justify-between text-[10px] text-slate-400 mt-1"><span class="truncate max-w-full font-medium" title="${statusAtual}">${statusAtual}</span></div>
                 `;
 
-                const btnExcluirHtml = podeExcluir ? `
-                    <button type="button" class="btn-excluir flex items-center gap-1.5 px-3 py-1.5 bg-red-900/20 hover:bg-red-900/40 text-red-400 font-medium rounded-md transition text-xs shadow-sm border border-red-800/30" title="Excluir Emenda Definitivamente" data-id="${emenda.id}">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                        Excluir
-                    </button>
-                ` : '';
+                const btnExcluirHtml = podeExcluir ? `<button type="button" class="btn-excluir flex items-center gap-1.5 px-3 py-1.5 bg-red-900/20 hover:bg-red-900/40 text-red-400 font-medium rounded-md transition text-xs shadow-sm border border-red-800/30" title="Excluir Emenda Definitivamente" data-id="${emenda.id}"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg> Excluir</button>` : '';
 
                 tr.innerHTML = `
-                    <td class="px-6 py-4">
-                        <div class="text-sm font-bold text-slate-200">${emenda.numero_processo || '-'}</div>
-                        <div class="text-xs text-slate-500">${emenda.numero_emenda || '-'}</div>
-                        ${prioridadeHtml}
-                        ${badgeRemanejada} ${badgeEngenharia}
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="text-sm text-slate-200 font-medium">${emenda.bancada || '-'}</div>
-                        <div class="text-xs text-slate-500">${emenda.vereador || '-'}</div>
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="text-sm font-medium text-slate-300" title="${emenda.beneficiario}">${(emenda.beneficiario || '-').length > 25 ? (emenda.beneficiario || '-').substring(0,25) + '...' : (emenda.beneficiario || '-')}</div>
-                        <div class="text-xs text-slate-500 font-mono mt-0.5">${tipoExec} • <span class="text-blue-400 font-bold">${emenda.secretaria || 'Sem Sec.'}</span></div>
-                    </td>
+                    <td class="px-6 py-4"><div class="text-sm font-bold text-slate-200">${emenda.numero_processo || '-'}</div><div class="text-xs text-slate-500">${emenda.numero_emenda || '-'}</div>${prioridadeHtml} ${badgeRemanejada} ${badgeEngenharia}</td>
+                    <td class="px-6 py-4"><div class="text-sm text-slate-200 font-medium">${emenda.bancada || '-'}</div><div class="text-xs text-slate-500">${emenda.vereador || '-'}</div></td>
+                    <td class="px-6 py-4"><div class="text-sm font-medium text-slate-300" title="${emenda.beneficiario}">${(emenda.beneficiario || '-').length > 25 ? (emenda.beneficiario || '-').substring(0,25) + '...' : (emenda.beneficiario || '-')}</div><div class="text-xs text-slate-500 font-mono mt-0.5">${tipoExec} • <span class="text-blue-400 font-bold">${emenda.secretaria || 'Sem Sec.'}</span></div></td>
                     <td class="px-6 py-4 text-sm font-bold text-emerald-400 whitespace-nowrap">R$ ${(emenda.valor || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
-                    <td class="px-6 py-4 w-1/4">
-                        ${progressHtml}
-                    </td>
-                    <td class="px-6 py-4 text-center">
-                        <div class="flex justify-center gap-2 flex-wrap">
-                            <button type="button" class="btn-visualizar flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium rounded-md transition text-xs shadow-sm border border-slate-600" title="Visualizar Detalhes" data-id="${emenda.id}">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                Ver
-                            </button>
-                            <button type="button" class="btn-editar flex items-center gap-1.5 px-3 py-1.5 bg-blue-900/20 hover:bg-blue-900/40 text-blue-400 font-medium rounded-md transition text-xs shadow-sm border border-blue-800/30" title="Editar Emenda e Histórico" data-id="${emenda.id}">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                Editar
-                            </button>
-                            <button type="button" class="btn-inativar flex items-center gap-1.5 px-3 py-1.5 bg-orange-900/20 hover:bg-orange-900/40 text-orange-400 font-medium rounded-md transition text-xs shadow-sm border border-orange-800/30" title="Cancelar Emenda (Manter Histórico)" data-id="${emenda.id}">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
-                                Cancelar
-                            </button>
-                            ${btnExcluirHtml}
-                        </div>
-                    </td>
+                    <td class="px-6 py-4 w-1/4">${progressHtml}</td>
+                    <td class="px-6 py-4 text-center"><div class="flex justify-center gap-2 flex-wrap">
+                        <button type="button" class="btn-visualizar flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium rounded-md transition text-xs shadow-sm border border-slate-600" title="Visualizar Detalhes" data-id="${emenda.id}"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg> Ver</button>
+                        <button type="button" class="btn-editar flex items-center gap-1.5 px-3 py-1.5 bg-blue-900/20 hover:bg-blue-900/40 text-blue-400 font-medium rounded-md transition text-xs shadow-sm border border-blue-800/30" title="Editar Emenda e Histórico" data-id="${emenda.id}"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg> Editar</button>
+                        <button type="button" class="btn-inativar flex items-center gap-1.5 px-3 py-1.5 bg-orange-900/20 hover:bg-orange-900/40 text-orange-400 font-medium rounded-md transition text-xs shadow-sm border border-orange-800/30" title="Cancelar Emenda (Manter Histórico)" data-id="${emenda.id}"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg> Cancelar</button>
+                        ${btnExcluirHtml}
+                    </div></td>
                 `;
-
                 const isChecked = selecionadasGlobais.has(emenda.id) ? 'checked' : '';
-                tr.innerHTML = `
-                    <td class="px-4 py-4 text-center">
-                        <input type="checkbox" class="check-emenda w-4 h-4 text-blue-600 bg-slate-800 border-slate-600 rounded focus:ring-blue-500 cursor-pointer" value="${emenda.id}" ${isChecked}>
-                    </td>
-                ` + tr.innerHTML;
-
+                tr.innerHTML = `<td class="px-4 py-4 text-center"><input type="checkbox" class="check-emenda w-4 h-4 text-blue-600 bg-slate-800 border-slate-600 rounded focus:ring-blue-500 cursor-pointer" value="${emenda.id}" ${isChecked}></td>` + tr.innerHTML;
                 tabelaCorpo.appendChild(tr);
             });
 
-            document.querySelectorAll('.check-emenda').forEach(cb => {
-                cb.addEventListener('change', (e) => {
-                    if(e.target.checked) selecionadasGlobais.add(e.target.value);
-                    else selecionadasGlobais.delete(e.target.value);
-                    
-                    verificarCheckTodos();
-                    atualizarVelocimetro(filtradosGlobais); 
-                });
-            });
+            document.querySelectorAll('.check-emenda').forEach(cb => { cb.addEventListener('change', (e) => { if(e.target.checked) selecionadasGlobais.add(e.target.value); else selecionadasGlobais.delete(e.target.value); verificarCheckTodos(); atualizarVelocimetro(filtradosGlobais); }); });
             verificarCheckTodos();
         }
 
@@ -1110,10 +1092,8 @@
             const checkTodos = document.getElementById('check-todos');
             const checkboxes = document.querySelectorAll('.check-emenda');
             if(!checkTodos || checkboxes.length === 0) return;
-            
             const totalVisiveis = checkboxes.length;
             const totalChecadas = document.querySelectorAll('.check-emenda:checked').length;
-            
             checkTodos.checked = (totalVisiveis === totalChecadas && totalVisiveis > 0);
             checkTodos.indeterminate = (totalChecadas > 0 && totalChecadas < totalVisiveis);
         }
@@ -1123,13 +1103,7 @@
             elCheckTodos.addEventListener('change', (e) => {
                 const checkboxes = document.querySelectorAll('.check-emenda');
                 const isChecked = e.target.checked;
-                
-                checkboxes.forEach(cb => {
-                    cb.checked = isChecked;
-                    if(isChecked) selecionadasGlobais.add(cb.value);
-                    else selecionadasGlobais.delete(cb.value);
-                });
-                
+                checkboxes.forEach(cb => { cb.checked = isChecked; if(isChecked) selecionadasGlobais.add(cb.value); else selecionadasGlobais.delete(cb.value); });
                 atualizarVelocimetro(filtradosGlobais);
             });
         }
@@ -1137,31 +1111,21 @@
         function limparEFecharModal() {
             if(modalEmenda) modalEmenda.classList.add('hidden');
             document.body.style.overflow = 'auto';
-            
             const form = document.getElementById('form-emenda');
             if(form) form.reset();
-            
             const elId = document.getElementById('emenda_id');
             if(elId) elId.value = '';
             historicoAtualDaEdicao = [];
             emendaOriginalSendoEditada = null;
-            
-            // Limpa os novos campos do modal ao fechar
             const inputDataOrigem = document.getElementById('nova_etapa_data_original');
             if(inputDataOrigem) inputDataOrigem.value = '';
             const inputUserOrigem = document.getElementById('nova_etapa_usuario_original');
             if(inputUserOrigem) inputUserOrigem.value = '';
-            
             if(containerHistorico) containerHistorico.classList.add('hidden');
             if(containerVersoesRemanejamento) containerVersoesRemanejamento.classList.add('hidden');
-            
             if(timelineLista) timelineLista.innerHTML = '';
             if(listaVersoesRemanejamento) listaVersoesRemanejamento.innerHTML = '';
-            if(progressoText) {
-                progressoText.textContent = "0% Concluído";
-                progressoText.classList.add('hidden');
-            }
-
+            if(progressoText) { progressoText.textContent = "0% Concluído"; progressoText.classList.add('hidden'); }
             const formElements = document.querySelectorAll('#form-emenda input, #form-emenda select, #form-emenda textarea');
             formElements.forEach(el => el.disabled = false);
             if(btnSalvar) btnSalvar.classList.remove('hidden');
@@ -1176,12 +1140,10 @@
             btnNovaEmenda.addEventListener('click', () => {
                 limparEFecharModal(); 
                 document.getElementById('modal-titulo').textContent = "Cadastrar Nova Emenda";
-                
                 if(selTipoExecucao) selTipoExecucao.value = "Direta";
                 carregarOpcoesStatus("Direta");
                 const dateInput = document.getElementById('nova_etapa_data');
                 if(dateInput) dateInput.valueAsDate = new Date();
-                
                 if(modalEmenda) modalEmenda.classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
             });
@@ -1190,79 +1152,43 @@
         function renderizarHistoricoNoModal() {
             if (!timelineLista) return;
             timelineLista.innerHTML = '';
-            
             const tipoExec = selTipoExecucao ? selTipoExecucao.value : "Direta";
-            
             if(!historicoAtualDaEdicao || historicoAtualDaEdicao.length === 0) {
                 timelineLista.innerHTML = '<li class="text-sm text-slate-500 italic ml-4">Nenhum histórico registrado.</li>';
-                if (progressoText) {
-                    progressoText.textContent = "0% Concluído";
-                    progressoText.classList.remove('hidden');
-                }
+                if (progressoText) { progressoText.textContent = "0% Concluído"; progressoText.classList.remove('hidden'); }
                 return;
             }
-
             const historicoOrdenado = [...historicoAtualDaEdicao].sort((a, b) => new Date(a.data) - new Date(b.data));
-            
             historicoOrdenado.forEach((etapa, index) => {
-                if(index === 0) {
-                    etapa.diasDesdeAnterior = 0;
-                } else {
-                    try {
-                        const dataAnterior = new Date(historicoOrdenado[index-1].data);
-                        const dataAtual = new Date(etapa.data);
-                        const diffTime = Math.abs(dataAtual - dataAnterior);
-                        etapa.diasDesdeAnterior = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    } catch(e) { etapa.diasDesdeAnterior = 0; }
-                }
+                if(index === 0) { etapa.diasDesdeAnterior = 0; } 
+                else { try { const diffTime = Math.abs(new Date(etapa.data) - new Date(historicoOrdenado[index-1].data)); etapa.diasDesdeAnterior = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); } catch(e) { etapa.diasDesdeAnterior = 0; } }
             });
-
             if (progressoText) {
                 const ultimoStatus = historicoOrdenado[historicoOrdenado.length - 1].status;
                 const etapaInfoAtual = getEtapaInfo(ultimoStatus, tipoExec);
-                const pctAtual = etapaInfoAtual ? etapaInfoAtual.pct : 0;
-                progressoText.textContent = `${pctAtual}% Concluído`;
+                progressoText.textContent = `${etapaInfoAtual ? etapaInfoAtual.pct : 0}% Concluído`;
                 progressoText.classList.remove('hidden');
             }
-
             const historicoReverso = [...historicoOrdenado].reverse();
-
             historicoReverso.forEach((etapa) => {
                 let dataFormatada = etapa.data;
-                try {
-                    const partes = etapa.data.split('-');
-                    if(partes.length === 3) dataFormatada = `${partes[2]}/${partes[1]}/${partes[0]}`;
-                } catch(e){}
-
+                try { const partes = etapa.data.split('-'); if(partes.length === 3) dataFormatada = `${partes[2]}/${partes[1]}/${partes[0]}`; } catch(e){}
                 const etapaInfo = getEtapaInfo(etapa.status, tipoExec);
                 const validPct = etapaInfo ? etapaInfo.pct : 0;
-                
                 const badgeDias = etapa.diasDesdeAnterior > 0 ? `<span class="ml-2 text-[11px] font-bold text-orange-400 bg-orange-900/30 px-2 py-0.5 rounded-full shadow-sm border border-orange-800/50" title="Tempo na etapa anterior">⏳ +${etapa.diasDesdeAnterior} dias</span>` : '';
                 const infoUsuario = etapa.usuario ? `<span class="ml-2 text-[10px] text-slate-500 font-medium" title="Usuário do Sistema">👤 ${etapa.usuario}</span>` : '';
                 const infoResponsavel = etapa.responsavel_etapa ? `<div class="text-xs text-slate-400 mt-1"><span class="font-semibold text-slate-300">Responsável:</span> ${etapa.responsavel_etapa}</div>` : '';
-
-                // Renderiza as tags de auditoria Dupla
                 const tagOrigem = etapa.usuario_original ? `<div class="text-[10px] text-emerald-400/90 font-medium mt-1.5 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg> Origem: ${etapa.usuario_original} (${etapa.data_original ? new Date(etapa.data_original + "T00:00:00").toLocaleDateString('pt-BR') : '-'})</div>` : '';
                 const tagChecagem = etapa.usuario_checagem ? `<div class="text-[10px] text-purple-400/90 font-medium mt-0.5 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg> Checado por: ${etapa.usuario_checagem} (${etapa.data_checagem ? new Date(etapa.data_checagem + "T00:00:00").toLocaleDateString('pt-BR') : '-'})</div>` : '';
-
 
                 const li = document.createElement('li');
                 li.className = "relative pl-6 timeline-item";
                 li.innerHTML = `
                     <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-1">
-                        <div>
-                            <span class="text-sm font-bold text-slate-200">${etapa.status}</span>
-                            <span class="ml-2 text-[10px] font-bold text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">${validPct}%</span>
-                            ${infoUsuario}
-                        </div>
-                        <div class="flex items-center mt-1 sm:mt-0">
-                            <span class="text-xs font-medium text-slate-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700 shadow-sm">${dataFormatada}</span>
-                            ${badgeDias}
-                        </div>
+                        <div><span class="text-sm font-bold text-slate-200">${etapa.status}</span><span class="ml-2 text-[10px] font-bold text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">${validPct}%</span>${infoUsuario}</div>
+                        <div class="flex items-center mt-1 sm:mt-0"><span class="text-xs font-medium text-slate-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700 shadow-sm">${dataFormatada}</span>${badgeDias}</div>
                     </div>
-                    ${infoResponsavel}
-                    ${tagOrigem}
-                    ${tagChecagem}
+                    ${infoResponsavel} ${tagOrigem} ${tagChecagem}
                     <p class="text-sm text-slate-400 mt-1 bg-slate-900/50 p-2 rounded border border-slate-700/50">${etapa.observacao || '<i>Nenhuma observação adicional.</i>'}</p>
                 `;
                 timelineLista.appendChild(li);
@@ -1275,38 +1201,19 @@
                 const statusEtapa = document.getElementById('nova_etapa_status').value;
                 const obsEtapa = document.getElementById('nova_etapa_obs').value;
                 const responsavelEtapa = document.getElementById('nova_etapa_responsavel').value;
-
-                // Captura os novos campos
                 const dataOriginal = document.getElementById('nova_etapa_data_original').value;
                 const usuarioOriginal = document.getElementById('nova_etapa_usuario_original').value;
-                
-                // Captura a data de hoje (momento em que o sistema está sendo alimentado)
                 const dataChecagem = new Date().toISOString().split('T')[0];
                 const usuarioLogado = auth.currentUser ? auth.currentUser.email.split('@')[0] : 'Administrador';
 
-                if(!dataEtapa || !statusEtapa) {
-                    showToast("Preencha a data e o status para adicionar a etapa.", "warning");
-                    return;
-                }
+                if(!dataEtapa || !statusEtapa) { showToast("Preencha a data e o status para adicionar a etapa.", "warning"); return; }
 
                 historicoAtualDaEdicao.push({
-                    data: dataEtapa,
-                    status: statusEtapa,
-                    observacao: obsEtapa,
-                    responsavel_etapa: responsavelEtapa,
-                    usuario: auth.currentUser ? auth.currentUser.email : 'Administrador',
-                    // Vincula os campos de Rastreio Duplo
-                    data_original: dataOriginal,
-                    usuario_original: usuarioOriginal,
-                    data_checagem: dataChecagem,
-                    usuario_checagem: usuarioLogado
+                    data: dataEtapa, status: statusEtapa, observacao: obsEtapa, responsavel_etapa: responsavelEtapa, usuario: auth.currentUser ? auth.currentUser.email : 'Administrador',
+                    data_original: dataOriginal, usuario_original: usuarioOriginal, data_checagem: dataChecagem, usuario_checagem: usuarioLogado
                 });
 
-                document.getElementById('nova_etapa_obs').value = '';
-                document.getElementById('nova_etapa_responsavel').value = '';
-                document.getElementById('nova_etapa_data_original').value = '';
-                document.getElementById('nova_etapa_usuario_original').value = '';
-
+                document.getElementById('nova_etapa_obs').value = ''; document.getElementById('nova_etapa_responsavel').value = ''; document.getElementById('nova_etapa_data_original').value = ''; document.getElementById('nova_etapa_usuario_original').value = '';
                 showToast("Etapa adicionada! Salve a emenda para confirmar.", "success");
                 renderizarHistoricoNoModal();
             });
@@ -1318,7 +1225,6 @@
                 const btnEditar = e.target.closest('.btn-editar');
                 const btnInativar = e.target.closest('.btn-inativar');
                 const btnExcluir = e.target.closest('.btn-excluir');
-                
                 if (btnVisualizar) preencherModalEdicao(btnVisualizar.dataset.id, true);
                 if (btnEditar) preencherModalEdicao(btnEditar.dataset.id, false);
                 if (btnInativar) inativarEmenda(btnInativar.dataset.id);
@@ -1328,52 +1234,31 @@
 
         function preencherModalEdicao(id, somenteLeitura = false) {
             limparEFecharModal(); 
-
-            // Alterado para buscar SEMPRE da variável global que acabou de ser sincronizada
-            // em vez de buscar do localStorage cru.
             const emenda = dadosEmendasGlobais.find(e => e.id === id);
             if(!emenda) return;
-
             emendaOriginalSendoEditada = emenda; 
 
             const formElements = document.querySelectorAll('#form-emenda input, #form-emenda select, #form-emenda textarea');
             formElements.forEach(el => el.disabled = somenteLeitura);
-            
             const boxAdicionarEtapa = document.getElementById('box-adicionar-etapa');
 
-            if (somenteLeitura) {
-                document.getElementById('modal-titulo').textContent = "Detalhes da Emenda";
-                if(btnSalvar) btnSalvar.classList.add('hidden');
-                if(boxAdicionarEtapa) boxAdicionarEtapa.classList.add('hidden');
-            } else {
-                document.getElementById('modal-titulo').textContent = "Editar Emenda e Histórico";
-                if(btnSalvar) btnSalvar.classList.remove('hidden');
-                if(boxAdicionarEtapa) boxAdicionarEtapa.classList.remove('hidden');
-            }
-
+            if (somenteLeitura) { document.getElementById('modal-titulo').textContent = "Detalhes da Emenda"; if(btnSalvar) btnSalvar.classList.add('hidden'); if(boxAdicionarEtapa) boxAdicionarEtapa.classList.add('hidden'); } 
+            else { document.getElementById('modal-titulo').textContent = "Editar Emenda e Histórico"; if(btnSalvar) btnSalvar.classList.remove('hidden'); if(boxAdicionarEtapa) boxAdicionarEtapa.classList.remove('hidden'); }
             if (containerHistorico) containerHistorico.classList.remove('hidden');
 
             document.getElementById('emenda_id').value = emenda.id;
             document.getElementById('num_processo').value = emenda.numero_processo || '';
             document.getElementById('num_emenda').value = emenda.numero_emenda || '';
-            
-            let pri = emenda.prioridade || '';
-            if (pri === '1º Primeiro') pri = '1º Primeira'; // Corrige inconsistência de gênero, caso exista
-            document.getElementById('prioridade').value = pri;
+            let pri = emenda.prioridade || ''; if (pri === '1º Primeiro') pri = '1º Primeira'; document.getElementById('prioridade').value = pri;
 
-            const selBancada = document.getElementById('bancada');
-            if(emenda.bancada && selBancada) selBancada.value = emenda.bancada;
-            
-            const selVer = document.getElementById('vereador');
-            if(emenda.vereador && selVer) selVer.value = emenda.vereador;
+            const selBancada = document.getElementById('bancada'); if(emenda.bancada && selBancada) selBancada.value = emenda.bancada;
+            const selVer = document.getElementById('vereador'); if(emenda.vereador && selVer) selVer.value = emenda.vereador;
 
             const tipoExec = emenda.tipo_execucao || 'Direta';
             if(selTipoExecucao) selTipoExecucao.value = tipoExec;
             carregarOpcoesStatus(tipoExec);
 
-            const selSec = document.getElementById('sec_executora');
-            if(emenda.secretaria && selSec) selSec.value = emenda.secretaria;
-
+            const selSec = document.getElementById('sec_executora'); if(emenda.secretaria && selSec) selSec.value = emenda.secretaria;
             document.getElementById('beneficiario').value = emenda.beneficiario || '';
             document.getElementById('enquadramento').value = emenda.enquadramento || '';
             document.getElementById('acao').value = emenda.acao || '';
@@ -1381,11 +1266,8 @@
             document.getElementById('valor').value = emenda.valor || '';
             document.getElementById('objeto').value = emenda.objeto || '';
             
-            const cbRemanejada = document.getElementById('remanejada');
-            if(cbRemanejada) cbRemanejada.checked = emenda.remanejada || false;
-
-            const cbEng = document.getElementById('projeto_engenharia');
-            if(cbEng) cbEng.checked = emenda.projeto_engenharia || false;
+            const cbRemanejada = document.getElementById('remanejada'); if(cbRemanejada) cbRemanejada.checked = emenda.remanejada || false;
+            const cbEng = document.getElementById('projeto_engenharia'); if(cbEng) cbEng.checked = emenda.projeto_engenharia || false;
 
             if (emenda.versoes_remanejamento && emenda.versoes_remanejamento.length > 0) {
                 if(containerVersoesRemanejamento) containerVersoesRemanejamento.classList.remove('hidden');
@@ -1417,55 +1299,32 @@
                         `;
                     });
                 }
-            } else {
-                if(containerVersoesRemanejamento) containerVersoesRemanejamento.classList.add('hidden');
-            }
+            } else { if(containerVersoesRemanejamento) containerVersoesRemanejamento.classList.add('hidden'); }
 
             historicoAtualDaEdicao = emenda.historico_status ? [...emenda.historico_status] : [];
-            
-            const dateInput = document.getElementById('nova_etapa_data');
-            if(dateInput) dateInput.valueAsDate = new Date();
-            
+            const dateInput = document.getElementById('nova_etapa_data'); if(dateInput) dateInput.valueAsDate = new Date();
             renderizarHistoricoNoModal();
-            
-            if(modalEmenda) modalEmenda.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
+            if(modalEmenda) modalEmenda.classList.remove('hidden'); document.body.style.overflow = 'hidden';
         }
 
         function inativarEmenda(id) {
             showConfirm("Tem certeza que deseja marcar esta emenda como Cancelada?", async () => {
                 const emenda = dadosEmendasGlobais.find(e => e.id === id);
                 if(!emenda) return;
-
                 const historico = emenda.historico_status || [];
-                historico.push({
-                    data: new Date().toISOString().split('T')[0],
-                    status: "Emenda CANCELADA",
-                    observacao: "Cancelada diretamente pelo painel",
-                    usuario: auth.currentUser ? auth.currentUser.email : 'Administrador'
-                });
+                historico.push({ data: new Date().toISOString().split('T')[0], status: "Emenda CANCELADA", observacao: "Cancelada diretamente pelo painel", usuario: auth.currentUser ? auth.currentUser.email : 'Administrador' });
 
                 try {
                     const docRef = doc(db, "emendas", id);
-                    await updateDoc(docRef, {
-                        historico_status: historico,
-                        data_atualizacao: new Date().toISOString()
-                    });
-
+                    await updateDoc(docRef, { historico_status: historico, data_atualizacao: new Date().toISOString() });
                     const index = dadosEmendasGlobais.findIndex(e => e.id === id);
                     if(index !== -1) dadosEmendasGlobais[index].historico_status = historico;
                     localStorage.setItem(CACHE_KEY, JSON.stringify(dadosEmendasGlobais));
-                    
                     showToast("Emenda cancelada com sucesso.", "success");
                     aplicarFiltrosEOrdenacao();
-
-                    // Dispara Email
                     const autorParaEmail = emenda.vereador !== "Nenhum (Emenda de Bancada)" ? emenda.vereador : emenda.bancada;
                     enviarNotificacaoEmail(emenda.numero_processo, emenda.numero_emenda, autorParaEmail, "CANCELOU A EMENDA", "A emenda foi marcada como cancelada no sistema.");
-
-                } catch (error) {
-                    showToast("Erro ao inativar.", "error");
-                }
+                } catch (error) { showToast("Erro ao inativar.", "error"); }
             });
         }
 
@@ -1473,55 +1332,35 @@
             showConfirm("EXCLUSÃO DEFINITIVA: Tem certeza que deseja apagar esta emenda e todo o seu histórico do banco de dados? Esta ação não pode ser desfeita.", async () => {
                 try {
                     const emendaExcluida = dadosEmendasGlobais.find(e => e.id === id);
-
                     await deleteDoc(doc(db, "emendas", id));
-                    
                     dadosEmendasGlobais = dadosEmendasGlobais.filter(e => e.id !== id);
                     localStorage.setItem(CACHE_KEY, JSON.stringify(dadosEmendasGlobais));
-                    
                     showToast("Emenda excluída com sucesso do sistema.", "success");
                     aplicarFiltrosEOrdenacao();
-
-                    // Dispara Email
                     if (emendaExcluida) {
                         const autorParaEmail = emendaExcluida.vereador !== "Nenhum (Emenda de Bancada)" ? emendaExcluida.vereador : emendaExcluida.bancada;
                         enviarNotificacaoEmail(emendaExcluida.numero_processo, emendaExcluida.numero_emenda, autorParaEmail, "EXCLUIU A EMENDA DEFINITIVAMENTE", "A emenda e todo o seu histórico foram apagados do banco de dados.");
                     }
-
-                } catch (error) {
-                    console.error("Erro ao excluir documento: ", error);
-                    showToast("Erro ao tentar excluir a emenda.", "error");
-                }
+                } catch (error) { console.error("Erro ao excluir documento: ", error); showToast("Erro ao tentar excluir a emenda.", "error"); }
             });
         }
 
         if(btnSalvar) {
             btnSalvar.addEventListener('click', async () => {
                 const form = document.getElementById('form-emenda');
-                if(!form.checkValidity()) {
-                    form.reportValidity();
-                    return;
-                }
+                if(!form.checkValidity()) { form.reportValidity(); return; }
 
                 const idEdicao = document.getElementById('emenda_id').value;
                 const tipoExec = selTipoExecucao ? selTipoExecucao.value : "Direta";
                 
                 const novaEmendaData = {
-                    numero_processo: document.getElementById('num_processo').value,
-                    numero_emenda: document.getElementById('num_emenda').value,
-                    prioridade: document.getElementById('prioridade').value,
-                    bancada: document.getElementById('bancada').value,
-                    vereador: document.getElementById('vereador').value,
-                    secretaria: document.getElementById('sec_executora') ? document.getElementById('sec_executora').value : "",
-                    tipo_execucao: tipoExec,
-                    beneficiario: document.getElementById('beneficiario').value,
-                    enquadramento: document.getElementById('enquadramento').value,
-                    valor: parseFloat(document.getElementById('valor').value),
-                    acao: document.getElementById('acao').value,
-                    dotacao: document.getElementById('dotacao').value,
-                    objeto: document.getElementById('objeto').value,
-                    remanejada: document.getElementById('remanejada').checked,
-                    projeto_engenharia: document.getElementById('projeto_engenharia').checked,
+                    numero_processo: document.getElementById('num_processo').value, numero_emenda: document.getElementById('num_emenda').value,
+                    prioridade: document.getElementById('prioridade').value, bancada: document.getElementById('bancada').value,
+                    vereador: document.getElementById('vereador').value, secretaria: document.getElementById('sec_executora') ? document.getElementById('sec_executora').value : "",
+                    tipo_execucao: tipoExec, beneficiario: document.getElementById('beneficiario').value, enquadramento: document.getElementById('enquadramento').value,
+                    valor: parseFloat(document.getElementById('valor').value), acao: document.getElementById('acao').value,
+                    dotacao: document.getElementById('dotacao').value, objeto: document.getElementById('objeto').value,
+                    remanejada: document.getElementById('remanejada').checked, projeto_engenharia: document.getElementById('projeto_engenharia').checked,
                     data_atualizacao: new Date().toISOString()
                 };
 
@@ -1530,73 +1369,34 @@
                 btnSalvar.disabled = true;
 
                 try {
-                    let emailAcao = "";
-                    let emailDetalhes = "";
+                    let emailAcao = ""; let emailDetalhes = "";
 
                     if (idEdicao && idEdicao.trim() !== '') {
-                        // ATUALIZACAO (UPDATE)
-                        // AQUI ESTAVA O PROBLEMA: Estávamos enviando cegamente o histórico inteiro clonado.
-                        // Se no meio tempo alguém salvou, ele apagava o da pessoa.
                         novaEmendaData.historico_status = historicoAtualDaEdicao;
-                        
                         let versoesRemanejamento = emendaOriginalSendoEditada && emendaOriginalSendoEditada.versoes_remanejamento ? [...emendaOriginalSendoEditada.versoes_remanejamento] : [];
-                        
-                        emailAcao = "ATUALIZOU A EMENDA";
-                        emailDetalhes = `O histórico/dados básicos foram atualizados. Novo status atual: ${historicoAtualDaEdicao.length > 0 ? historicoAtualDaEdicao[historicoAtualDaEdicao.length-1].status : 'Desconhecido'}`;
+                        emailAcao = "ATUALIZOU A EMENDA"; emailDetalhes = `O histórico/dados básicos foram atualizados. Novo status atual: ${historicoAtualDaEdicao.length > 0 ? historicoAtualDaEdicao[historicoAtualDaEdicao.length-1].status : 'Desconhecido'}`;
 
                         if (novaEmendaData.remanejada && emendaOriginalSendoEditada) {
-                            const mudouEstrutura = (
-                                novaEmendaData.beneficiario !== emendaOriginalSendoEditada.beneficiario ||
-                                novaEmendaData.acao !== emendaOriginalSendoEditada.acao ||
-                                novaEmendaData.dotacao !== emendaOriginalSendoEditada.dotacao ||
-                                novaEmendaData.objeto !== emendaOriginalSendoEditada.objeto
-                            );
-
+                            const mudouEstrutura = (novaEmendaData.beneficiario !== emendaOriginalSendoEditada.beneficiario || novaEmendaData.acao !== emendaOriginalSendoEditada.acao || novaEmendaData.dotacao !== emendaOriginalSendoEditada.dotacao || novaEmendaData.objeto !== emendaOriginalSendoEditada.objeto);
                             if (mudouEstrutura) {
-                                emailAcao = "REMANEJOU A EMENDA";
-                                emailDetalhes = `Houve alteração na estrutura da emenda.<br><b>Era:</b> ${emendaOriginalSendoEditada.beneficiario} | Obj: ${emendaOriginalSendoEditada.objeto}<br><b>Ficou:</b> ${novaEmendaData.beneficiario} | Obj: ${novaEmendaData.objeto}`;
-                                
+                                emailAcao = "REMANEJOU A EMENDA"; emailDetalhes = `Houve alteração na estrutura da emenda.<br><b>Era:</b> ${emendaOriginalSendoEditada.beneficiario} | Obj: ${emendaOriginalSendoEditada.objeto}<br><b>Ficou:</b> ${novaEmendaData.beneficiario} | Obj: ${novaEmendaData.objeto}`;
                                 versoesRemanejamento.push({
-                                    data_alteracao: new Date().toISOString(),
-                                    usuario: auth.currentUser ? auth.currentUser.email : 'Administrador',
-                                    anterior: {
-                                        beneficiario: emendaOriginalSendoEditada.beneficiario || '-',
-                                        acao: emendaOriginalSendoEditada.acao || '-',
-                                        dotacao: emendaOriginalSendoEditada.dotacao || '-',
-                                        objeto: emendaOriginalSendoEditada.objeto || '-'
-                                    },
-                                    novo: {
-                                        beneficiario: novaEmendaData.beneficiario || '-',
-                                        acao: novaEmendaData.acao || '-',
-                                        dotacao: novaEmendaData.dotacao || '-',
-                                        objeto: novaEmendaData.objeto || '-'
-                                    }
+                                    data_alteracao: new Date().toISOString(), usuario: auth.currentUser ? auth.currentUser.email : 'Administrador',
+                                    anterior: { beneficiario: emendaOriginalSendoEditada.beneficiario || '-', acao: emendaOriginalSendoEditada.acao || '-', dotacao: emendaOriginalSendoEditada.dotacao || '-', objeto: emendaOriginalSendoEditada.objeto || '-' },
+                                    novo: { beneficiario: novaEmendaData.beneficiario || '-', acao: novaEmendaData.acao || '-', dotacao: novaEmendaData.dotacao || '-', objeto: novaEmendaData.objeto || '-' }
                                 });
                             }
                         }
                         novaEmendaData.versoes_remanejamento = versoesRemanejamento;
-                        
                         const docRef = doc(db, "emendas", idEdicao);
                         await updateDoc(docRef, novaEmendaData);
-                        
                         const index = dadosEmendasGlobais.findIndex(e => e.id === idEdicao);
                         if(index !== -1) dadosEmendasGlobais[index] = { id: idEdicao, ...dadosEmendasGlobais[index], ...novaEmendaData };
-                        
                         showToast("Emenda atualizada com sucesso!");
                     } else {
-                        // CRIACAO (CREATE)
                         novaEmendaData.data_cadastro = new Date().toISOString();
-                        
-                        emailAcao = "CADASTROU NOVA EMENDA";
-                        emailDetalhes = `Beneficiário inicial: ${novaEmendaData.beneficiario}. Valor: R$ ${novaEmendaData.valor}`;
-
-                        novaEmendaData.historico_status = [{
-                            data: new Date().toISOString().split('T')[0],
-                            status: "Recepção e Cadastro da Emenda",
-                            observacao: "Cadastro Inicial do Processo",
-                            usuario: auth.currentUser ? auth.currentUser.email : 'Administrador'
-                        }];
-
+                        emailAcao = "CADASTROU NOVA EMENDA"; emailDetalhes = `Beneficiário inicial: ${novaEmendaData.beneficiario}. Valor: R$ ${novaEmendaData.valor}`;
+                        novaEmendaData.historico_status = [{ data: new Date().toISOString().split('T')[0], status: "Recepção e Cadastro da Emenda", observacao: "Cadastro Inicial do Processo", usuario: auth.currentUser ? auth.currentUser.email : 'Administrador' }];
                         const docRef = await addDoc(collection(db, "emendas"), novaEmendaData);
                         dadosEmendasGlobais.push({ id: docRef.id, ...novaEmendaData });
                         showToast("Nova emenda cadastrada com sucesso!");
@@ -1604,20 +1404,10 @@
 
                     localStorage.setItem(CACHE_KEY, JSON.stringify(dadosEmendasGlobais));
                     aplicarFiltrosEOrdenacao();
-                    
-                    // DISPARA E-MAIL DEPOIS DE SALVAR NO BANCO
                     const autorParaEmail = novaEmendaData.vereador !== "Nenhum (Emenda de Bancada)" ? novaEmendaData.vereador : novaEmendaData.bancada;
                     enviarNotificacaoEmail(novaEmendaData.numero_processo, novaEmendaData.numero_emenda, autorParaEmail, emailAcao, emailDetalhes);
-
                     limparEFecharModal(); 
-
-                } catch (error) {
-                    console.error(error);
-                    showToast("Erro de conexão ao salvar.", "error");
-                } finally {
-                    btnSalvar.innerHTML = btnNormalText;
-                    btnSalvar.disabled = false;
-                }
+                } catch (error) { console.error(error); showToast("Erro de conexão ao salvar.", "error"); } finally { btnSalvar.innerHTML = btnNormalText; btnSalvar.disabled = false; }
             });
         }
 
@@ -1628,205 +1418,85 @@
         const filtroContainer = document.querySelector('.bg-slate-800.p-4.rounded-xl.shadow-sm.border.border-slate-700.mb-6.flex');
 
         if(elTabTabela && elTabDash && viewTabelaContainer && viewDashContainer && filtroContainer) {
-            
             elTabTabela.addEventListener('click', () => {
                 elTabTabela.className = "px-5 py-2 bg-blue-600 text-white rounded-md text-sm font-bold shadow-sm transition";
                 elTabDash.className = "px-5 py-2 text-slate-400 hover:text-slate-100 hover:bg-slate-700 rounded-md text-sm font-bold transition flex items-center gap-2";
-                
-                viewDashContainer.classList.add('hidden');
-                viewDashContainer.classList.remove('flex');
-                
-                viewTabelaContainer.classList.remove('hidden');
-                filtroContainer.classList.remove('hidden');
-                filtroContainer.classList.add('flex');
+                viewDashContainer.classList.add('hidden'); viewDashContainer.classList.remove('flex');
+                viewTabelaContainer.classList.remove('hidden'); filtroContainer.classList.remove('hidden'); filtroContainer.classList.add('flex');
             });
-
             elTabDash.addEventListener('click', () => {
                 elTabDash.className = "px-5 py-2 bg-blue-600 text-white rounded-md text-sm font-bold shadow-sm transition flex items-center gap-2";
                 elTabTabela.className = "px-5 py-2 text-slate-400 hover:text-slate-100 hover:bg-slate-700 rounded-md text-sm font-bold transition";
-                
-                viewTabelaContainer.classList.add('hidden');
-                filtroContainer.classList.add('hidden');
-                filtroContainer.classList.remove('flex');
-
-                viewDashContainer.classList.remove('hidden');
-                viewDashContainer.classList.add('flex');
-                
+                viewTabelaContainer.classList.add('hidden'); filtroContainer.classList.add('hidden'); filtroContainer.classList.remove('flex');
+                viewDashContainer.classList.remove('hidden'); viewDashContainer.classList.add('flex');
                 renderizarDashboard(filtradosGlobais);
             });
         }
 
         let graficosInstanciados = {};
-
-        function getChartColor(index) {
-            const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4', '#f97316', '#6366f1', '#14b8a6', '#f43f5e'];
-            return colors[index % colors.length];
-        }
-
-        function formatarMoedaAbreviada(valor) {
-            if (valor >= 1000000) return (valor / 1000000).toFixed(1).replace('.', ',') + 'M';
-            if (valor >= 1000) return (valor / 1000).toFixed(1).replace('.', ',') + 'k';
-            return valor.toString();
-        }
+        function getChartColor(index) { const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4', '#f97316', '#6366f1', '#14b8a6', '#f43f5e']; return colors[index % colors.length]; }
+        function formatarMoedaAbreviada(valor) { if (valor >= 1000000) return (valor / 1000000).toFixed(1).replace('.', ',') + 'M'; if (valor >= 1000) return (valor / 1000).toFixed(1).replace('.', ',') + 'k'; return valor.toString(); }
 
         function renderizarDashboard(dados) {
             if(!dados || dados.length === 0) return;
-
-            let cGeral = { NoPrazo: 0, Atrasada: 0, Concluida: 0, Cancelada: 0 };
-            let cTipo = { Direta: 0, Indireta: 0 };
-            let cEng = { Sim: 0, Nao: 0 };
-            let cRem = { Sim: 0, Nao: 0 };
-            let cSec = {}; let vSec = {};
-            let cAut = {}; let vAut = {};
-            let cPri = {}; let cCont = {};
-            let gargalos = {}; let evolucao = {};
-            let vTipo = { Direta: 0, Indireta: 0 };
-            let topBen = {}; let atrasadasList = [];
+            let cGeral = { NoPrazo: 0, Atrasada: 0, Concluida: 0, Cancelada: 0 }; let cTipo = { Direta: 0, Indireta: 0 }; let cEng = { Sim: 0, Nao: 0 }; let cRem = { Sim: 0, Nao: 0 }; let cSec = {}; let vSec = {}; let cAut = {}; let vAut = {}; let cPri = {}; let cCont = {}; let gargalos = {}; let evolucao = {}; let vTipo = { Direta: 0, Indireta: 0 }; let topBen = {}; let atrasadasList = [];
 
             dados.forEach(e => {
                 const tipoExec = e.tipo_execucao || "Direta";
                 let statusAtual = "Recepção e Cadastro da Emenda";
-                if (e.historico_status && e.historico_status.length > 0) {
-                    statusAtual = e.historico_status[e.historico_status.length - 1].status;
-                }
+                if (e.historico_status && e.historico_status.length > 0) statusAtual = e.historico_status[e.historico_status.length - 1].status;
                 const etapaInfo = getEtapaInfo(statusAtual, tipoExec);
                 const isCanc = statusAtual.includes("CANCELADA");
                 const isAtras = isAtrasada(e, etapaInfo);
                 const valor = parseFloat(e.valor || 0);
 
-                if (isCanc) cGeral.Cancelada++;
-                else if (etapaInfo.pct === 100) cGeral.Concluida++;
-                else if (isAtras) { cGeral.Atrasada++; atrasadasList.push(e); }
-                else cGeral.NoPrazo++;
+                if (isCanc) cGeral.Cancelada++; else if (etapaInfo.pct === 100) cGeral.Concluida++; else if (isAtras) { cGeral.Atrasada++; atrasadasList.push(e); } else cGeral.NoPrazo++;
+                cTipo[tipoExec]++; vTipo[tipoExec] += valor; e.projeto_engenharia ? cEng.Sim++ : cEng.Nao++; e.remanejada ? cRem.Sim++ : cRem.Nao++;
 
-                cTipo[tipoExec]++;
-                vTipo[tipoExec] += valor;
-                e.projeto_engenharia ? cEng.Sim++ : cEng.Nao++;
-                e.remanejada ? cRem.Sim++ : cRem.Nao++;
-
-                const sec = e.secretaria || "Sem Sec.";
-                cSec[sec] = (cSec[sec] || 0) + 1;
-                vSec[sec] = (vSec[sec] || 0) + valor;
-
-                const autor = (e.vereador && e.vereador !== "Nenhum (Emenda de Bancada)") ? e.vereador : (e.bancada || "Sem Autor");
-                cAut[autor] = (cAut[autor] || 0) + 1;
-                vAut[autor] = (vAut[autor] || 0) + valor;
-
-                const pri = e.prioridade ? e.prioridade.split(' ')[0] : "S/P";
-                cPri[pri] = (cPri[pri] || 0) + 1;
-
-                const cont = e.enquadramento || "N/C";
-                cCont[cont] = (cCont[cont] || 0) + 1;
-
-                const ben = e.beneficiario || "Desconhecido";
-                topBen[ben] = (topBen[ben] || 0) + valor;
+                const sec = e.secretaria || "Sem Sec."; cSec[sec] = (cSec[sec] || 0) + 1; vSec[sec] = (vSec[sec] || 0) + valor;
+                const autor = (e.vereador && e.vereador !== "Nenhum (Emenda de Bancada)") ? e.vereador : (e.bancada || "Sem Autor"); cAut[autor] = (cAut[autor] || 0) + 1; vAut[autor] = (vAut[autor] || 0) + valor;
+                const pri = e.prioridade ? e.prioridade.split(' ')[0] : "S/P"; cPri[pri] = (cPri[pri] || 0) + 1;
+                const cont = e.enquadramento || "N/C"; cCont[cont] = (cCont[cont] || 0) + 1;
+                const ben = e.beneficiario || "Desconhecido"; topBen[ben] = (topBen[ben] || 0) + valor;
 
                 if (e.historico_status && e.historico_status.length > 0) {
                     const hist = [...e.historico_status].sort((a,b) => new Date(a.data) - new Date(b.data));
                     hist.forEach((etapa, idx) => {
-                        const mesAno = etapa.data.substring(0, 7);
-                        evolucao[mesAno] = (evolucao[mesAno] || 0) + 1;
-
-                        if (idx > 0) {
-                            const dAnt = new Date(hist[idx-1].data);
-                            const dAtu = new Date(etapa.data);
-                            const dias = Math.ceil(Math.abs(dAtu - dAnt) / (1000*60*60*24));
-                            const nomeAnt = hist[idx-1].status;
-                            if(!gargalos[nomeAnt]) gargalos[nomeAnt] = [];
-                            gargalos[nomeAnt].push(dias);
-                        }
+                        const mesAno = etapa.data.substring(0, 7); evolucao[mesAno] = (evolucao[mesAno] || 0) + 1;
+                        if (idx > 0) { const dAnt = new Date(hist[idx-1].data); const dAtu = new Date(etapa.data); const dias = Math.ceil(Math.abs(dAtu - dAnt) / (1000*60*60*24)); const nomeAnt = hist[idx-1].status; if(!gargalos[nomeAnt]) gargalos[nomeAnt] = []; gargalos[nomeAnt].push(dias); }
                     });
                 }
             });
 
-            const renderDoughnut = (id, labels, data, colors) => {
-                if(graficosInstanciados[id]) graficosInstanciados[id].destroy();
-                graficosInstanciados[id] = new Chart(document.getElementById(id), {
-                    type: 'doughnut',
-                    data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 1, borderColor: '#1e293b' }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#94a3b8', font: { size: 10 } } } } }
-                });
-            };
-
-            const renderBar = (id, labels, data, color, isCurrency=false) => {
-                if(graficosInstanciados[id]) graficosInstanciados[id].destroy();
-                graficosInstanciados[id] = new Chart(document.getElementById(id), {
-                    type: 'bar',
-                    data: { labels, datasets: [{ data, backgroundColor: color, borderRadius: 4 }] },
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => isCurrency ? 'R$ '+c.raw.toLocaleString('pt-BR') : c.raw } } },
-                        scales: { 
-                            y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8', callback: (v) => isCurrency ? formatarMoedaAbreviada(v) : v } },
-                            x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 }, maxRotation: 45 } }
-                        }
-                    }
-                });
-            };
-
-            const renderHBar = (id, labels, data, color, appendDias=false) => {
-                if(graficosInstanciados[id]) graficosInstanciados[id].destroy();
-                graficosInstanciados[id] = new Chart(document.getElementById(id), {
-                    type: 'bar',
-                    data: { labels, datasets: [{ data, backgroundColor: color, borderRadius: 4 }] },
-                    options: {
-                        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => appendDias ? c.raw + ' dias' : c.raw } } },
-                        scales: { 
-                            x: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
-                            y: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } }
-                        }
-                    }
-                });
-            };
+            const renderDoughnut = (id, labels, data, colors) => { if(graficosInstanciados[id]) graficosInstanciados[id].destroy(); graficosInstanciados[id] = new Chart(document.getElementById(id), { type: 'doughnut', data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 1, borderColor: '#1e293b' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#94a3b8', font: { size: 10 } } } } } }); };
+            const renderBar = (id, labels, data, color, isCurrency=false) => { if(graficosInstanciados[id]) graficosInstanciados[id].destroy(); graficosInstanciados[id] = new Chart(document.getElementById(id), { type: 'bar', data: { labels, datasets: [{ data, backgroundColor: color, borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => isCurrency ? 'R$ '+c.raw.toLocaleString('pt-BR') : c.raw } } }, scales: { y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8', callback: (v) => isCurrency ? formatarMoedaAbreviada(v) : v } }, x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 }, maxRotation: 45 } } } } }); };
+            const renderHBar = (id, labels, data, color, appendDias=false) => { if(graficosInstanciados[id]) graficosInstanciados[id].destroy(); graficosInstanciados[id] = new Chart(document.getElementById(id), { type: 'bar', data: { labels, datasets: [{ data, backgroundColor: color, borderRadius: 4 }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => appendDias ? c.raw + ' dias' : c.raw } } }, scales: { x: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } }, y: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } } } } }); };
 
             renderDoughnut('chart-status-geral', ['No Prazo', 'Atrasada', 'Concluída', 'Cancelada'], [cGeral.NoPrazo, cGeral.Atrasada, cGeral.Concluida, cGeral.Cancelada], ['#3b82f6', '#ef4444', '#10b981', '#475569']);
             renderDoughnut('chart-tipo-exec', ['Direta', 'Indireta'], [cTipo.Direta, cTipo.Indireta], ['#3b82f6', '#8b5cf6']);
             renderDoughnut('chart-eng', ['Exige', 'Não Exige'], [cEng.Sim, cEng.Nao], ['#f59e0b', '#334155']);
             renderDoughnut('chart-rem', ['Remanejada', 'Original'], [cRem.Sim, cRem.Nao], ['#d946ef', '#334155']);
 
-            let sortSec = Object.keys(cSec).sort((a,b)=>cSec[b]-cSec[a]);
-            renderBar('chart-q-sec', sortSec, sortSec.map(k=>cSec[k]), '#3b82f6');
-            let sortVSec = Object.keys(vSec).sort((a,b)=>vSec[b]-vSec[a]);
-            renderBar('chart-v-sec', sortVSec, sortVSec.map(k=>vSec[k]), '#10b981', true);
-
-            let sortAut = Object.keys(cAut).sort((a,b)=>cAut[b]-cAut[a]);
-            renderBar('chart-q-bancada', sortAut, sortAut.map(k=>cAut[k]), '#8b5cf6');
-            let sortVAut = Object.keys(vAut).sort((a,b)=>vAut[b]-vAut[a]);
-            renderBar('chart-v-bancada', sortVAut, sortVAut.map(k=>vAut[k]), '#10b981', true);
-
-            let sortPri = Object.keys(cPri).sort((a,b)=>parseInt(a)-parseInt(b));
-            renderBar('chart-prioridades', sortPri, sortPri.map(k=>cPri[k]), '#f59e0b');
-
+            let sortSec = Object.keys(cSec).sort((a,b)=>cSec[b]-cSec[a]); renderBar('chart-q-sec', sortSec, sortSec.map(k=>cSec[k]), '#3b82f6');
+            let sortVSec = Object.keys(vSec).sort((a,b)=>vSec[b]-vSec[a]); renderBar('chart-v-sec', sortVSec, sortVSec.map(k=>vSec[k]), '#10b981', true);
+            let sortAut = Object.keys(cAut).sort((a,b)=>cAut[b]-cAut[a]); renderBar('chart-q-bancada', sortAut, sortAut.map(k=>cAut[k]), '#8b5cf6');
+            let sortVAut = Object.keys(vAut).sort((a,b)=>vAut[b]-vAut[a]); renderBar('chart-v-bancada', sortVAut, sortVAut.map(k=>vAut[k]), '#10b981', true);
+            let sortPri = Object.keys(cPri).sort((a,b)=>parseInt(a)-parseInt(b)); renderBar('chart-prioridades', sortPri, sortPri.map(k=>cPri[k]), '#f59e0b');
             renderHBar('chart-enquadramento', Object.keys(cCont), Object.values(cCont), '#14b8a6');
 
             let gargLabels = []; let gargData = [];
-            for(const [etapa, diasArr] of Object.entries(gargalos)) {
-                if(!etapa.includes("CANCELADA")) {
-                    gargLabels.push(etapa.length > 25 ? etapa.substring(0,25)+'...' : etapa);
-                    gargData.push(Math.round(diasArr.reduce((a,b)=>a+b,0)/diasArr.length));
-                }
-            }
+            for(const [etapa, diasArr] of Object.entries(gargalos)) { if(!etapa.includes("CANCELADA")) { gargLabels.push(etapa.length > 25 ? etapa.substring(0,25)+'...' : etapa); gargData.push(Math.round(diasArr.reduce((a,b)=>a+b,0)/diasArr.length)); } }
             renderHBar('chart-gargalos', gargLabels, gargData, '#ef4444', true);
-
             renderDoughnut('chart-v-tipo', ['Direta', 'Indireta'], [vTipo.Direta, vTipo.Indireta], ['#3b82f6', '#8b5cf6']);
 
-            const listBen = document.getElementById('list-top-beneficiarios');
-            listBen.innerHTML = '';
+            const listBen = document.getElementById('list-top-beneficiarios'); listBen.innerHTML = '';
             let sortBen = Object.keys(topBen).sort((a,b)=>topBen[b]-topBen[a]).slice(0,5);
-            sortBen.forEach((b, i) => {
-                listBen.innerHTML += `<li class="flex justify-between items-center bg-slate-900/50 p-2 rounded border border-slate-700 hover:bg-slate-800 transition"><div class="flex items-center gap-2"><span class="text-xs font-bold text-slate-500">${i+1}º</span><span class="text-xs text-slate-200 truncate w-32" title="${b}">${b}</span></div><span class="text-xs font-bold text-emerald-400">R$ ${topBen[b].toLocaleString('pt-BR')}</span></li>`;
-            });
+            sortBen.forEach((b, i) => { listBen.innerHTML += `<li class="flex justify-between items-center bg-slate-900/50 p-2 rounded border border-slate-700 hover:bg-slate-800 transition"><div class="flex items-center gap-2"><span class="text-xs font-bold text-slate-500">${i+1}º</span><span class="text-xs text-slate-200 truncate w-32" title="${b}">${b}</span></div><span class="text-xs font-bold text-emerald-400">R$ ${topBen[b].toLocaleString('pt-BR')}</span></li>`; });
 
-            const listCrit = document.getElementById('list-criticas');
-            listCrit.innerHTML = '';
+            const listCrit = document.getElementById('list-criticas'); listCrit.innerHTML = '';
             if(atrasadasList.length === 0) listCrit.innerHTML = '<li class="text-center text-xs text-emerald-400 mt-8">Nenhuma emenda atrasada!</li>';
             else {
-                atrasadasList.sort((a,b)=>{
-                    let da = a.historico_status && a.historico_status.length>0 ? new Date(a.historico_status[a.historico_status.length-1].data) : new Date(0);
-                    let db = b.historico_status && b.historico_status.length>0 ? new Date(b.historico_status[b.historico_status.length-1].data) : new Date(0);
-                    return da - db;
-                }).slice(0,5).forEach(c => {
+                atrasadasList.sort((a,b)=>{ let da = a.historico_status && a.historico_status.length>0 ? new Date(a.historico_status[a.historico_status.length-1].data) : new Date(0); let db = b.historico_status && b.historico_status.length>0 ? new Date(b.historico_status[b.historico_status.length-1].data) : new Date(0); return da - db; }).slice(0,5).forEach(c => {
                     let dUlt = c.historico_status && c.historico_status.length>0 ? c.historico_status[c.historico_status.length-1].data : '';
                     let dParada = dUlt ? Math.floor((new Date() - new Date(dUlt))/(1000*60*60*24)) : '?';
                     listCrit.innerHTML += `<li class="bg-red-900/20 p-2 rounded border border-red-800/30 hover:bg-red-900/40 transition"><div class="flex justify-between items-center"><span class="text-xs font-bold text-slate-200">${c.numero_emenda}</span><span class="text-[9px] font-bold text-red-400 bg-red-900/50 px-1.5 py-0.5 rounded">${dParada} dias parada</span></div><p class="text-[10px] text-slate-400 mt-1 truncate" title="${c.historico_status ? c.historico_status[c.historico_status.length-1].status : ''}">${c.historico_status ? c.historico_status[c.historico_status.length-1].status : ''}</p></li>`;
@@ -1835,12 +1505,183 @@
 
             if(graficosInstanciados['chart-evolucao']) graficosInstanciados['chart-evolucao'].destroy();
             let keysEvo = Object.keys(evolucao).sort();
-            graficosInstanciados['chart-evolucao'] = new Chart(document.getElementById('chart-evolucao'), {
-                type: 'line',
-                data: { labels: keysEvo, datasets: [{ label: 'Movimentações', data: keysEvo.map(k=>evolucao[k]), borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.2)', borderWidth: 3, pointBackgroundColor: '#3b82f6', fill: true, tension: 0.3 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8', stepSize: 1 } }, x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } } } }
+            graficosInstanciados['chart-evolucao'] = new Chart(document.getElementById('chart-evolucao'), { type: 'line', data: { labels: keysEvo, datasets: [{ label: 'Movimentações', data: keysEvo.map(k=>evolucao[k]), borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.2)', borderWidth: 3, pointBackgroundColor: '#3b82f6', fill: true, tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8', stepSize: 1 } }, x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } } } } });
+        }
+
+        // ==========================================
+        // LÓGICA DO MODAL DE CONFIGURAÇÃO DE ETAPAS
+        // ==========================================
+        let etapaConfigTipoAtual = 'Direta';
+        const modalEtapas = document.getElementById('modal-etapas-config');
+        const btnAbrirEtapas = document.getElementById('btn-abrir-config-etapas');
+        const btnFecharEtapas = document.getElementById('btn-fechar-etapas');
+        const btnCancelarEtapas = document.getElementById('btn-cancelar-etapas');
+        const btnSalvarEtapas = document.getElementById('btn-salvar-etapas');
+        const tbodyEtapas = document.getElementById('tbody-config-etapas');
+        const tabDireta = document.getElementById('tab-direta');
+        const tabIndireta = document.getElementById('tab-indireta');
+
+        function renderizarTabelaEtapasConfig() {
+            tbodyEtapas.innerHTML = '';
+            const lista = etapaConfigTipoAtual === 'Direta' ? ETAPAS_DIRETA : ETAPAS_INDIRETA;
+            
+            lista.forEach((etapa, idx) => {
+                // Bloqueia edição do nome das etapas 0 (Cancelada) para evitar bugs fatais.
+                // Idealmente, evitamos alterar o nome de qualquer uma, mas deixamos livre por responsabilidade do admin.
+                const disabledName = (idx === 0) ? 'readonly class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-sm text-slate-500 cursor-not-allowed"' : 'class="w-full bg-slate-900 border border-slate-600 rounded p-1.5 text-sm text-slate-200 focus:ring-1 focus:ring-blue-500 outline-none transition"';
+                
+                tbodyEtapas.innerHTML += `
+                    <tr class="border-b border-slate-700/50 hover:bg-slate-800/30 transition">
+                        <td class="py-2 px-1 text-center font-bold text-slate-500">${etapa.id}</td>
+                        <td class="py-2 px-1"><input type="text" id="cfg_nome_${idx}" value="${etapa.status}" ${disabledName}></td>
+                        <td class="py-2 px-1"><input type="number" id="cfg_pct_${idx}" value="${etapa.pct}" min="0" max="100" class="w-full bg-slate-900 border border-slate-600 rounded p-1.5 text-sm text-center text-blue-400 font-bold focus:ring-1 focus:ring-blue-500 outline-none transition"></td>
+                        <td class="py-2 px-1"><input type="date" id="cfg_prazo_${idx}" value="${etapa.prazo || ''}" class="w-full bg-slate-900 border border-slate-600 rounded p-1.5 text-sm text-center text-slate-300 focus:ring-1 focus:ring-blue-500 outline-none transition [color-scheme:dark]"></td>
+                    </tr>
+                `;
             });
         }
+
+        function coletarDadosTabelaConfig() {
+            const lista = etapaConfigTipoAtual === 'Direta' ? ETAPAS_DIRETA : ETAPAS_INDIRETA;
+            lista.forEach((etapa, idx) => {
+                const inputNome = document.getElementById(`cfg_nome_${idx}`);
+                const inputPct = document.getElementById(`cfg_pct_${idx}`);
+                const inputPrazo = document.getElementById(`cfg_prazo_${idx}`);
+                
+                if(inputNome) etapa.status = inputNome.value;
+                if(inputPct) etapa.pct = Number(inputPct.value);
+                if(inputPrazo) etapa.prazo = inputPrazo.value;
+            });
+        }
+
+        btnAbrirEtapas.addEventListener('click', () => {
+            etapaConfigTipoAtual = 'Direta';
+            tabDireta.className = "px-4 py-2 font-bold text-sm text-blue-400 border-b-2 border-blue-400 focus:outline-none";
+            tabIndireta.className = "px-4 py-2 font-bold text-sm text-slate-400 border-b-2 border-transparent hover:text-slate-200 focus:outline-none transition";
+            renderizarTabelaEtapasConfig();
+            modalEtapas.classList.remove('hidden');
+        });
+
+        const fecharModalEtapas = () => {
+            modalEtapas.classList.add('hidden');
+            carregarOpcoesStatus(selTipoExecucao ? selTipoExecucao.value : "Direta");
+        };
+
+        btnFecharEtapas.addEventListener('click', fecharModalEtapas);
+        btnCancelarEtapas.addEventListener('click', fecharModalEtapas);
+
+        tabDireta.addEventListener('click', () => {
+            coletarDadosTabelaConfig(); // Salva o que digitou na aba antes de trocar
+            etapaConfigTipoAtual = 'Direta';
+            tabDireta.className = "px-4 py-2 font-bold text-sm text-blue-400 border-b-2 border-blue-400 focus:outline-none";
+            tabIndireta.className = "px-4 py-2 font-bold text-sm text-slate-400 border-b-2 border-transparent hover:text-slate-200 focus:outline-none transition";
+            renderizarTabelaEtapasConfig();
+        });
+
+        tabIndireta.addEventListener('click', () => {
+            coletarDadosTabelaConfig();
+            etapaConfigTipoAtual = 'Indireta';
+            tabIndireta.className = "px-4 py-2 font-bold text-sm text-blue-400 border-b-2 border-blue-400 focus:outline-none";
+            tabDireta.className = "px-4 py-2 font-bold text-sm text-slate-400 border-b-2 border-transparent hover:text-slate-200 focus:outline-none transition";
+            renderizarTabelaEtapasConfig();
+        });
+
+        btnSalvarEtapas.addEventListener('click', async () => {
+            coletarDadosTabelaConfig(); // Pega os dados da aba que está aberta
+            const btnOriginal = btnSalvarEtapas.innerHTML;
+            btnSalvarEtapas.innerHTML = 'Salvando...';
+            btnSalvarEtapas.disabled = true;
+
+            try {
+                const configRef = doc(db, "configuracoes", "etapas");
+                await setDoc(configRef, {
+                    direta: ETAPAS_DIRETA,
+                    indireta: ETAPAS_INDIRETA,
+                    data_ultima_alteracao: new Date().toISOString(),
+                    usuario: auth.currentUser ? auth.currentUser.email : 'Administrador'
+                });
+                
+                showToast("Prazos e etapas atualizados com sucesso!", "success");
+                fecharModalEtapas();
+                
+                // Recalcula o velocímetro na tela inicial pois os prazos mudaram
+                if(filtradosGlobais.length > 0) {
+                    atualizarVelocimetro(filtradosGlobais);
+                    renderizarTabela(filtradosGlobais); // Atualiza os Expected % na tabela
+                }
+            } catch (e) {
+                console.error("Erro ao salvar etapas:", e);
+                showToast("Erro de conexão ao salvar as etapas.", "error");
+            } finally {
+                btnSalvarEtapas.innerHTML = btnOriginal;
+                btnSalvarEtapas.disabled = false;
+            }
+        });
+// ==========================================
+        // MELHORIA 1: FECHAR JANELAS COM 'ESC'
+        // ==========================================
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modalEmend = document.getElementById('modal-emenda');
+                const modalAviso = document.getElementById('confirm-modal');
+                const modalConfig = document.getElementById('modal-etapas-config'); 
+                
+                if (modalEmend && !modalEmend.classList.contains('hidden')) limparEFecharModal();
+                if (modalAviso && !modalAviso.classList.contains('hidden')) modalAviso.classList.add('hidden');
+                if (modalConfig && !modalConfig.classList.contains('hidden')) {
+                     modalConfig.classList.add('hidden');
+                     document.body.style.overflow = 'auto';
+                }
+            }
+        });
+
+        // ==========================================
+        // MELHORIA 2: EXPORTAR PARA EXCEL (CSV)
+        // ==========================================
+        const btnExportar = document.getElementById('btn-exportar-csv');
+        if (btnExportar) {
+            btnExportar.addEventListener('click', () => {
+                if (filtradosGlobais.length === 0) {
+                    showToast("Não há dados para exportar. A tabela está vazia.", "warning");
+                    return;
+                }
+                
+                // Cabeçalho da Planilha
+                let csv = "Processo;Emenda;Prioridade;Autor;Secretaria;Beneficiario;Valor (R$);Progresso Atual;Status Atual\n";
+                
+                // Preenchimento dos dados filtrados da tela atual
+                filtradosGlobais.forEach(e => {
+                    const tipoExec = e.tipo_execucao || "Direta";
+                    const status = e.historico_status && e.historico_status.length > 0 ? e.historico_status[e.historico_status.length - 1].status : "Aguardando Início";
+                    const pct = getEtapaInfo(status, tipoExec).pct || 0;
+                    
+                    // Formatando textos para não quebrarem a planilha
+                    const numProc = e.numero_processo || '';
+                    const numEmen = e.numero_emenda || '';
+                    const prio = e.prioridade || '';
+                    const autor = e.vereador !== "Nenhum (Emenda de Bancada)" ? e.vereador : (e.bancada || '');
+                    const sec = e.secretaria || '';
+                    const ben = (e.beneficiario || '').replace(/;/g, ','); 
+                    const val = (e.valor || 0).toString().replace('.', ','); 
+                    
+                    csv += `${numProc};${numEmen};${prio};${autor};${sec};${ben};${val};${pct}%;${status}\n`;
+                });
+
+                // Cria e baixa o arquivo (O '\ufeff' ajuda o Excel a ler os acentos corretamente)
+                const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.setAttribute("href", url);
+                const dataHoje = new Date().toISOString().split('T')[0];
+                link.setAttribute("download", `Emendas_Exportadas_${dataHoje}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                showToast("Planilha gerada com sucesso!", "success");
+            });
+        }
+        
     </script>
 </body>
 </html>
