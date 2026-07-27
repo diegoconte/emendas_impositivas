@@ -1,46 +1,71 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="dark">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestão de Emendas - Portal Público</title>
+    <title>Portal de Emendas - Horizontina</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = { darkMode: 'class' }
+        // Força o tema claro por padrão, a não ser que o usuário clique no botão de escuro.
+        // O sistema ignora a configuração noturna do celular/Windows da pessoa.
+        if (localStorage.theme === 'dark') {
+            document.documentElement.classList.add('dark')
+        } else {
+            document.documentElement.classList.remove('dark')
+            localStorage.theme = 'light' // Fixa o tema claro no primeiro acesso
+        }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #1e293b; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
-
+        /* Estilos baseados no padrão Tailwind nativo */
+        body { 
+            font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif; 
+            -webkit-text-size-adjust: 100%;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Scrollbar customizada e discreta para as listas */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .dark .custom-scroll::-webkit-scrollbar-thumb { background: #475569; }
+        
         @keyframes pulse-slow {
             0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(0.95); }
+            50% { opacity: 0.8; transform: scale(0.98); }
         }
         .animate-pulse-slow { animation: pulse-slow 3s ease-in-out infinite; }
     </style>
 </head>
-<body class="bg-slate-900 min-h-screen text-slate-100 flex flex-col relative overflow-x-hidden">
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen text-gray-800 dark:text-gray-100 flex flex-col relative overflow-x-hidden transition-colors duration-300">
 
-    <!-- Efeito visual de fundo (Blur/Glow) -->
-    <div class="fixed top-0 left-1/4 w-96 h-96 bg-blue-600/10 rounded-full mix-blend-multiply filter blur-3xl opacity-50 pointer-events-none"></div>
-    <div class="fixed bottom-0 right-1/4 w-96 h-96 bg-emerald-600/10 rounded-full mix-blend-multiply filter blur-3xl opacity-50 pointer-events-none"></div>
+    <!-- Efeito visual de fundo sutis (Verde e Amarelo/Ouro) -->
+    <div class="fixed top-0 left-1/4 w-96 h-96 bg-emerald-600/5 dark:bg-blue-600/10 rounded-full mix-blend-multiply filter blur-3xl opacity-50 pointer-events-none transition-colors"></div>
+    <div class="fixed bottom-0 right-1/4 w-96 h-96 bg-yellow-500/5 dark:bg-emerald-600/10 rounded-full mix-blend-multiply filter blur-3xl opacity-50 pointer-events-none transition-colors"></div>
 
-    <nav class="bg-slate-800/80 backdrop-blur-md border-b border-slate-700 sticky top-0 z-30 shadow-md">
+    <nav class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30 shadow-sm transition-colors duration-300">
+        <!-- Faixa superior cores de Horizontina -->
+        <div class="h-1 w-full bg-gradient-to-r from-emerald-600 via-yellow-400 to-emerald-600"></div>
+        
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-20 items-center">
-                <div class="flex items-center gap-3">
-                    <span class="text-3xl animate-pulse-slow">🚧</span>
+                <div class="flex items-center gap-4">
+                    <!-- Brasão do Município de Horizontina -->
+                    <img src="https://placarsoft-horizontina.s3.sa-east-1.amazonaws.com/01/setting/0a/f0/286779104089603043/escudo-286792917258072713.png" alt="Brasão Horizontina" class="h-12 w-auto animate-pulse-slow drop-shadow-sm">
                     <div class="flex flex-col">
-                        <h1 class="text-lg sm:text-2xl font-black text-slate-100 tracking-tight leading-tight">Portal de Emendas</h1>
-                        <span class="text-[10px] sm:text-xs text-slate-400 font-medium uppercase tracking-wider">Município de Horizontina</span>
+                        <h1 class="text-lg sm:text-2xl font-black text-emerald-800 dark:text-gray-100 tracking-tight leading-tight transition-colors">Portal de Emendas</h1>
+                        <span class="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider transition-colors">Município de Horizontina</span>
                     </div>
                 </div>
-                <div class="flex items-center gap-4">
-                    <a href="admin.html" class="flex items-center gap-2 bg-slate-700/50 hover:bg-slate-600 text-slate-300 hover:text-white font-medium py-2 px-3 sm:px-4 rounded-lg transition border border-slate-600 shadow-sm text-xs sm:text-sm">
+                <div class="flex items-center gap-3">
+                    <!-- Botão de Alternar Tema -->
+                    <button id="theme-toggle" class="p-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full transition-colors focus:outline-none shadow-sm" title="Alternar Modo Escuro/Claro">
+                        <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                        <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+                    </button>
+                    
+                    <a href="admin.html" class="flex items-center gap-2 bg-gray-100 dark:bg-gray-700/50 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-semibold py-2 px-3 sm:px-4 rounded-lg transition-colors border border-gray-300 dark:border-gray-600 shadow-sm text-xs sm:text-sm">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                         <span class="hidden sm:inline">Acesso Restrito</span>
                         <span class="sm:hidden">Admin</span>
@@ -52,48 +77,89 @@
 
     <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 z-10 relative">
         
-        <!-- AVISO DE CONSTRUÇÃO (DESTAQUE) -->
-        <div class="bg-amber-900/30 border-2 border-amber-500/50 rounded-xl p-6 sm:p-8 text-center shadow-lg mb-10 transform hover:scale-[1.01] transition-transform duration-300">
-            <h2 class="text-xl sm:text-2xl font-black text-amber-400 mb-3 uppercase tracking-wide">
-                Atenção: Site em Construção
+        <!-- AVISO DE CONSTRUÇÃO -->
+        <div class="bg-amber-50 dark:bg-amber-900/30 border-l-4 sm:border-2 border-amber-500 rounded-r-xl sm:rounded-xl p-6 text-center shadow-sm mb-8 transition-colors">
+            <h2 class="text-xl sm:text-2xl font-black text-amber-800 dark:text-amber-400 mb-2 uppercase tracking-wide transition-colors">
+                ⚠️ Portal em Implantação
             </h2>
-            <p class="text-sm sm:text-base text-amber-200/90 max-w-3xl mx-auto leading-relaxed">
-                As informações aqui prestadas são <strong class="text-white">PRELIMINARES</strong> e <strong class="text-white">NÃO DEFINITIVAS</strong>. 
-                Estamos desenvolvendo este portal para garantir total transparência no acompanhamento das Emendas Impositivas. A base de dados pode sofrer alterações durante este período de testes.
+            <p class="text-sm sm:text-base text-amber-900 dark:text-amber-200/90 max-w-3xl mx-auto leading-relaxed transition-colors">
+                As informações aqui prestadas são preliminares e servem para garantir total transparência no acompanhamento das Emendas Impositivas do município.
             </p>
         </div>
 
-        <div class="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-end gap-2">
-            <div>
-                <h3 class="text-2xl font-bold text-slate-100">Painel de Acompanhamento Público</h3>
-                <p class="text-slate-400 text-sm mt-1">Consulte abaixo o andamento geral das emendas inseridas no sistema.</p>
+        <!-- DASHBOARD PÚBLICO (Resumo Geral) -->
+        <div class="mb-8">
+            <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 transition-colors border-b border-gray-200 dark:border-gray-700 pb-2">Resumo Consolidado</h3>
+            
+            <div id="loading-resumo" class="flex justify-center py-6">
+                <svg class="animate-spin w-8 h-8 text-emerald-500" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
             </div>
-            <!-- Indicador de Dados em Cache -->
-            <div id="status-sincronizacao" class="hidden items-center gap-1.5 bg-slate-800/80 px-3 py-1.5 rounded-md border border-slate-700 shadow-sm">
-                <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                <span class="text-[10px] font-mono text-slate-300 uppercase tracking-wide">Modo Economia: Exibindo dados em Cache</span>
+
+            <div id="cards-resumo" class="hidden grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- Card 1: Total Geral -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 transition-colors flex flex-col justify-center">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg text-emerald-600 dark:text-emerald-400 transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
+                        <h4 class="font-bold text-gray-500 dark:text-gray-400 text-sm uppercase tracking-wider transition-colors">Volume Financeiro Global</h4>
+                    </div>
+                    <div class="text-3xl font-black text-gray-800 dark:text-gray-100 transition-colors" id="resumo-valor-total">R$ 0,00</div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400 mt-2 font-medium transition-colors border-t border-gray-100 dark:border-gray-700 pt-2">
+                        Volume total referente a <strong id="resumo-qtd-total" class="text-emerald-600 dark:text-emerald-400">0</strong> emendas registradas.
+                    </div>
+                </div>
+
+                <!-- Card 2: Por Secretaria (Todas) -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-700 transition-colors flex flex-col">
+                    <h4 class="font-bold text-gray-800 dark:text-gray-200 text-sm mb-3 flex items-center gap-2 transition-colors">
+                        <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                        Volume por Secretaria
+                    </h4>
+                    <ul id="lista-todas-secretarias" class="space-y-2 flex-grow overflow-y-auto max-h-48 custom-scroll pr-1">
+                        <!-- Gerado via JS -->
+                    </ul>
+                </div>
+
+                <!-- Card 3: Por Partido (Todas Bancadas e Individuais agrupados) -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-700 transition-colors flex flex-col">
+                    <h4 class="font-bold text-gray-800 dark:text-gray-200 text-sm mb-3 flex items-center gap-2 transition-colors">
+                        <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        Volume por Partido Político
+                    </h4>
+                    <ul id="lista-todos-partidos" class="space-y-2 flex-grow overflow-y-auto max-h-48 custom-scroll pr-1">
+                        <!-- Gerado via JS -->
+                    </ul>
+                </div>
             </div>
         </div>
 
-        <div class="bg-slate-800 rounded-xl shadow-xl border border-slate-700 overflow-hidden">
+        <!-- TÍTULO DA TABELA -->
+        <div class="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-end gap-2">
+            <div>
+                <h3 class="text-2xl font-bold text-gray-800 dark:text-gray-100 transition-colors">Lista Completa de Processos</h3>
+                <p class="text-gray-500 dark:text-gray-400 text-sm mt-1 transition-colors">Acompanhe detalhadamente a situação de cada repasse ou obra.</p>
+            </div>
+            <div id="status-sincronizacao" class="hidden items-center gap-1.5 bg-gray-100 dark:bg-gray-800/80 px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 shadow-sm transition-colors">
+                <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                <span class="text-[10px] font-mono text-gray-600 dark:text-gray-300 uppercase tracking-wide transition-colors">Modo Otimizado (Cache)</span>
+            </div>
+        </div>
+
+        <!-- TABELA -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
-                    <thead class="bg-slate-900/80 border-b border-slate-700 select-none">
+                    <thead class="bg-gray-50 dark:bg-gray-900/80 border-b border-gray-200 dark:border-gray-700 select-none transition-colors">
                         <tr>
-                            <th class="px-4 py-4 sm:px-6 text-xs font-bold text-slate-400 uppercase tracking-wider">Emenda / Processo</th>
-                            <th class="px-4 py-4 sm:px-6 text-xs font-bold text-slate-400 uppercase tracking-wider">Autor(a)</th>
-                            <th class="px-4 py-4 sm:px-6 text-xs font-bold text-slate-400 uppercase tracking-wider">Beneficiário</th>
-                            <th class="px-4 py-4 sm:px-6 text-xs font-bold text-slate-400 uppercase tracking-wider">Situação Atual</th>
-                            <th class="px-4 py-4 sm:px-6 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">Valor Aprovado</th>
+                            <th class="px-4 py-4 sm:px-6 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors">Emenda / Processo</th>
+                            <th class="px-4 py-4 sm:px-6 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors">Autoria / Bancada</th>
+                            <th class="px-4 py-4 sm:px-6 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors">Secretaria Executora / Beneficiário</th>
+                            <th class="px-4 py-4 sm:px-6 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors">Situação Atual</th>
+                            <th class="px-4 py-4 sm:px-6 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-right transition-colors">Valor Aprovado</th>
                         </tr>
                     </thead>
-                    <tbody id="tabela-publica-corpo" class="divide-y divide-slate-700/50">
-                        <tr>
-                            <td colspan="5" class="px-6 py-12 text-center text-slate-400">
-                                <svg class="animate-spin inline-block w-8 h-8 mb-4 text-blue-500" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                <p class="text-sm font-medium">Carregando dados públicos...</p>
-                            </td>
-                        </tr>
+                    <tbody id="tabela-publica-corpo" class="divide-y divide-gray-100 dark:divide-gray-700/50 transition-colors">
+                        <!-- Loading renderizado pelo JS -->
                     </tbody>
                 </table>
             </div>
@@ -101,30 +167,52 @@
 
     </main>
 
-    <footer class="bg-slate-900 border-t border-slate-800 mt-auto z-10 relative">
+    <footer class="bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 mt-auto z-10 relative transition-colors">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row justify-between items-center gap-4">
             
-            <div class="flex items-center gap-3 bg-slate-800/60 border border-slate-700/50 px-4 py-2 rounded-lg shadow-sm">
-                <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+            <div class="flex items-center gap-3 bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/50 px-4 py-2 rounded-lg shadow-sm transition-colors">
+                <svg class="w-5 h-5 text-blue-500 dark:text-blue-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                 <div class="flex flex-col">
-                    <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider leading-none mb-0.5">Acessos Únicos</span>
-                    <span id="contador-texto" class="text-sm text-slate-200 font-mono font-bold leading-none">...</span>
+                    <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider leading-none mb-0.5">Acessos Únicos</span>
+                    <span id="contador-texto" class="text-sm text-gray-800 dark:text-gray-200 font-mono font-bold leading-none transition-colors">...</span>
                 </div>
             </div>
 
             <div class="text-center sm:text-right flex flex-col items-center sm:items-end gap-1">
-                <span class="text-xs text-slate-500">&copy; 2026 Gestão de Emendas. Município de Horizontina.</span>
-                <span id="app-version" class="text-[10px] font-mono text-slate-600 bg-slate-800/50 px-2 py-0.5 rounded border border-slate-700/50">Carregando versão...</span>
+                <span class="text-xs text-gray-600 dark:text-gray-500 transition-colors">&copy; 2026 Gestão de Emendas. Município de Horizontina.</span>
+                <span id="app-version" class="text-[10px] font-mono text-gray-500 dark:text-gray-600 bg-gray-200 dark:bg-gray-800/50 px-2 py-0.5 rounded border border-gray-300 dark:border-gray-700/50 transition-colors">Carregando versão...</span>
             </div>
         </div>
     </footer>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        // Importando ferramentas extras para habilitar o cache
         import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, getDocs, getDocsFromServer, getDocsFromCache, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // Configuração do Firebase
+        // --- SISTEMA DE TEMA (DARK/LIGHT) ---
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const darkIcon = document.getElementById('theme-toggle-dark-icon');
+        const lightIcon = document.getElementById('theme-toggle-light-icon');
+
+        if (document.documentElement.classList.contains('dark')) {
+            lightIcon.classList.remove('hidden');
+        } else {
+            darkIcon.classList.remove('hidden');
+        }
+
+        themeToggleBtn.addEventListener('click', function() {
+            darkIcon.classList.toggle('hidden');
+            lightIcon.classList.toggle('hidden');
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+            }
+        });
+
+        // --- CONFIGURAÇÃO DO FIREBASE ---
         const firebaseConfig = {
             apiKey: "AIzaSyAdHnH9Q6c6GqE8mlhBxcNdcEB6n3G7QvU",
             authDomain: "emendas-b63d1.firebaseapp.com",
@@ -135,66 +223,126 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        
-        // Ativando a Persistência de Dados Offline (Cache Local) para economizar leituras na página pública
         const db = initializeFirestore(app, {
             localCache: persistentLocalCache({tabManager: persistentMultipleTabManager()})
         });
 
         const TEMPO_CACHE_MILISSEGUNDOS = 4 * 60 * 60 * 1000; // 4 horas
 
-        // 1. CARREGAR TABELA DE EMENDAS PÚBLICAS (ESTRATÉGIA DE CACHE)
+        // --- DICIONÁRIO DE PARTIDOS (Agrupamento) ---
+        const mapaPartidos = {
+            'Eduardo Maron': 'UNIÃO BRASIL',
+            'Valmor Reckziegel': 'UNIÃO BRASIL',
+            'Zuleica Wehner': 'UNIÃO BRASIL',
+            'Rosane Santos': 'UNIÃO BRASIL',
+            'Bancada União Brasil': 'UNIÃO BRASIL',
+            'Rafael Godoy': 'PDT',
+            'Ivete Callegaro': 'PDT',
+            'Marcio Fischer': 'PDT',
+            'Bancada PDT': 'PDT',
+            'Lucas Stoll': 'PROGRESSISTAS',
+            'Bancada Progressistas': 'PROGRESSISTAS',
+            'Cleiton Niesciur': 'CIDADANIA',
+            'Bancada Cidadania': 'CIDADANIA'
+        };
+
+        function formatarMoedaAbreviada(valor) { 
+            if (valor >= 1000000) return 'R$ ' + (valor / 1000000).toFixed(2).replace('.', ',') + ' Mi'; 
+            if (valor >= 1000) return 'R$ ' + (valor / 1000).toFixed(2).replace('.', ',') + ' Mil'; 
+            return 'R$ ' + valor.toLocaleString('pt-BR', {minimumFractionDigits: 2}); 
+        }
+
         async function carregarTabelaPublica() {
             const tbody = document.getElementById('tabela-publica-corpo');
+            tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400 transition-colors"><svg class="animate-spin inline-block w-8 h-8 mb-4 text-emerald-500" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><p class="text-sm font-medium">Carregando e consolidando dados...</p></td></tr>`;
+            
             const colRef = collection(db, "emendas");
             let querySnapshot;
-            let usouCache = false;
 
             try {
-                // Lógica de expiração do cache
                 const ultimaSincronizacao = localStorage.getItem('ultima_sincronizacao_publica');
                 const agora = new Date().getTime();
 
                 if (ultimaSincronizacao && (agora - parseInt(ultimaSincronizacao)) < TEMPO_CACHE_MILISSEGUNDOS) {
-                    // Tenta puxar estritamente do Cache
                     try {
-                        console.log("Tentando puxar dados do Cache Local...");
                         querySnapshot = await getDocsFromCache(colRef);
-                        
                         if (!querySnapshot.empty) {
-                            usouCache = true;
                             document.getElementById('status-sincronizacao').classList.remove('hidden');
                             document.getElementById('status-sincronizacao').classList.add('flex');
                         } else {
-                            // Cache estava vazio, força servidor
-                            console.log("Cache vazio. Puxando do Servidor...");
                             querySnapshot = await getDocsFromServer(colRef);
                             localStorage.setItem('ultima_sincronizacao_publica', agora.toString());
                         }
-                    } catch (cacheError) {
-                        // Se der erro no cache, força servidor
-                        console.log("Erro no cache. Puxando do Servidor...", cacheError);
+                    } catch (e) {
                         querySnapshot = await getDocsFromServer(colRef);
                         localStorage.setItem('ultima_sincronizacao_publica', agora.toString());
                     }
                 } else {
-                    // Tempo expirou ou primeira vez, puxa do servidor
-                    console.log("Tempo de cache expirado ou primeiro acesso. Puxando do Servidor...");
                     querySnapshot = await getDocsFromServer(colRef);
                     localStorage.setItem('ultima_sincronizacao_publica', agora.toString());
                 }
 
                 const emendas = [];
-                querySnapshot.forEach((doc) => {
-                    emendas.push({ id: doc.id, ...doc.data() });
-                });
+                querySnapshot.forEach((doc) => emendas.push({ id: doc.id, ...doc.data() }));
 
                 if (emendas.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-slate-400">Nenhuma emenda registrada ainda.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">Nenhuma emenda registrada ainda.</td></tr>`;
+                    document.getElementById('loading-resumo').innerHTML = '<p class="text-gray-400">Sem dados para resumo.</p>';
                     return;
                 }
 
-                // Ordena por ordem de prioridade (alfabética/numérica do campo prioridade) ou por número da emenda
+                let totalValor = 0;
+                let volumeSecretarias = {};
+                let volumePartidos = {};
+
+                emendas.forEach(e => {
+                    let statusAtual = e.historico_status && e.historico_status.length > 0 ? e.historico_status[e.historico_status.length - 1].status : "";
+                    if (statusAtual.includes("CANCELADA")) return;
+
+                    let val = parseFloat(e.valor || 0);
+                    totalValor += val;
+                    
+                    // Agrupamento por Secretaria
+                    let sec = e.secretaria || "Não informada";
+                    volumeSecretarias[sec] = (volumeSecretarias[sec] || 0) + val;
+
+                    // Agrupamento por Partido
+                    let chaveAutor = (e.vereador && e.vereador !== "Nenhum (Emenda de Bancada)") ? e.vereador : e.bancada;
+                    if(!chaveAutor) chaveAutor = "Não informado";
+                    
+                    let autorLimpo = chaveAutor.split(' (')[0]; 
+                    let partido = mapaPartidos[autorLimpo] || "Outros / Não Identificado";
+                    
+                    volumePartidos[partido] = (volumePartidos[partido] || 0) + val;
+                });
+
+                document.getElementById('resumo-valor-total').textContent = totalValor.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+                document.getElementById('resumo-qtd-total').textContent = emendas.length;
+
+                // Renderiza TODAS as Secretarias (Ordenado por valor decrescente)
+                const todasSecs = Object.entries(volumeSecretarias).sort((a, b) => b[1] - a[1]);
+                const listaSecsHTML = todasSecs.map(sec => `
+                    <li class="flex justify-between items-center text-xs sm:text-sm bg-gray-50 dark:bg-gray-900/50 p-2.5 rounded border border-gray-100 dark:border-gray-700/50 transition-colors">
+                        <span class="font-semibold text-gray-700 dark:text-gray-300 truncate pr-2" title="${sec[0]}">${sec[0]}</span>
+                        <span class="font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">${formatarMoedaAbreviada(sec[1])}</span>
+                    </li>
+                `).join('');
+                document.getElementById('lista-todas-secretarias').innerHTML = listaSecsHTML || '<li class="text-sm text-gray-400">Nenhum dado</li>';
+
+                // Renderiza TODOS os Partidos (Ordenado por valor decrescente)
+                const todosPartidos = Object.entries(volumePartidos).sort((a, b) => b[1] - a[1]);
+                const listaPartidosHTML = todosPartidos.map(partido => `
+                    <li class="flex justify-between items-center text-xs sm:text-sm bg-gray-50 dark:bg-gray-900/50 p-2.5 rounded border border-gray-100 dark:border-gray-700/50 transition-colors">
+                        <span class="font-bold text-gray-700 dark:text-gray-300 truncate pr-2" title="${partido[0]}">${partido[0]}</span>
+                        <span class="font-bold text-purple-600 dark:text-purple-400 whitespace-nowrap">${formatarMoedaAbreviada(partido[1])}</span>
+                    </li>
+                `).join('');
+                document.getElementById('lista-todos-partidos').innerHTML = listaPartidosHTML || '<li class="text-sm text-gray-400">Nenhum dado</li>';
+
+                document.getElementById('loading-resumo').classList.add('hidden');
+                document.getElementById('cards-resumo').classList.remove('hidden');
+
+
                 emendas.sort((a, b) => {
                     const numA = parseInt((a.numero_emenda || "0").replace(/\D/g, '')) || 0;
                     const numB = parseInt((b.numero_emenda || "0").replace(/\D/g, '')) || 0;
@@ -204,32 +352,37 @@
                 let htmlContent = '';
 
                 emendas.forEach(emenda => {
-                    const statusAtual = emenda.historico_status && emenda.historico_status.length > 0 
-                                        ? emenda.historico_status[emenda.historico_status.length - 1].status 
-                                        : "Aguardando Início";
-                    
+                    const statusAtual = emenda.historico_status && emenda.historico_status.length > 0 ? emenda.historico_status[emenda.historico_status.length - 1].status : "Aguardando Início";
                     const isCancelada = statusAtual.includes("CANCELADA");
-                    const statusColor = isCancelada ? "text-red-400 font-bold bg-red-900/20 px-2 py-1 rounded" : "text-blue-400 font-medium";
-                    const rowClass = isCancelada ? "opacity-60 hover:opacity-100 transition-opacity" : "hover:bg-slate-700/30 transition-colors";
-                    const autor = emenda.vereador !== "Nenhum (Emenda de Bancada)" ? emenda.vereador : emenda.bancada;
+                    
+                    const statusColor = isCancelada ? "text-red-600 dark:text-red-400 font-bold bg-red-100 dark:bg-red-900/20 px-2 py-1 rounded" : "text-blue-600 dark:text-blue-400 font-medium";
+                    const rowClass = isCancelada ? "opacity-50 hover:opacity-100 transition-opacity bg-gray-100 dark:bg-transparent" : "hover:bg-gray-100 dark:hover:bg-gray-700/30 transition-colors";
+                    
+                    const vereadorFormatado = emenda.vereador && emenda.vereador !== "Nenhum (Emenda de Bancada)" ? `<span class="font-bold text-gray-800 dark:text-gray-200 transition-colors">${emenda.vereador}</span>` : `<span class="text-gray-600 dark:text-gray-400 transition-colors italic font-medium">Emenda de Bancada</span>`;
+                    const bancadaFormatada = emenda.bancada || '-';
+                    
                     const valorFormatado = (emenda.valor || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2});
+                    const secretariaFormatada = emenda.secretaria || 'Não definida';
+                    const beneficiarioLimitado = (emenda.beneficiario || '-').length > 40 ? (emenda.beneficiario).substring(0,40) + '...' : (emenda.beneficiario || '-');
 
                     htmlContent += `
-                        <tr class="border-b border-slate-700/50 ${rowClass}">
+                        <tr class="border-b border-gray-100 dark:border-gray-700/50 ${rowClass}">
                             <td class="px-4 py-4 sm:px-6">
-                                <div class="text-sm font-bold text-slate-200">${emenda.numero_emenda || '-'}</div>
-                                <div class="text-xs text-slate-500">Proc: ${emenda.numero_processo || '-'}</div>
+                                <div class="text-sm font-black text-gray-800 dark:text-gray-200 transition-colors">${emenda.numero_emenda || '-'}</div>
+                                <div class="text-[11px] font-mono text-gray-500 dark:text-gray-400 mt-1 transition-colors">Proc: ${emenda.numero_processo || '-'}</div>
                             </td>
                             <td class="px-4 py-4 sm:px-6">
-                                <div class="text-sm font-medium text-slate-300">${autor || '-'}</div>
+                                <div class="text-sm">${vereadorFormatado}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 transition-colors">${bancadaFormatada}</div>
                             </td>
                             <td class="px-4 py-4 sm:px-6">
-                                <div class="text-sm text-slate-300" title="${emenda.beneficiario}">${(emenda.beneficiario || '-').length > 30 ? (emenda.beneficiario).substring(0,30) + '...' : (emenda.beneficiario || '-')}</div>
+                                <div class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-0.5">${secretariaFormatada}</div>
+                                <div class="text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors" title="${emenda.beneficiario}">${beneficiarioLimitado}</div>
                             </td>
                             <td class="px-4 py-4 sm:px-6 text-xs sm:text-sm">
-                                <span class="${statusColor}">${statusAtual}</span>
+                                <span class="${statusColor} transition-colors">${statusAtual}</span>
                             </td>
-                            <td class="px-4 py-4 sm:px-6 text-sm font-bold text-emerald-400 text-right whitespace-nowrap">
+                            <td class="px-4 py-4 sm:px-6 text-sm font-black text-emerald-600 dark:text-emerald-400 text-right whitespace-nowrap transition-colors">
                                 R$ ${valorFormatado}
                             </td>
                         </tr>
@@ -240,17 +393,15 @@
 
             } catch (error) {
                 console.error("Erro ao carregar emendas:", error);
-                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-red-400">Erro ao carregar os dados públicos. Tente novamente mais tarde.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-red-500 dark:text-red-400 transition-colors font-medium">Erro ao carregar os dados públicos. Tente novamente mais tarde.</td></tr>`;
+                document.getElementById('loading-resumo').innerHTML = '<p class="text-red-400">Falha ao carregar dashboard.</p>';
             }
         }
 
-        // 2. CONTADOR DE ACESSOS ÚNICOS (1 por hora)
         async function registrarAcesso() {
             const contadorRef = doc(db, "metricas", "acessos");
             const elContador = document.getElementById('contador-texto');
-            
             try {
-                // Para o contador, não usamos cache, pois queremos o número real
                 const docSnap = await getDoc(contadorRef);
                 const agora = new Date().getTime();
                 const ultimoAcesso = localStorage.getItem('ultimo_acesso_emendas');
@@ -258,7 +409,6 @@
 
                 if (docSnap.exists()) qtdeAtual = docSnap.data().quantidade || 0;
 
-                // Só registra um novo acesso se passou 1 hora desde a última visita deste navegador
                 if (!ultimoAcesso || (agora - parseInt(ultimoAcesso)) > 3600000) {
                     if (docSnap.exists()) {
                         await updateDoc(contadorRef, { quantidade: increment(1) });
@@ -269,16 +419,13 @@
                     }
                     localStorage.setItem('ultimo_acesso_emendas', agora.toString());
                 }
-
                 elContador.textContent = qtdeAtual.toLocaleString('pt-BR');
-
             } catch (error) {
-                console.error("Erro no contador:", error);
+                console.error("Erro ao registrar acesso:", error);
                 elContador.textContent = "Offline";
             }
         }
 
-        // 3. GERADOR DE VERSÃO
         function gerarVersaoAuto() {
             try {
                 const dataMod = new Date(document.lastModified);
@@ -293,11 +440,9 @@
             }
         }
 
-        // INICIALIZAÇÃO
         gerarVersaoAuto();
         registrarAcesso();
         carregarTabelaPublica();
-
     </script>
 </body>
 </html>
