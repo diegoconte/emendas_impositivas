@@ -31,7 +31,6 @@
             border: 2px solid #1e293b;
         }
 
-        /* Progress Bar Animation */
         .progress-bar-fill {
             transition: width 0.5s ease-in-out;
         }
@@ -102,13 +101,18 @@
                     <p class="text-sm text-slate-400 mt-1">Acompanhamento e evolução dos processos.</p>
                 </div>
                 <div class="flex flex-wrap gap-3 w-full sm:w-auto">
+                    <!-- NOVO BOTÃO: UNIR EMENDAS -->
+                    <button id="btn-unir-emendas" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-medium py-2.5 px-4 rounded-lg shadow-sm transition border border-purple-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                        Unir Emendas
+                    </button>
                     <button id="btn-exportar-csv" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-green-800 border border-green-600 text-green-100 hover:bg-green-700 font-medium py-2.5 px-4 rounded-lg shadow-sm transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         Exportar CSV
                     </button>
                     <a href="relatorio.html" target="_blank" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-emerald-900/50 hover:bg-emerald-800 text-emerald-300 hover:text-emerald-100 font-bold py-2.5 px-4 rounded-lg shadow-sm transition border border-emerald-700/50">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        Relatório Semanal
+                        Relatório
                     </a>
                     <a href="dashboard.html" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-indigo-900/50 hover:bg-indigo-800 text-indigo-300 hover:text-indigo-100 font-bold py-2.5 px-4 rounded-lg shadow-sm transition border border-indigo-700/50">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2h-2a2 2 0 01-2-2z"></path></svg>
@@ -199,6 +203,7 @@
             </div>
 
             <div class="bg-slate-800 rounded-xl shadow-sm border border-slate-700 overflow-hidden mb-6">
+                <!-- CABEÇALHO FIXO IMPLEMENTADO AQUI -->
                 <div class="overflow-x-auto max-h-[600px]">
                     <table class="w-full text-left border-collapse">
                         <thead class="bg-slate-900 border-b border-slate-700 select-none sticky top-0 z-20 shadow-md">
@@ -261,6 +266,21 @@
             <div class="p-6 overflow-y-auto flex-grow bg-slate-800">
                 <form id="form-emenda" class="space-y-6">
                     <input type="hidden" id="emenda_id" value="">
+
+                    <!-- BANNER DE GRUPO (NOVO) -->
+                    <div id="banner-grupo" class="hidden mb-4 bg-purple-900/20 border border-purple-800/30 p-4 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-inner">
+                        <div>
+                            <h5 class="text-sm font-bold text-purple-400 flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                                Emenda Unida (Grupo de Compartilhamento)
+                            </h5>
+                            <p class="text-xs text-slate-300 mt-1">Ao atualizar o <b>Histórico</b>, <b>Secretaria</b> ou <b>Beneficiário</b> desta emenda, as alterações serão salvas para todas as outras unidas a ela automaticamente.</p>
+                        </div>
+                        <button type="button" id="btn-desunir" class="shrink-0 bg-slate-800 hover:bg-red-600 hover:border-red-500 hover:text-white text-slate-300 border border-slate-600 px-3 py-1.5 rounded text-xs font-medium transition flex items-center gap-1.5">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            Desfazer União
+                        </button>
+                    </div>
                     
                     <div>
                         <h4 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-4 border-b border-slate-700 pb-2 text-blue-400">Dados Básicos</h4>
@@ -358,7 +378,6 @@
                                 </label>
                                 <select id="enquadramento" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-slate-100" required>
                                     <option value="">Selecione a classificação econômica da despesa...</option>
-                                    
                                     <optgroup label="Despesas Correntes (Custeio e Transferências)" class="text-blue-400 bg-slate-800">
                                         <option value="Material de consumo" class="text-slate-100 bg-slate-900">Material de consumo</option>
                                         <option value="Outros serviços de terceiros - Pessoa Física" class="text-slate-100 bg-slate-900">Outros serviços de terceiros - Pessoa Física</option>
@@ -368,7 +387,6 @@
                                         <option value="Contribuições" class="text-slate-100 bg-slate-900">Contribuições</option>
                                         <option value="Outras despesas de pessoal decorrentes de contratos de terceirização" class="text-slate-100 bg-slate-900">Outras despesas de pessoal / Terceirização</option>
                                     </optgroup>
-                                    
                                     <optgroup label="Despesas de Capital (Investimentos, Inversões e Transferências)" class="text-emerald-400 bg-slate-800">
                                         <option value="Obras e instalações" class="text-slate-100 bg-slate-900">Obras e instalações</option>
                                         <option value="Equipamento e material permanente" class="text-slate-100 bg-slate-900">Equipamento e material permanente</option>
@@ -376,7 +394,6 @@
                                         <option value="Auxílios" class="text-slate-100 bg-slate-900">Auxílios</option>
                                         <option value="Material, bem ou serviço de distribuição gratuita" class="text-slate-100 bg-slate-900">Material, bem ou serviço de distribuição gratuita</option>
                                     </optgroup>
-                                    
                                     <optgroup label="Outros" class="text-slate-400 bg-slate-800">
                                         <option value="Outros / Não especificado" class="text-slate-100 bg-slate-900">Outros / Não especificado</option>
                                     </optgroup>
@@ -416,8 +433,8 @@
                     </div>
 
                     <div id="container-historico" class="hidden mt-6 border-t border-slate-700 pt-4">
-                        <div class="bg-indigo-900/20 p-4 rounded-lg border border-indigo-800/30 mb-6" id="box-adicionar-etapa">
-                            <h5 class="text-xs font-bold text-indigo-400 uppercase mb-3">Adicionar Nova Etapa</h5>
+                        <div class="bg-indigo-900/20 p-4 rounded-lg border border-indigo-800/30 mb-6 transition-all" id="box-adicionar-etapa">
+                            <h5 class="text-xs font-bold text-indigo-400 uppercase mb-3">Adicionar/Editar Etapa no Histórico</h5>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-end mb-3">
                                 <div>
                                     <label class="block text-xs font-medium text-slate-400 mb-1">Data</label>
@@ -538,7 +555,6 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        // Importado getDoc e setDoc para carregar e salvar as etapas
         import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
@@ -583,7 +599,6 @@
         let selecionadasGlobais = new Set();
         let filtradosGlobais = [];
 
-        // VARIAVEIS DE ETAPAS AGORA SÃO LET (Para podermos substituir com dados do Firebase)
         let ETAPAS_DIRETA = [
             { id: 0, status: "Emenda CANCELADA", pct: 100, class: "bg-red-900/30 text-red-400 border-red-800/50" },
             { id: 1, status: "Recepção e Cadastro da Emenda", pct: 3, prazo: "2026-02-15", class: "bg-slate-800 text-slate-300 border-slate-700" },
@@ -625,7 +640,6 @@
             { id: 16, status: "Aprovação Final das Contas", pct: 100, prazo: "2026-12-30", class: "bg-green-800/40 text-green-300 border-green-700/50" }
         ];
 
-        // FUNÇÃO PARA BUSCAR ETAPAS DO FIREBASE
         async function carregarEtapasDoBanco() {
             try {
                 const configRef = doc(db, "configuracoes", "etapas");
@@ -635,7 +649,6 @@
                     if (data.direta && data.direta.length > 0) ETAPAS_DIRETA = data.direta;
                     if (data.indireta && data.indireta.length > 0) ETAPAS_INDIRETA = data.indireta;
                 } else {
-                    // Cria o documento pela primeira vez se não existir
                     await setDoc(configRef, { direta: ETAPAS_DIRETA, indireta: ETAPAS_INDIRETA });
                 }
             } catch (e) {
@@ -671,6 +684,8 @@
         const listaVersoesRemanejamento = document.getElementById('lista-versoes-remanejamento');
         const selTipoExecucao = document.getElementById('tipo_execucao');
         const selNovaEtapaStatus = document.getElementById('nova_etapa_status');
+        
+        let indexEditandoEtapa = -1; // Controle de edição de etapas do histórico
 
         function getEtapaInfo(statusName, tipoExecucao) {
             const list = tipoExecucao === 'Indireta' ? ETAPAS_INDIRETA : ETAPAS_DIRETA;
@@ -732,7 +747,7 @@
                 loginScreen.classList.add('hidden');
                 dashboardScreen.classList.remove('hidden');
                 dashboardScreen.classList.add('flex');
-                await carregarEtapasDoBanco(); // Carrega as etapas do firebase antes das emendas
+                await carregarEtapasDoBanco();
                 carregarEmendasDaMemoriaOuBanco();
             } else {
                 loginScreen.classList.remove('hidden');
@@ -776,7 +791,7 @@
             if(tabelaCorpo && linhaLoading) tabelaCorpo.appendChild(linhaLoading);
 
             try {
-                if (forcarSincronizacao) await carregarEtapasDoBanco(); // Recarrega as etapas junto se forçado
+                if (forcarSincronizacao) await carregarEtapasDoBanco(); 
 
                 const querySnapshot = await getDocs(collection(db, "emendas"));
                 const emendasBaixadas = [];
@@ -785,11 +800,7 @@
                 localStorage.setItem(CACHE_KEY, JSON.stringify(emendasBaixadas));
                 dadosEmendasGlobais = emendasBaixadas;
                 if (forcarSincronizacao) showToast("Dados sincronizados com o servidor.", "success");
-                 localStorage.setItem(CACHE_KEY, JSON.stringify(emendasBaixadas));
-                dadosEmendasGlobais = emendasBaixadas;
-                if (forcarSincronizacao) showToast("Dados sincronizados com o servidor.", "success");
                 
-                // --- INÍCIO DA RECEPÇÃO DOS GRÁFICOS ---
                 const filtroBusca = localStorage.getItem('filtro_busca_pendente');
                 const filtroStatus = localStorage.getItem('filtro_status_pendente');
                 
@@ -801,7 +812,6 @@
                     document.getElementById('filtro-status').value = filtroStatus;
                     localStorage.removeItem('filtro_status_pendente');
                 }
-                // --- FIM DA RECEPÇÃO DOS GRÁFICOS ---
                 aplicarFiltrosEOrdenacao();
             } catch (error) {
                 showToast("Erro ao buscar dados do servidor.", "error");
@@ -1031,6 +1041,7 @@
                 
                 const badgeRemanejada = emenda.remanejada ? `<span class="mt-1 px-2 py-0.5 inline-flex text-[10px] leading-4 font-bold rounded-md bg-purple-900/40 text-purple-400 border border-purple-800/50" title="Sofreu Remanejamento">🔄 Remanejada</span>` : '';
                 const badgeEngenharia = emenda.projeto_engenharia ? `<span class="mt-1 ml-1 px-2 py-0.5 inline-flex text-[10px] leading-4 font-bold rounded-md bg-amber-900/40 text-amber-400 border border-amber-800/50" title="Exige Projeto de Engenharia">🏗️ Eng</span>` : '';
+                const badgeGrupo = emenda.grupo_id ? `<span class="mt-1 ml-1 px-2 py-0.5 inline-flex text-[10px] leading-4 font-bold rounded-md bg-blue-900/40 text-blue-400 border border-blue-800/50" title="Unida com outras emendas">🔗 Unida</span>` : '';
                 const prioridadeHtml = emenda.prioridade ? `<div class="text-xs font-semibold text-blue-400 mt-0.5" title="Ordem de Prioridade">⭐ ${emenda.prioridade}</div>` : '';
 
                 const tipoExec = emenda.tipo_execucao || "Direta";
@@ -1067,7 +1078,7 @@
                 const btnExcluirHtml = podeExcluir ? `<button type="button" class="btn-excluir flex items-center gap-1.5 px-3 py-1.5 bg-red-900/20 hover:bg-red-900/40 text-red-400 font-medium rounded-md transition text-xs shadow-sm border border-red-800/30" title="Excluir Emenda Definitivamente" data-id="${emenda.id}"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg> Excluir</button>` : '';
 
                 tr.innerHTML = `
-                    <td class="px-6 py-4"><div class="text-sm font-bold text-slate-200">${emenda.numero_processo || '-'}</div><div class="text-xs text-slate-500">${emenda.numero_emenda || '-'}</div>${prioridadeHtml} ${badgeRemanejada} ${badgeEngenharia}</td>
+                    <td class="px-6 py-4"><div class="text-sm font-bold text-slate-200">${emenda.numero_processo || '-'}</div><div class="text-xs text-slate-500">${emenda.numero_emenda || '-'}</div>${prioridadeHtml} ${badgeRemanejada} ${badgeEngenharia} ${badgeGrupo}</td>
                     <td class="px-6 py-4"><div class="text-sm text-slate-200 font-medium">${emenda.bancada || '-'}</div><div class="text-xs text-slate-500">${emenda.vereador || '-'}</div></td>
                     <td class="px-6 py-4"><div class="text-sm font-medium text-slate-300" title="${emenda.beneficiario}">${(emenda.beneficiario || '-').length > 25 ? (emenda.beneficiario || '-').substring(0,25) + '...' : (emenda.beneficiario || '-')}</div><div class="text-xs text-slate-500 font-mono mt-0.5">${tipoExec} • <span class="text-blue-400 font-bold">${emenda.secretaria || 'Sem Sec.'}</span></div></td>
                     <td class="px-6 py-4 text-sm font-bold text-emerald-400 whitespace-nowrap">R$ ${(emenda.valor || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
@@ -1131,6 +1142,13 @@
             if(btnSalvar) btnSalvar.classList.remove('hidden');
             const boxAdicionarEtapa = document.getElementById('box-adicionar-etapa');
             if(boxAdicionarEtapa) boxAdicionarEtapa.classList.remove('hidden');
+            
+            indexEditandoEtapa = -1;
+            if(btnAdicionarEtapa) {
+                btnAdicionarEtapa.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> Atualizar Progresso`;
+                btnAdicionarEtapa.classList.replace("bg-blue-600", "bg-indigo-600");
+                btnAdicionarEtapa.classList.replace("border-blue-500", "border-indigo-500");
+            }
         }
 
         if(btnFecharModal) btnFecharModal.addEventListener('click', limparEFecharModal);
@@ -1144,6 +1162,9 @@
                 carregarOpcoesStatus("Direta");
                 const dateInput = document.getElementById('nova_etapa_data');
                 if(dateInput) dateInput.valueAsDate = new Date();
+                
+                document.getElementById('banner-grupo').classList.add('hidden');
+                
                 if(modalEmenda) modalEmenda.classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
             });
@@ -1181,6 +1202,15 @@
                 const tagOrigem = etapa.usuario_original ? `<div class="text-[10px] text-emerald-400/90 font-medium mt-1.5 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg> Origem: ${etapa.usuario_original} (${etapa.data_original ? new Date(etapa.data_original + "T00:00:00").toLocaleDateString('pt-BR') : '-'})</div>` : '';
                 const tagChecagem = etapa.usuario_checagem ? `<div class="text-[10px] text-purple-400/90 font-medium mt-0.5 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg> Checado por: ${etapa.usuario_checagem} (${etapa.data_checagem ? new Date(etapa.data_checagem + "T00:00:00").toLocaleDateString('pt-BR') : '-'})</div>` : '';
 
+                const idxReal = historicoAtualDaEdicao.findIndex(e => e === etapa);
+
+                const botoesAcao = `
+                    <div class="mt-2 flex gap-2">
+                        <button type="button" class="btn-editar-etapa text-[10px] font-medium bg-slate-800 border border-slate-600 hover:bg-blue-600 hover:border-blue-500 text-slate-300 hover:text-white px-2 py-1 rounded transition" data-index="${idxReal}">✏️ Editar</button>
+                        <button type="button" class="btn-excluir-etapa text-[10px] font-medium bg-slate-800 border border-slate-600 hover:bg-red-600 hover:border-red-500 text-slate-300 hover:text-white px-2 py-1 rounded transition" data-index="${idxReal}">🗑️ Excluir</button>
+                    </div>
+                `;
+
                 const li = document.createElement('li');
                 li.className = "relative pl-6 timeline-item";
                 li.innerHTML = `
@@ -1190,8 +1220,44 @@
                     </div>
                     ${infoResponsavel} ${tagOrigem} ${tagChecagem}
                     <p class="text-sm text-slate-400 mt-1 bg-slate-900/50 p-2 rounded border border-slate-700/50">${etapa.observacao || '<i>Nenhuma observação adicional.</i>'}</p>
+                    ${botoesAcao}
                 `;
                 timelineLista.appendChild(li);
+            });
+        }
+
+        if(timelineLista) {
+            timelineLista.addEventListener('click', (e) => {
+                const btnEdit = e.target.closest('.btn-editar-etapa');
+                const btnDel = e.target.closest('.btn-excluir-etapa');
+                
+                if (btnDel) {
+                    const idx = btnDel.dataset.index;
+                    showConfirm("Deseja realmente remover esta etapa do histórico?", () => {
+                        historicoAtualDaEdicao.splice(idx, 1);
+                        renderizarHistoricoNoModal();
+                        showToast("Etapa removida temporariamente. Salve a emenda para confirmar.", "info");
+                    });
+                }
+                
+                if (btnEdit) {
+                    const idx = btnEdit.dataset.index;
+                    const et = historicoAtualDaEdicao[idx];
+                    document.getElementById('nova_etapa_data').value = et.data || '';
+                    document.getElementById('nova_etapa_status').value = et.status || '';
+                    document.getElementById('nova_etapa_obs').value = et.observacao || '';
+                    document.getElementById('nova_etapa_responsavel').value = et.responsavel_etapa || '';
+                    document.getElementById('nova_etapa_data_original').value = et.data_original || '';
+                    document.getElementById('nova_etapa_usuario_original').value = et.usuario_original || '';
+                    
+                    indexEditandoEtapa = idx;
+                    if(btnAdicionarEtapa) {
+                        btnAdicionarEtapa.innerHTML = `💾 Salvar Alteração na Etapa`;
+                        btnAdicionarEtapa.classList.replace("bg-indigo-600", "bg-blue-600");
+                        btnAdicionarEtapa.classList.replace("border-indigo-500", "border-blue-500");
+                    }
+                    document.getElementById('nova_etapa_data').focus();
+                }
             });
         }
 
@@ -1208,13 +1274,26 @@
 
                 if(!dataEtapa || !statusEtapa) { showToast("Preencha a data e o status para adicionar a etapa.", "warning"); return; }
 
-                historicoAtualDaEdicao.push({
-                    data: dataEtapa, status: statusEtapa, observacao: obsEtapa, responsavel_etapa: responsavelEtapa, usuario: auth.currentUser ? auth.currentUser.email : 'Administrador',
-                    data_original: dataOriginal, usuario_original: usuarioOriginal, data_checagem: dataChecagem, usuario_checagem: usuarioLogado
-                });
+                if (indexEditandoEtapa !== -1) {
+                    historicoAtualDaEdicao[indexEditandoEtapa] = {
+                        ...historicoAtualDaEdicao[indexEditandoEtapa],
+                        data: dataEtapa, status: statusEtapa, observacao: obsEtapa, responsavel_etapa: responsavelEtapa,
+                        data_original: dataOriginal, usuario_original: usuarioOriginal, data_checagem: dataChecagem, usuario_checagem: usuarioLogado
+                    };
+                    indexEditandoEtapa = -1;
+                    btnAdicionarEtapa.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> Atualizar Progresso`;
+                    btnAdicionarEtapa.classList.replace("bg-blue-600", "bg-indigo-600");
+                    btnAdicionarEtapa.classList.replace("border-blue-500", "border-indigo-500");
+                    showToast("Etapa atualizada! Salve a emenda para confirmar.", "success");
+                } else {
+                    historicoAtualDaEdicao.push({
+                        data: dataEtapa, status: statusEtapa, observacao: obsEtapa, responsavel_etapa: responsavelEtapa, usuario: auth.currentUser ? auth.currentUser.email : 'Administrador',
+                        data_original: dataOriginal, usuario_original: usuarioOriginal, data_checagem: dataChecagem, usuario_checagem: usuarioLogado
+                    });
+                    showToast("Etapa adicionada! Salve a emenda para confirmar.", "success");
+                }
 
                 document.getElementById('nova_etapa_obs').value = ''; document.getElementById('nova_etapa_responsavel').value = ''; document.getElementById('nova_etapa_data_original').value = ''; document.getElementById('nova_etapa_usuario_original').value = '';
-                showToast("Etapa adicionada! Salve a emenda para confirmar.", "success");
                 renderizarHistoricoNoModal();
             });
         }
@@ -1245,6 +1324,12 @@
             if (somenteLeitura) { document.getElementById('modal-titulo').textContent = "Detalhes da Emenda"; if(btnSalvar) btnSalvar.classList.add('hidden'); if(boxAdicionarEtapa) boxAdicionarEtapa.classList.add('hidden'); } 
             else { document.getElementById('modal-titulo').textContent = "Editar Emenda e Histórico"; if(btnSalvar) btnSalvar.classList.remove('hidden'); if(boxAdicionarEtapa) boxAdicionarEtapa.classList.remove('hidden'); }
             if (containerHistorico) containerHistorico.classList.remove('hidden');
+
+            const bannerGrupo = document.getElementById('banner-grupo');
+            if (bannerGrupo) {
+                if (emenda.grupo_id) bannerGrupo.classList.remove('hidden');
+                else bannerGrupo.classList.add('hidden');
+            }
 
             document.getElementById('emenda_id').value = emenda.id;
             document.getElementById('num_processo').value = emenda.numero_processo || '';
@@ -1402,6 +1487,37 @@
                         showToast("Nova emenda cadastrada com sucesso!");
                     }
 
+                    // REPLICAR PARA GRUPO SE HOUVER
+                    if (emendaOriginalSendoEditada && emendaOriginalSendoEditada.grupo_id) {
+                        const grupoId = emendaOriginalSendoEditada.grupo_id;
+                        const siblings = dadosEmendasGlobais.filter(e => e.grupo_id === grupoId && e.id !== idEdicao);
+                        if (siblings.length > 0) {
+                            const siblingPromises = siblings.map(sib => {
+                                const updates = {
+                                    historico_status: novaEmendaData.historico_status,
+                                    beneficiario: novaEmendaData.beneficiario,
+                                    secretaria: novaEmendaData.secretaria,
+                                    tipo_execucao: novaEmendaData.tipo_execucao,
+                                    projeto_engenharia: novaEmendaData.projeto_engenharia,
+                                    data_atualizacao: new Date().toISOString()
+                                };
+                                return updateDoc(doc(db, "emendas", sib.id), updates);
+                            });
+                            await Promise.all(siblingPromises);
+                            
+                            siblings.forEach(sib => {
+                                Object.assign(sib, {
+                                    historico_status: novaEmendaData.historico_status,
+                                    beneficiario: novaEmendaData.beneficiario,
+                                    secretaria: novaEmendaData.secretaria,
+                                    tipo_execucao: novaEmendaData.tipo_execucao,
+                                    projeto_engenharia: novaEmendaData.projeto_engenharia
+                                });
+                            });
+                            showToast("Atualizações replicadas para as outras emendas do grupo!", "info");
+                        }
+                    }
+
                     localStorage.setItem(CACHE_KEY, JSON.stringify(dadosEmendasGlobais));
                     aplicarFiltrosEOrdenacao();
                     const autorParaEmail = novaEmendaData.vereador !== "Nenhum (Emenda de Bancada)" ? novaEmendaData.vereador : novaEmendaData.bancada;
@@ -1526,8 +1642,6 @@
             const lista = etapaConfigTipoAtual === 'Direta' ? ETAPAS_DIRETA : ETAPAS_INDIRETA;
             
             lista.forEach((etapa, idx) => {
-                // Bloqueia edição do nome das etapas 0 (Cancelada) para evitar bugs fatais.
-                // Idealmente, evitamos alterar o nome de qualquer uma, mas deixamos livre por responsabilidade do admin.
                 const disabledName = (idx === 0) ? 'readonly class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-sm text-slate-500 cursor-not-allowed"' : 'class="w-full bg-slate-900 border border-slate-600 rounded p-1.5 text-sm text-slate-200 focus:ring-1 focus:ring-blue-500 outline-none transition"';
                 
                 tbodyEtapas.innerHTML += `
@@ -1571,7 +1685,7 @@
         btnCancelarEtapas.addEventListener('click', fecharModalEtapas);
 
         tabDireta.addEventListener('click', () => {
-            coletarDadosTabelaConfig(); // Salva o que digitou na aba antes de trocar
+            coletarDadosTabelaConfig();
             etapaConfigTipoAtual = 'Direta';
             tabDireta.className = "px-4 py-2 font-bold text-sm text-blue-400 border-b-2 border-blue-400 focus:outline-none";
             tabIndireta.className = "px-4 py-2 font-bold text-sm text-slate-400 border-b-2 border-transparent hover:text-slate-200 focus:outline-none transition";
@@ -1587,7 +1701,7 @@
         });
 
         btnSalvarEtapas.addEventListener('click', async () => {
-            coletarDadosTabelaConfig(); // Pega os dados da aba que está aberta
+            coletarDadosTabelaConfig();
             const btnOriginal = btnSalvarEtapas.innerHTML;
             btnSalvarEtapas.innerHTML = 'Salvando...';
             btnSalvarEtapas.disabled = true;
@@ -1604,10 +1718,9 @@
                 showToast("Prazos e etapas atualizados com sucesso!", "success");
                 fecharModalEtapas();
                 
-                // Recalcula o velocímetro na tela inicial pois os prazos mudaram
                 if(filtradosGlobais.length > 0) {
                     atualizarVelocimetro(filtradosGlobais);
-                    renderizarTabela(filtradosGlobais); // Atualiza os Expected % na tabela
+                    renderizarTabela(filtradosGlobais);
                 }
             } catch (e) {
                 console.error("Erro ao salvar etapas:", e);
@@ -1617,8 +1730,9 @@
                 btnSalvarEtapas.disabled = false;
             }
         });
-// ==========================================
-        // MELHORIA 1: FECHAR JANELAS COM 'ESC'
+
+        // ==========================================
+        // EVENTOS GERAIS E ATALHOS
         // ==========================================
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
@@ -1635,9 +1749,6 @@
             }
         });
 
-        // ==========================================
-        // MELHORIA 2: EXPORTAR PARA EXCEL (CSV)
-        // ==========================================
         const btnExportar = document.getElementById('btn-exportar-csv');
         if (btnExportar) {
             btnExportar.addEventListener('click', () => {
@@ -1646,16 +1757,13 @@
                     return;
                 }
                 
-                // Cabeçalho da Planilha
                 let csv = "Processo;Emenda;Prioridade;Autor;Secretaria;Beneficiario;Valor (R$);Progresso Atual;Status Atual\n";
                 
-                // Preenchimento dos dados filtrados da tela atual
                 filtradosGlobais.forEach(e => {
                     const tipoExec = e.tipo_execucao || "Direta";
                     const status = e.historico_status && e.historico_status.length > 0 ? e.historico_status[e.historico_status.length - 1].status : "Aguardando Início";
                     const pct = getEtapaInfo(status, tipoExec).pct || 0;
                     
-                    // Formatando textos para não quebrarem a planilha
                     const numProc = e.numero_processo || '';
                     const numEmen = e.numero_emenda || '';
                     const prio = e.prioridade || '';
@@ -1667,7 +1775,6 @@
                     csv += `${numProc};${numEmen};${prio};${autor};${sec};${ben};${val};${pct}%;${status}\n`;
                 });
 
-                // Cria e baixa o arquivo (O '\ufeff' ajuda o Excel a ler os acentos corretamente)
                 const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement("a");
@@ -1679,6 +1786,75 @@
                 document.body.removeChild(link);
                 
                 showToast("Planilha gerada com sucesso!", "success");
+            });
+        }
+        
+        const btnUnirEmendas = document.getElementById('btn-unir-emendas');
+        if(btnUnirEmendas) {
+            btnUnirEmendas.addEventListener('click', () => {
+                if(selecionadasGlobais.size < 2) {
+                    showToast("Selecione pelo menos 2 emendas na tabela para poder uni-las.", "warning");
+                    return;
+                }
+                
+                showConfirm(`Deseja unir estas ${selecionadasGlobais.size} emendas? Elas passarão a compartilhar o mesmo Histórico e Situação a partir de agora.`, async () => {
+                    const arrayIds = Array.from(selecionadasGlobais);
+                    const grupoId = "GRP_" + new Date().getTime();
+                    const btnNormal = btnUnirEmendas.innerHTML;
+                    btnUnirEmendas.innerHTML = "Unindo..."; btnUnirEmendas.disabled = true;
+
+                    try {
+                        const batchPromises = arrayIds.map(id => updateDoc(doc(db, "emendas", id), { grupo_id: grupoId }));
+                        await Promise.all(batchPromises);
+
+                        arrayIds.forEach(id => {
+                            const em = dadosEmendasGlobais.find(e => e.id === id);
+                            if(em) em.grupo_id = grupoId;
+                        });
+
+                        localStorage.setItem(CACHE_KEY, JSON.stringify(dadosEmendasGlobais));
+                        aplicarFiltrosEOrdenacao();
+                        
+                        document.querySelectorAll('.check-emenda').forEach(cb => cb.checked = false);
+                        selecionadasGlobais.clear();
+                        verificarCheckTodos();
+
+                        showToast("Emendas unidas com sucesso! Edite qualquer uma delas para atualizar o grupo.", "success");
+                    } catch(e) {
+                        console.error(e);
+                        showToast("Erro ao tentar unir emendas.", "error");
+                    } finally {
+                        btnUnirEmendas.innerHTML = btnNormal; btnUnirEmendas.disabled = false;
+                    }
+                });
+            });
+        }
+
+        const btnDesunir = document.getElementById('btn-desunir');
+        if(btnDesunir) {
+            btnDesunir.addEventListener('click', () => {
+                showConfirm("Deseja separar esta emenda do grupo? Ela voltará a ter atualizações independentes.", async () => {
+                    const idEdicao = document.getElementById('emenda_id').value;
+                    if(!idEdicao) return;
+                    
+                    try {
+                        btnDesunir.disabled = true; btnDesunir.textContent = "Separando...";
+                        await updateDoc(doc(db, "emendas", idEdicao), { grupo_id: null });
+                        
+                        const em = dadosEmendasGlobais.find(e => e.id === idEdicao);
+                        if(em) em.grupo_id = null;
+                        if(emendaOriginalSendoEditada) emendaOriginalSendoEditada.grupo_id = null;
+                        
+                        document.getElementById('banner-grupo').classList.add('hidden');
+                        localStorage.setItem(CACHE_KEY, JSON.stringify(dadosEmendasGlobais));
+                        aplicarFiltrosEOrdenacao();
+                        showToast("Emenda desvinculada do grupo com sucesso.", "success");
+                    } catch(e) {
+                        console.error(e); showToast("Erro ao separar emenda.", "error");
+                    } finally {
+                        btnDesunir.disabled = false; btnDesunir.innerHTML = `<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg> Desfazer União`;
+                    }
+                });
             });
         }
         
