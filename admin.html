@@ -1194,6 +1194,13 @@
             historicoReverso.forEach((etapa) => {
                 let dataFormatada = etapa.data;
                 try { const partes = etapa.data.split('-'); if(partes.length === 3) dataFormatada = `${partes[2]}/${partes[1]}/${partes[0]}`; } catch(e){}
+                
+                // NOVO: Pegar e formatar a data de checagem do banco
+                let dataChecagemStr = dataFormatada; // Usa a data base como padrão caso seja uma etapa antiga
+                if (etapa.data_checagem) {
+                    try { const partes = etapa.data_checagem.split('-'); if(partes.length === 3) dataChecagemStr = `${partes[2]}/${partes[1]}/${partes[0]}`; } catch(e){}
+                }
+
                 const etapaInfo = getEtapaInfo(etapa.status, tipoExec);
                 const validPct = etapaInfo ? etapaInfo.pct : 0;
                 const badgeDias = etapa.diasDesdeAnterior > 0 ? `<span class="ml-2 text-[11px] font-bold text-orange-400 bg-orange-900/30 px-2 py-0.5 rounded-full shadow-sm border border-orange-800/50" title="Tempo na etapa anterior">⏳ +${etapa.diasDesdeAnterior} dias</span>` : '';
@@ -1202,25 +1209,27 @@
                 const tagOrigem = etapa.usuario_original ? `<div class="text-[10px] text-emerald-400/90 font-medium mt-1.5 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg> Origem: ${etapa.usuario_original} (${etapa.data_original ? new Date(etapa.data_original + "T00:00:00").toLocaleDateString('pt-BR') : '-'})</div>` : '';
                 const tagChecagem = etapa.usuario_checagem ? `<div class="text-[10px] text-purple-400/90 font-medium mt-0.5 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg> Checado por: ${etapa.usuario_checagem} (${etapa.data_checagem ? new Date(etapa.data_checagem + "T00:00:00").toLocaleDateString('pt-BR') : '-'})</div>` : '';
 
-                const idxReal = historicoAtualDaEdicao.findIndex(e => e === etapa);
-
-                const botoesAcao = `
-                    <div class="mt-2 flex gap-2">
-                        <button type="button" class="btn-editar-etapa text-[10px] font-medium bg-slate-800 border border-slate-600 hover:bg-blue-600 hover:border-blue-500 text-slate-300 hover:text-white px-2 py-1 rounded transition" data-index="${idxReal}">✏️ Editar</button>
-                        <button type="button" class="btn-excluir-etapa text-[10px] font-medium bg-slate-800 border border-slate-600 hover:bg-red-600 hover:border-red-500 text-slate-300 hover:text-white px-2 py-1 rounded transition" data-index="${idxReal}">🗑️ Excluir</button>
-                    </div>
-                `;
+                // Indice real para que a Edição/Exclusão alterem a etapa certa
+                const indexReal = historicoAtualDaEdicao.indexOf(etapa);
 
                 const li = document.createElement('li');
-                li.className = "relative pl-6 timeline-item";
+                li.className = "relative pl-6 timeline-item group";
                 li.innerHTML = `
                     <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-1">
                         <div><span class="text-sm font-bold text-slate-200">${etapa.status}</span><span class="ml-2 text-[10px] font-bold text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">${validPct}%</span>${infoUsuario}</div>
-                        <div class="flex items-center mt-1 sm:mt-0"><span class="text-xs font-medium text-slate-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700 shadow-sm">${dataFormatada}</span>${badgeDias}</div>
+                        <div class="flex flex-wrap items-center mt-1 sm:mt-0 gap-2">
+                            <div class="flex items-center"><span class="text-xs font-medium text-slate-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700 shadow-sm">${dataFormatada}</span>${badgeDias}</div>
+                            <div class="flex items-center"><span class="text-xs font-medium text-emerald-400 bg-emerald-900/20 px-2 py-0.5 rounded border border-emerald-800/50 shadow-sm whitespace-nowrap">Ação: ${dataChecagemStr}</span></div>
+                        </div>
                     </div>
                     ${infoResponsavel} ${tagOrigem} ${tagChecagem}
                     <p class="text-sm text-slate-400 mt-1 bg-slate-900/50 p-2 rounded border border-slate-700/50">${etapa.observacao || '<i>Nenhuma observação adicional.</i>'}</p>
-                    ${botoesAcao}
+                    
+                    <!-- BOTÕES DE EDITAR/EXCLUIR OCULTOS (APARECEM NO HOVER) -->
+                    <div class="mt-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <button type="button" class="btn-editar-etapa flex items-center gap-1 px-2 py-1 bg-slate-700 hover:bg-blue-600 text-white text-[10px] font-bold rounded shadow-sm transition" data-index="${indexReal}">✏️ Editar</button>
+                        <button type="button" class="btn-excluir-etapa flex items-center gap-1 px-2 py-1 bg-slate-700 hover:bg-red-600 text-white text-[10px] font-bold rounded shadow-sm transition" data-index="${indexReal}">🗑️ Excluir</button>
+                    </div>
                 `;
                 timelineLista.appendChild(li);
             });
