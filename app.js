@@ -392,6 +392,8 @@ function aplicarFiltrosEOrdenacao() {
                 ${emenda.enquadramento || ''}
                 ${statusAtual}
                 ${tipoExec}
+                ${emenda.projeto_engenharia ? 'engenharia projeto' : ''}
+                ${emenda.remanejada ? 'remanejada remanejamento' : ''}
             `.toLowerCase();
             
             const termosBusca = busca.split(' ').filter(t => t.trim() !== '');
@@ -692,32 +694,39 @@ function renderizarHistoricoNoModal() {
         
         const infoUsuario = etapa.usuario ? `<span class="ml-2 text-[10px] text-slate-500 font-medium" title="Usuário do Sistema">👤 ${etapa.usuario}</span>` : '';
         const infoResponsavel = etapa.responsavel_etapa ? `<div class="text-xs text-slate-400 mt-1"><span class="font-semibold text-slate-300">Responsável:</span> ${etapa.responsavel_etapa}</div>` : '';
-        const tagOrigem = etapa.usuario_original ? `<div class="text-[10px] text-emerald-400/90 font-medium mt-1.5 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg> Origem: ${etapa.usuario_original} (${dataOriginalStr})</div>` : '';
-        const tagChecagem = etapa.usuario_checagem ? `<div class="text-[10px] text-purple-400/90 font-medium mt-0.5 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg> Checado por: ${etapa.usuario_checagem} (${dataChecagemStr})</div>` : '';
+       const tagOrigem = etapa.usuario_original ? `<div class="text-[10px] text-emerald-400/90 font-medium mt-1.5 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg> Origem: ${etapa.usuario_original} (${dataOriginalStr})</div>` : '';
+                const tagChecagem = etapa.usuario_checagem ? `<div class="text-[10px] text-purple-400/90 font-medium mt-0.5 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg> Checado por: ${etapa.usuario_checagem} (${dataChecagemStr})</div>` : '';
 
-        const indexReal = historicoAtualDaEdicao.indexOf(etapa);
+                const indexReal = historicoAtualDaEdicao.indexOf(etapa);
+                
+                // VERIFICA SE ESTÁ NO MODO "SOMENTE LEITURA" (Botão Salvar oculto)
+                const isSomenteLeitura = document.getElementById('btn-salvar').classList.contains('hidden');
+                
+                // SÓ CRIA OS BOTÕES SE NÃO ESTIVER NO MODO LEITURA
+                const botoesAcaoHtml = isSomenteLeitura ? '' : `
+                    <div class="mt-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <button type="button" class="btn-editar-etapa flex items-center gap-1 px-2 py-1 bg-slate-700 hover:bg-blue-600 text-white text-[10px] font-bold rounded shadow-sm transition" data-index="${indexReal}">✏️ Editar</button>
+                        <button type="button" class="btn-excluir-etapa flex items-center gap-1 px-2 py-1 bg-slate-700 hover:bg-red-600 text-white text-[10px] font-bold rounded shadow-sm transition" data-index="${indexReal}">🗑️ Excluir</button>
+                    </div>
+                `;
 
-        const li = document.createElement('li');
-        li.className = "relative pl-6 timeline-item group";
-        li.innerHTML = `
-            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-1">
-                <div><span class="text-sm font-bold text-slate-200">${etapa.status}</span><span class="ml-2 text-[10px] font-bold text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">${validPct}%</span>${infoUsuario}</div>
-                <div class="flex flex-wrap items-center mt-1 sm:mt-0 gap-2">
-                    <div class="flex items-center"><span class="text-xs font-medium text-slate-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700 shadow-sm">${dataFormatada}</span>${badgeDias}</div>
-                    <div class="flex items-center"><span class="text-xs font-medium text-emerald-400 bg-emerald-900/20 px-2 py-0.5 rounded border border-emerald-800/50 shadow-sm whitespace-nowrap">Ação: ${dataOriginalStr}</span></div>
-                </div>
-            </div>
-            ${infoResponsavel} ${tagOrigem} ${tagChecagem}
-            <p class="text-sm text-slate-400 mt-1 bg-slate-900/50 p-2 rounded border border-slate-700/50">${etapa.observacao || '<i>Nenhuma observação adicional.</i>'}</p>
-            
-            <div class="mt-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                <button type="button" class="btn-editar-etapa flex items-center gap-1 px-2 py-1 bg-slate-700 hover:bg-blue-600 text-white text-[10px] font-bold rounded shadow-sm transition" data-index="${indexReal}">✏️ Editar</button>
-                <button type="button" class="btn-excluir-etapa flex items-center gap-1 px-2 py-1 bg-slate-700 hover:bg-red-600 text-white text-[10px] font-bold rounded shadow-sm transition" data-index="${indexReal}">🗑️ Excluir</button>
-            </div>
-        `;
-        timelineLista.appendChild(li);
-    });
-}
+                const li = document.createElement('li');
+                li.className = "relative pl-6 timeline-item group";
+                li.innerHTML = `
+                    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-1">
+                        <div><span class="text-sm font-bold text-slate-200">${etapa.status}</span><span class="ml-2 text-[10px] font-bold text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">${validPct}%</span>${infoUsuario}</div>
+                        <div class="flex flex-wrap items-center mt-1 sm:mt-0 gap-2">
+                            <div class="flex items-center"><span class="text-xs font-medium text-slate-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700 shadow-sm">${dataFormatada}</span>${badgeDias}</div>
+                            <div class="flex items-center"><span class="text-xs font-medium text-emerald-400 bg-emerald-900/20 px-2 py-0.5 rounded border border-emerald-800/50 shadow-sm whitespace-nowrap">Ação: ${dataOriginalStr}</span></div>
+                        </div>
+                    </div>
+                    ${infoResponsavel} ${tagOrigem} ${tagChecagem}
+                    <p class="text-sm text-slate-400 mt-1 bg-slate-900/50 p-2 rounded border border-slate-700/50">${etapa.observacao || '<i>Nenhuma observação adicional.</i>'}</p>
+                    ${botoesAcaoHtml}
+                `;
+                timelineLista.appendChild(li);
+            });
+        }
 
 if(timelineLista) {
     timelineLista.addEventListener('click', (e) => {
