@@ -1181,31 +1181,35 @@
                 return;
             }
 
-            // Função robusta para pegar a data real (data_original priorizada, senão data) 
-            // e convertê-la corretamente num objeto Date para cálculos, evitando falhas de string vazia
-            const getDataReal = (et) => {
-                const dateStr = (et.data_original && et.data_original.trim() !== '') ? et.data_original : et.data;
-                if (!dateStr) return new Date(0); // Emenda sem data alguma registrada cai para fallback
-                
-                const p = dateStr.split('-');
-                if (p.length === 3) {
-                    return new Date(p[0], p[1] - 1, p[2]); // Evita fusos horários matando as horas
-                }
-                return new Date(dateStr);
-            };
-
-            // Ordena usando a função de data robusta
+            // NOVA LÓGICA DE ORDENAÇÃO E CÁLCULO
+            const getDataReal = (et) => et.data_original ? new Date(et.data_original + "T00:00:00") : new Date(et.data + "T00:00:00");
             const historicoOrdenado = [...historicoAtualDaEdicao].sort((a, b) => getDataReal(a) - getDataReal(b));
             
+            const hoje = new Date();
+            // Reseta as horas para meia-noite para que o cálculo seja baseado apenas no dia
+            hoje.setHours(0, 0, 0, 0);
+
             historicoOrdenado.forEach((etapa, index) => {
-                if(index === 0) { 
+                // Se for a última etapa do histórico (o status atual da emenda)
+                if (index === historicoOrdenado.length - 1) {
+                    try {
+                        const dataEtapa = getDataReal(etapa);
+                        dataEtapa.setHours(0, 0, 0, 0);
+                        const diffTime = Math.abs(hoje - dataEtapa);
+                        etapa.diasDesdeAnterior = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                    } catch(e) {
+                        etapa.diasDesdeAnterior = 0;
+                    }
+                } 
+                // Se for a primeira etapa
+                else if (index === 0) { 
                     etapa.diasDesdeAnterior = 0; 
-                } else { 
+                } 
+                // Se for uma etapa intermediária
+                else { 
                     try { 
-                        const dAtual = getDataReal(etapa);
-                        const dAnt = getDataReal(historicoOrdenado[index-1]);
-                        const diffTime = Math.abs(dAtual - dAnt); 
-                        etapa.diasDesdeAnterior = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                        const diffTime = Math.abs(getDataReal(etapa) - getDataReal(historicoOrdenado[index-1])); 
+                        etapa.diasDesdeAnterior = Math.floor(diffTime / (1000 * 60 * 60 * 24)); 
                     } catch(e) { 
                         etapa.diasDesdeAnterior = 0; 
                     } 
@@ -1220,30 +1224,37 @@
             }
 
             const historicoReverso = [...historicoOrdenado].reverse();
-            historicoReverso.forEach((etapa) => {
-                
-                // Formatação: Data Visual normal
+            historicoReverso.forEach((etapa, index) => {
                 let dataFormatada = etapa.data;
                 try { const partes = etapa.data.split('-'); if(partes.length === 3) dataFormatada = `${partes[2]}/${partes[1]}/${partes[0]}`; } catch(e){}
                 
-                // Formatação: Data Checagem (Usuário atualizou o sistema)
                 let dataChecagemStr = dataFormatada; 
                 if (etapa.data_checagem) {
                     try { const partes = etapa.data_checagem.split('-'); if(partes.length === 3) dataChecagemStr = `${partes[2]}/${partes[1]}/${partes[0]}`; } catch(e){}
                 }
 
-                // Formatação: Data Original (Prefeitura agiu)
                 let dataOriginalStr = dataFormatada;
-                if (etapa.data_original && etapa.data_original.trim() !== '') {
+                if (etapa.data_original) {
                     try { const partes = etapa.data_original.split('-'); if(partes.length === 3) dataOriginalStr = `${partes[2]}/${partes[1]}/${partes[0]}`; } catch(e){}
                 }
 
                 const etapaInfo = getEtapaInfo(etapa.status, tipoExec);
                 const validPct = etapaInfo ? etapaInfo.pct : 0;
-                const badgeDias = etapa.diasDesdeAnterior > 0 ? `<span class="ml-2 text-[11px] font-bold text-orange-400 bg-orange-900/30 px-2 py-0.5 rounded-full shadow-sm border border-orange-800/50" title="Tempo na etapa anterior">⏳ +${etapa.diasDesdeAnterior} dias</span>` : '';
+                
+                // Muda a cor da tag de dias dependendo se é a etapa atual ou uma passada
+                const isEtapaAtual = (index === 0); // No array reverso, o índice 0 é a etapa atual
+                let badgeDiasClass = isEtapaAtual 
+                    ? "text-[11px] font-bold text-red-400 bg-red-900/30 px-2 py-0.5 rounded-full shadow-sm border border-red-800/50" 
+                    : "text-[11px] font-bold text-orange-400 bg-orange-900/30 px-2 py-0.5 rounded-full shadow-sm border border-orange-800/50";
+                
+                let badgeDiasTexto = isEtapaAtual 
+                    ? `⏳ Parada há ${etapa.diasDesdeAnterior} dias`
+                    : `⏳ +${etapa.diasDesdeAnterior} dias`;
+
+                const badgeDias = etapa.diasDesdeAnterior > 0 ? `<span class="ml-2 ${badgeDiasClass}" title="${isEtapaAtual ? 'Tempo na etapa atual até hoje' : 'Tempo gasto na etapa anterior'}">${badgeDiasTexto}</span>` : '';
+                
                 const infoUsuario = etapa.usuario ? `<span class="ml-2 text-[10px] text-slate-500 font-medium" title="Usuário do Sistema">👤 ${etapa.usuario}</span>` : '';
                 const infoResponsavel = etapa.responsavel_etapa ? `<div class="text-xs text-slate-400 mt-1"><span class="font-semibold text-slate-300">Responsável:</span> ${etapa.responsavel_etapa}</div>` : '';
-                
                 const tagOrigem = etapa.usuario_original ? `<div class="text-[10px] text-emerald-400/90 font-medium mt-1.5 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg> Origem: ${etapa.usuario_original} (${dataOriginalStr})</div>` : '';
                 const tagChecagem = etapa.usuario_checagem ? `<div class="text-[10px] text-purple-400/90 font-medium mt-0.5 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg> Checado por: ${etapa.usuario_checagem} (${dataChecagemStr})</div>` : '';
 
@@ -1671,6 +1682,9 @@
             graficosInstanciados['chart-evolucao'] = new Chart(document.getElementById('chart-evolucao'), { type: 'line', data: { labels: keysEvo, datasets: [{ label: 'Movimentações', data: keysEvo.map(k=>evolucao[k]), borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.2)', borderWidth: 3, pointBackgroundColor: '#3b82f6', fill: true, tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8', stepSize: 1 } }, x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } } } } });
         }
 
+        // ==========================================
+        // LÓGICA DO MODAL DE CONFIGURAÇÃO DE ETAPAS
+        // ==========================================
         let etapaConfigTipoAtual = 'Direta';
         const modalEtapas = document.getElementById('modal-etapas-config');
         const btnAbrirEtapas = document.getElementById('btn-abrir-config-etapas');
@@ -1775,6 +1789,9 @@
             }
         });
 
+        // ==========================================
+        // EVENTOS GERAIS E ATALHOS
+        // ==========================================
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 const modalEmend = document.getElementById('modal-emenda');
