@@ -1,0 +1,2016 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRISMA • Gestão de Parcerias e Comissões MROSC - Módulo 2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        gemini: {
+                            bg: '#131314',
+                            card: '#1e1f20',
+                            cardHover: '#28292a',
+                            border: '#333537',
+                            text: '#e3e3e3',
+                            muted: '#9aa0a6',
+                            accent: '#8ab4f8',
+                            accentHover: '#aecbfa'
+                        }
+                    }
+                }
+            }
+        };
+
+        // Gerenciamento de Tema Local
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* Scrollbar suave */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+
+        /* Regras de Impressão Oficial A4 (Folha Limpa) */
+        @media print {
+            @page { size: A4 portrait; margin: 1.5cm; }
+            html, body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                font-size: 10pt !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .no-print, nav, header, footer, #wizard-container-geral, #modal-termo-responsabilidade {
+                display: none !important;
+            }
+            #container-espelho-resultado {
+                display: block !important;
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                background: #ffffff !important;
+            }
+            .folha-a4-impressao {
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+            }
+            table, th, td {
+                border-color: #333333 !important;
+                color: #000000 !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800 dark:bg-[#131314] dark:text-[#e3e3e3] flex flex-col antialiased">
+
+    <!-- BARRA GOVERNAMENTAL SUPERIOR -->
+    <div class="bg-[#0b2240] dark:bg-[#071324] text-white text-[11px] font-medium border-b border-[#08182d] no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1.5 flex flex-col sm:flex-row justify-between items-center gap-1">
+            <div class="flex items-center gap-2">
+                <span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
+                <span>MUNICÍPIO DE HORIZONTINA / RS • AMBIENTE OFICIAL DE GESTÃO DE PARCERIAS</span>
+            </div>
+            <div class="flex items-center gap-3 text-slate-300 text-[10px]">
+                <span>Decreto Municipal nº 5.730/2025</span>
+                <span>•</span>
+                <span>Lei Federal nº 13.019/2014 (MROSC)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- NAVBAR INSTITUCIONAL PRISMA -->
+    <nav class="bg-white dark:bg-[#1e1f20] border-b border-slate-200 dark:border-[#333537] sticky top-0 z-40 shadow-xs no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                
+                <div class="flex items-center gap-3.5">
+                    <div class="w-10 h-10 rounded-md bg-[#003399] dark:bg-blue-600 flex items-center justify-center text-white shadow-xs">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-lg tracking-tight text-[#003399] dark:text-blue-400">PRISMA</span>
+                            <span class="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950/50 text-[#003399] dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                                Módulo 2 • Comissões MROSC
+                            </span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 font-normal">Instrução de Pareceres, Avaliações e Prestações de Contas</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <!-- BOTÃO ALTERNADOR DE TEMA ESCURO / CLARO -->
+                    <button type="button" onclick="alternarTemaModoEscuro()" id="btn-theme-toggle" class="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#28292a] border border-slate-300 dark:border-slate-700 text-xs font-semibold flex items-center gap-1.5 transition" title="Alternar entre Tema Claro e Tema Escuro (Estilo Gemini)">
+                        <span id="theme-toggle-icon">🌙</span>
+                        <span id="theme-toggle-text" class="hidden sm:inline">Modo Escuro</span>
+                    </button>
+
+                    <a href="index.html" class="text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-[#003399] dark:hover:text-blue-400 px-3 py-2 rounded-md hover:bg-slate-100 dark:hover:bg-[#28292a] transition hidden md:inline-block">
+                        Portal Público
+                    </a>
+                    <a href="admin.html" class="flex items-center gap-1.5 text-xs font-semibold bg-[#003399] hover:bg-[#002266] dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-3.5 py-2 rounded-md transition shadow-xs">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                        Voltar ao Painel
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </nav>
+
+    <!-- CABEÇALHO ORIENTATIVO -->
+    <header class="bg-white dark:bg-[#1e1f20] border-b border-slate-200 dark:border-[#333537] py-5 px-4 sm:px-6 lg:px-8 no-print">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div class="max-w-3xl">
+                <nav class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 mb-1 font-medium">
+                    <a href="admin.html" class="hover:underline text-slate-600 dark:text-slate-300">Gestão</a>
+                    <span>/</span>
+                    <span class="text-slate-800 dark:text-slate-200">Parcerias Voluntárias</span>
+                    <span>/</span>
+                    <span class="text-[#003399] dark:text-blue-400 font-semibold">Instrução Processual Guiada</span>
+                </nav>
+                <h1 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+                    Central de Atos Administrativos e Pareceres MROSC
+                </h1>
+                <p class="text-slate-600 dark:text-slate-400 mt-1 text-xs sm:text-sm leading-relaxed">
+                    Instrução passo a passo com foco cognitivo isolado, conferência funcional obrigatória e parser determinístico local de Planos de Trabalho.
+                </p>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <span class="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 rounded text-xs font-semibold flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    Ambiente 100% Offline e Seguro
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL: TELA DE ESCOLHA INICIAL E WIZARD -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex-grow space-y-6">
+
+        <!-- TOAST FLUTUANTE DE AVISOS -->
+        <div id="toast-gestao" class="hidden fixed bottom-5 right-5 z-50 bg-slate-900 dark:bg-[#28292a] text-white border border-slate-700 px-4 py-3 rounded-lg shadow-xl text-xs flex items-center gap-2 transition-all">
+            <span id="toast-gestao-msg">Notificação</span>
+        </div>
+
+        <!-- SEÇÃO 1: SELEÇÃO DO ATO ADMINISTRATIVO (INÍCIO) -->
+        <div id="secao-selecao-ato" class="space-y-4">
+            <div class="bg-blue-50 dark:bg-[#1e1f20] border border-blue-200 dark:border-blue-900/60 p-4 rounded-lg flex items-start gap-3">
+                <div class="text-xl">⚖️</div>
+                <div>
+                    <h3 class="text-sm font-bold text-[#003399] dark:text-blue-400">Qual ato administrativo você deseja instruir agora?</h3>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 mt-0.5 leading-relaxed">
+                        Escolha o instrumento formal correspondente à fase do processo administrativo no Atende.Net. O sistema guiará a análise em etapas isoladas, garantindo que cada requisito do Decreto Municipal nº 5.730/2025 seja formalmente conferido.
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                <!-- ATO 1: PARECER TÉCNICO ART. 35-V (ANEXO IX) -->
+                <div class="bg-white dark:bg-[#1e1f20] border-2 border-slate-200 dark:border-[#333537] hover:border-[#003399] dark:hover:border-blue-500 rounded-xl p-5 shadow-xs transition flex flex-col justify-between group cursor-pointer" onclick="iniciarWizard('anexo9')">
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-start">
+                            <span class="px-2.5 py-1 rounded bg-blue-100 dark:bg-blue-950/60 text-[#003399] dark:text-blue-300 font-bold text-[10px] uppercase font-mono">Fase Pré-Parceria • Art. 35, V</span>
+                            <span class="text-xs text-slate-400 font-mono">ANEXO IX</span>
+                        </div>
+                        <h2 class="text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-[#003399] dark:group-hover:text-blue-400 transition">
+                            Parecer do Órgão Técnico Municipal
+                        </h2>
+                        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                            Pronunciamento técnico da Secretaria sobre mérito da proposta, modalidade adotada, reciprocidade de interesses, viabilidade de execução, cronograma de desembolso e designação de gestor/comissão.
+                        </p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 dark:border-[#333537] flex items-center justify-between">
+                        <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">8 passos estruturados</span>
+                        <button type="button" class="px-3.5 py-1.5 bg-[#003399] dark:bg-blue-600 hover:bg-[#002266] dark:hover:bg-blue-700 text-white font-semibold text-xs rounded shadow-xs transition flex items-center gap-1">
+                            Iniciar Instrução
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ATO 2: AVALIAÇÃO DA COMISSÃO DE SELEÇÃO (ANEXO VIII) -->
+                <div class="bg-white dark:bg-[#1e1f20] border-2 border-slate-200 dark:border-[#333537] hover:border-emerald-600 dark:hover:border-emerald-500 rounded-xl p-5 shadow-xs transition flex flex-col justify-between group cursor-pointer" onclick="iniciarWizard('anexo8')">
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-start">
+                            <span class="px-2.5 py-1 rounded bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-bold text-[10px] uppercase font-mono">Fase de Seleção & Julgamento</span>
+                            <span class="text-xs text-slate-400 font-mono">ANEXO VIII</span>
+                        </div>
+                        <h2 class="text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition">
+                            Avaliação da Comissão Colegiada de Seleção
+                        </h2>
+                        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                            Julgamento dos 22 itens obrigatórios do Plano de Trabalho e conferência dos 12 requisitos de habilitação jurídica da OSC, com pontuação de 0 a 2 pts e cálculo automático de nota final.
+                        </p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 dark:border-[#333537] flex items-center justify-between">
+                        <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">6 passos estruturados (34 critérios)</span>
+                        <button type="button" class="px-3.5 py-1.5 bg-emerald-700 dark:bg-emerald-600 hover:bg-emerald-800 dark:hover:bg-emerald-700 text-white font-semibold text-xs rounded shadow-xs transition flex items-center gap-1">
+                            Iniciar Instrução
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ATO 3: RELATÓRIO TÉCNICO DE MONITORAMENTO (ANEXO X) -->
+                <div class="bg-white dark:bg-[#1e1f20] border-2 border-slate-200 dark:border-[#333537] hover:border-purple-600 dark:hover:border-purple-500 rounded-xl p-5 shadow-xs transition flex flex-col justify-between group cursor-pointer" onclick="iniciarWizard('anexo10')">
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-start">
+                            <span class="px-2.5 py-1 rounded bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 font-bold text-[10px] uppercase font-mono">Fase de Execução • Art. 59</span>
+                            <span class="text-xs text-slate-400 font-mono">ANEXO X</span>
+                        </div>
+                        <h2 class="text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-purple-700 dark:group-hover:text-purple-400 transition">
+                            Relatório Técnico de Monitoramento e Avaliação
+                        </h2>
+                        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                            Elaborado pelo Relator da Comissão de Monitoramento e Avaliação: ateste de cumprimento de metas físicas, pesquisa de satisfação, comprovação de transparência ativa (Art. 11) e homologação colegiada.
+                        </p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 dark:border-[#333537] flex items-center justify-between">
+                        <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">6 passos estruturados</span>
+                        <button type="button" class="px-3.5 py-1.5 bg-purple-700 dark:bg-purple-600 hover:bg-purple-800 dark:hover:bg-purple-700 text-white font-semibold text-xs rounded shadow-xs transition flex items-center gap-1">
+                            Iniciar Instrução
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ATO 4: PARECER TÉCNICO CONCLUSIVO DO GESTOR (ANEXO XI) -->
+                <div class="bg-white dark:bg-[#1e1f20] border-2 border-slate-200 dark:border-[#333537] hover:border-amber-600 dark:hover:border-amber-500 rounded-xl p-5 shadow-xs transition flex flex-col justify-between group cursor-pointer" onclick="iniciarWizard('anexo11')">
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-start">
+                            <span class="px-2.5 py-1 rounded bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 font-bold text-[10px] uppercase font-mono">Fase de Prestação de Contas • Art. 67</span>
+                            <span class="text-xs text-slate-400 font-mono">ANEXO XI</span>
+                        </div>
+                        <h2 class="text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-amber-700 dark:group-hover:text-amber-400 transition">
+                            Parecer Técnico Conclusivo do Gestor da Parceria
+                        </h2>
+                        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                            Manifestação final do Gestor: aferição de eficácia (resultados e impacto social), conciliação bancária por regime de caixa, apuração precisa de glosas e recomendação de julgamento das contas (Art. 72).
+                        </p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 dark:border-[#333537] flex items-center justify-between">
+                        <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">6 passos estruturados</span>
+                        <button type="button" class="px-3.5 py-1.5 bg-amber-700 dark:bg-amber-600 hover:bg-amber-800 dark:hover:bg-amber-700 text-white font-semibold text-xs rounded shadow-xs transition flex items-center gap-1">
+                            Iniciar Instrução
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- SEÇÃO 2: WIZARD DE FOCO ÚNICO (MODAL DE ETAPA EM ETAPA) -->
+        <div id="wizard-container-geral" class="hidden space-y-4 no-print">
+            
+            <div class="bg-white dark:bg-[#1e1f20] border border-slate-300 dark:border-[#333537] rounded-xl shadow-lg overflow-hidden">
+                
+                <!-- BARRA DE PROGRESSO DO WIZARD -->
+                <div class="px-6 py-4 bg-slate-900 text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span id="wiz-badge-ato" class="px-2 py-0.5 rounded bg-blue-600 text-white text-[10px] font-bold uppercase font-mono">ANEXO IX</span>
+                            <h2 id="wiz-titulo-ato" class="text-sm sm:text-base font-bold text-white tracking-tight">Nome do Ato Selecionado</h2>
+                        </div>
+                        <p id="wiz-subtitulo-etapa" class="text-xs text-slate-400 mt-0.5">Passo 1 de 8 • Identificação</p>
+                    </div>
+
+                    <div class="flex items-center gap-2 self-end sm:self-auto">
+                        <span id="wiz-contador-passos" class="text-xs font-mono font-bold text-slate-300 bg-slate-800 px-2.5 py-1 rounded border border-slate-700">Etapa 1/8</span>
+                        <button type="button" onclick="cancelarWizard()" class="text-slate-400 hover:text-white text-xs px-2 py-1 rounded transition" title="Cancelar e voltar para o menu de atos">✖ Cancelar</button>
+                    </div>
+                </div>
+
+                <!-- CORPO DINÂMICO DA ETAPA ATUAL -->
+                <div id="wizard-corpo-conteudo" class="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
+                    <!-- RENDERIZADO DINAMICAMENTE PELO JAVASCRIPT -->
+                </div>
+
+                <!-- RODAPÉ DO WIZARD: BOTÕES DE NAVEGAÇÃO E TRAVA DE CIÊNCIA -->
+                <div class="px-6 py-4 bg-slate-100 dark:bg-[#17181a] border-t border-slate-300 dark:border-[#333537] flex flex-col sm:flex-row justify-between items-center gap-3">
+                    <button type="button" id="wiz-btn-voltar" onclick="voltarEtapaWizard()" class="w-full sm:w-auto px-4 py-2 bg-white dark:bg-[#28292a] border border-slate-300 dark:border-[#333537] text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#333537] font-semibold text-xs rounded transition flex items-center justify-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        Voltar Etapa
+                    </button>
+
+                    <button type="button" id="wiz-btn-avancar" onclick="avancarEtapaWizard()" class="w-full sm:w-auto px-6 py-2 bg-[#003399] dark:bg-blue-600 hover:bg-[#002266] dark:hover:bg-blue-700 text-white font-bold text-xs rounded shadow-md transition flex items-center justify-center gap-2">
+                        <span>Confirmar & Avançar</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- SEÇÃO 3: ESPELHO DO LAUDO FINAL GERADO & EXPORTAÇÃO OFICIAL -->
+        <div id="container-espelho-resultado" class="hidden space-y-6">
+            
+            <!-- BARRA DE AÇÕES SUPERIOR DO RESULTADO -->
+            <div class="bg-white dark:bg-[#1e1f20] p-4 rounded-xl border border-slate-300 dark:border-[#333537] shadow-xs flex flex-col sm:flex-row justify-between items-center gap-3 no-print">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">✅</span>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100">Instrução Processual Concluída com Sucesso</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">O documento foi estruturado e o snapshot atômico foi salvo em backup no servidor.</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
+                    <button type="button" onclick="exportarParaWordDoc()" class="flex-1 sm:flex-none px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs rounded shadow-xs transition flex items-center justify-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        Exportar p/ Word (.doc)
+                    </button>
+                    <button type="button" onclick="imprimirDocumento()" class="flex-1 sm:flex-none px-4 py-2 bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-bold text-xs rounded shadow-xs transition flex items-center justify-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        Imprimir Laudo Oficial (A4)
+                    </button>
+                    <button type="button" onclick="reiniciarInstrucaoGeral()" class="px-3 py-2 bg-white dark:bg-[#28292a] border border-slate-300 dark:border-[#333537] text-slate-700 dark:text-slate-300 hover:bg-slate-50 text-xs font-semibold rounded transition">
+                        Nova Instrução
+                    </button>
+                </div>
+            </div>
+
+            <!-- FOLHA FORMAL A4 (RENDERIZADA NA TELA E NA IMPRESSÃO) -->
+            <div id="folha-laudo-oficial-impressao" class="folha-a4-impressao bg-white text-slate-900 p-8 sm:p-12 rounded-xl border border-slate-300 shadow-md max-w-4xl mx-auto space-y-6">
+                <!-- CONTEÚDO OFICIAL FORMATADO PREENCHIDO DINAMICAMENTE -->
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- MODAL DE TERMO DE CONSCIÊNCIA FUNCIONAL E RESPONSABILIDADE (OBRIGATÓRIO NA PRIMEIRA ABERTURA) -->
+    <div id="modal-termo-responsabilidade" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-[#1e1f20] text-slate-900 dark:text-slate-100 max-w-lg w-full rounded-2xl shadow-2xl border border-slate-300 dark:border-[#333537] p-6 space-y-4">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-300 flex items-center justify-center text-2xl shrink-0">
+                    ⚖️
+                </div>
+                <div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800/50 font-mono">
+                        Aviso Legal de Governança
+                    </span>
+                    <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 mt-0.5">Termo de Consciência Funcional e Autonomia Técnica</h3>
+                </div>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-[#17181a] border border-slate-200 dark:border-[#333537] rounded-xl text-xs text-slate-700 dark:text-slate-300 space-y-2 leading-relaxed">
+                <p>
+                    O ecossistema <strong>PRISMA</strong> opera exclusivamente como <strong>instrumento auxiliar de triagem, cálculo e aceleração procedimental</strong> nos termos da Lei Federal nº 13.019/2014 e do Decreto Municipal nº 5.730/2025 de Horizontina/RS.
+                </p>
+                <p>
+                    <strong>A responsabilidade legal, técnica e funcional é privativa e indelegável do Servidor Público, Gestor da Parceria ou Membro da Comissão Colegiada.</strong> Todas as sugestões, redações e cálculos devem ser conferidos nos autos do Processo Digital no sistema Atende.Net.
+                </p>
+            </div>
+
+            <label class="flex items-start gap-2.5 cursor-pointer select-none">
+                <input type="checkbox" id="check-aceite-termo-responsabilidade" class="mt-1 w-4 h-4 text-[#003399] rounded border-slate-300 focus:ring-[#003399]">
+                <span class="text-xs text-slate-800 dark:text-slate-200 font-semibold leading-tight">
+                    Declaro ciência inequívoca de que este módulo é um facilitador de instrução e assumo inteira responsabilidade técnica pela veracidade dos dados e decisões exaradas.
+                </span>
+            </label>
+
+            <div class="pt-3 border-t border-slate-200 dark:border-[#333537] flex justify-end">
+                <button type="button" id="btn-confirmar-termo-responsabilidade" onclick="confirmarTermoInicial()" disabled class="w-full sm:w-auto px-5 py-2.5 bg-[#003399] dark:bg-blue-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#002266] text-white text-xs font-bold rounded-lg shadow-md transition">
+                    Prosseguir para o Módulo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RODAPÉ INSTITUCIONAL -->
+    <footer class="bg-white dark:bg-[#1e1f20] border-t border-slate-200 dark:border-[#333537] py-6 text-xs text-slate-600 dark:text-slate-400 mt-auto no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div>
+                <span class="font-semibold text-slate-800 dark:text-slate-200">PRISMA • Plataforma de Rastreamento de Investimentos e Metas Abertas</span>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">Ambiente de apoio processual aos Decretos nº 5.730/2025 e 4.114/2022 de Horizontina/RS.</p>
+            </div>
+            <span class="text-[11px] font-mono text-slate-500 dark:text-slate-400">Prefeitura Municipal de Horizontina / RS</span>
+        </div>
+    </footer>
+
+    <script>
+
+        // BANCO DE CRITÉRIOS DO PLANO DE TRABALHO (22 ITENS DO ANEXO VIII)
+        const CRITERIOS_PLANO_TRABALHO = [
+            { id: "2.1", rotulo: "Avaliação de capacidade técnica", desc: "A entidade demonstrou possuir condições e expertise para executar a parceria?" },
+            { id: "2.2", rotulo: "Realidade e Nexo", desc: "Situação-alvo clara e vínculo com ações propostas." },
+            { id: "2.3", rotulo: "Alinhamento com Políticas Públicas", desc: "A proposta se alinha com programas municipais existentes e PPA?" },
+            { id: "2.4", rotulo: "Definição do Público-Alvo", desc: "O público-alvo está claramente definido, quantificado e universal (vedada restrição a sócios)?" },
+            { id: "2.5", rotulo: "Metas", desc: "Metas específicas, mensuráveis, atingíveis, relevantes e temporais." },
+            { id: "2.6", rotulo: "Atividades / Projetos", desc: "Descrição detalhada de cada ação ou projeto a executar." },
+            { id: "2.7", rotulo: "Plano de Aplicação de Recursos", desc: "Fluxo de liberação, fontes, marcos de desembolso e controles internos." },
+            { id: "2.8", rotulo: "Orçamento e Enquadramento", desc: "Receitas e despesas discriminadas e classificadas conforme a Lei 4.320/64." },
+            { id: "2.9", rotulo: "Cronograma Detalhado", desc: "Fases, marcos, prazos e responsáveis mês a mês." },
+            { id: "2.10", rotulo: "Forma de Execução", desc: "Métodos, equipe, parcerias e atribuições técnicas." },
+            { id: "2.11", rotulo: "Indicadores de Desempenho", desc: "Indicadores qualitativos e quantitativos com metas e fontes de aferição." },
+            { id: "2.12", rotulo: "Plano de Monitoramento", desc: "Procedimentos para acompanhar execução e prazos de relatórios periódicos." },
+            { id: "2.13", rotulo: "Plano de Avaliação e Aferição", desc: "Ferramentas, frequência e responsáveis pela avaliação dos beneficiários." },
+            { id: "2.14", rotulo: "Gestão de Riscos", desc: "Identificação prévia de riscos e planos de mitigação operacional." },
+            { id: "2.15", rotulo: "Ações de Transparência Ativa", desc: "Previsão expressa de divulgação no portal, redes sociais, murais e rádio local (Art. 11)." },
+            { id: "2.16", rotulo: "Canais de Controle Social", desc: "Canais de contato claros para a comunidade (dúvidas, ouvidoria, denúncias)." },
+            { id: "2.17", rotulo: "Comunicação e Engajamento", desc: "Estratégias para mobilizar beneficiários e agentes envolvidos." },
+            { id: "2.18", rotulo: "Sustentabilidade da Parceria", desc: "Planos para continuidade das ações após o término dos repasses municipais." },
+            { id: "2.19", rotulo: "Consistência e Coerência", desc: "Coerência interna entre o diagnóstico descrito e os meios propostos." },
+            { id: "2.20", rotulo: "Remuneração da Equipe de Trabalho", desc: "Se aplicável, compatibilidade dos valores de remuneração com os preços de mercado." },
+            { id: "2.21", rotulo: "Destinação de Bens Remanescentes", desc: "Destinação justificada dos bens ao final da parceria (doação ou permanência na OSC)." },
+            { id: "2.22", rotulo: "Prestação de Contas", desc: "Modo, periodicidade, formato eletrônico e cronograma de envio no Atende.Net." }
+        ];
+
+        // BANCO DE CRITÉRIOS DE HABILITAÇÃO JURÍDICA DA OSC (12 ITENS DO ANEXO VIII)
+        const CRITERIOS_HABILITACAO = [
+            { id: "3.1", rotulo: "Estatuto Social Registrado", desc: "Conformidade com Art. 33 da Lei 13.019/14 (objeto social público e dissolução)." },
+            { id: "3.2", rotulo: "Direção e Representação", desc: "Ata de eleição da diretoria atual registrada e relação nominal de dirigentes com CPF/RG." },
+            { id: "3.3", rotulo: "Certidões Fiscais e Trabalhistas", desc: "Regularidade com RFB/PGFN, Fazendas Estadual e Municipal, FGTS e CNDT." },
+            { id: "3.4", rotulo: "Existência e Domicílio da OSC", desc: "CNPJ ativo há no mínimo 1 ano em Horizontina e comprovante de funcionamento no endereço." },
+            { id: "3.5", rotulo: "Alvarás de Funcionamento", desc: "Alvará municipal, sanitário e PPCI válidos (conforme a atividade desenvolvida)." },
+            { id: "3.6", rotulo: "Experiência Prévia", desc: "Documentos comprobatórios de atuação com efetividade no objeto ou natureza semelhante." },
+            { id: "3.7", rotulo: "Capacidade Técnica e Operacional", desc: "Instalações físicas, condições materiais e equipe apta para desenvolver o plano." },
+            { id: "3.8", rotulo: "Declaração de Não Impedimento", desc: "Declaração de que não incorre nas vedações do Art. 39 (sem agentes públicos dirigentes)." },
+            { id: "3.9", rotulo: "Inexistência de Pendências", desc: "Regularidade quanto a prestações de contas de parcerias anteriores no TCE/Município." },
+            { id: "3.10", rotulo: "Inscrição em Conselho Setorial", desc: "Registro no Conselho Municipal competente (CMDCA, CMAS, etc.), quando exigido por lei." },
+            { id: "3.11", rotulo: "Certificado de Treinamento Municipal", desc: "Comprovação de participação nos cursos do MROSC fornecidos pelo Município." },
+            { id: "3.12", rotulo: "Outras Qualificações", desc: "CEBAS ou Utilidade Pública, se exigível pela política pública setorial." }
+        ];
+
+        // ESTADO GLOBAL DO WIZARD
+        let atoSelecionado = null; // 'anexo9', 'anexo8', 'anexo10', 'anexo11'
+        let etapaAtualIndex = 0;
+        let listaEmendasCarregadas = [];
+
+        // ESTRUTURA DE DADOS COLETADOS NO PROCESSO
+        const dadosInstrucao = {
+            identificacao: {
+                origem: 'EM_BRANCO',
+                processo: '',
+                osc: '',
+                cnpj: '',
+                valor: 'R$ 0,00',
+                secretaria: '',
+                objeto: '',
+                manual: false
+            },
+            pre_processamento: {
+                ativo: false,
+                texto_bruto: '',
+                metas_detectadas: [],
+                valores_detectados: [],
+                cronograma_detectado: '',
+                bens_detectados: [],
+                evidencias_plano: {}
+            },
+            anexo9: {
+                alinea_a: '',
+                alinea_b: '',
+                alinea_c: '',
+                alinea_d: '',
+                alinea_e: '',
+                gestor: 'Servidor Público Efetivo • Matrícula 4092-1',
+                comissao: 'Portaria Municipal nº 1.482/2025',
+                decisao: 'FAVORÁVEL'
+            },
+            anexo8: {
+                notas_plano: {},
+                obs_plano: {},
+                notas_hab: {},
+                obs_hab: {},
+                obs_geral_plano: 'Plano de Trabalho em perfeita consonância formal e técnica com as diretrizes do Manual Municipal (3ª Edição).',
+                obs_geral_hab: 'Documentação jurídica, fiscal e trabalhista examinada e em plena validade na data de autuação.',
+                decisao: 'APROVADO'
+            },
+            anexo10: {
+                atividades: '',
+                metas: '',
+                impacto_social: '',
+                satisfacao_pct: '94%',
+                continuidade: '',
+                transparencia_ok: true,
+                despesas_ok: 'Sim',
+                auditoria_houve: false,
+                decisao: 'Homologo em todos os termos'
+            },
+            anexo11: {
+                pilar_1: '',
+                pilar_2: '',
+                pilar_3: 'Pesquisa presencial auditada com 92% de avaliação Excelente/Bom.',
+                pilar_4: '',
+                glosas_houve: false,
+                glosas_valor: 'R$ 0,00',
+                glosas_desc: 'Nenhuma glosa apurada; todas as despesas aderentes ao plano pactuado.',
+                conciliacao_ok: true,
+                bens_permanentes: 'Termo de Doação Formalizado nos autos para continuidade do serviço público.',
+                decisao: 'Regulares'
+            }
+        };
+
+        // DEFINIÇÃO DAS ETAPAS DE CADA ATO ADMINISTRATIVO
+        const DEFINICOES_ATOS = {
+            anexo9: {
+                nome: "ANEXO IX • Parecer do Órgão Técnico Municipal (Art. 35, V)",
+                etapas: [
+                    { id: 'identificacao', titulo: 'Passo 1 • Origem e Identificação da Parceria' },
+                    { id: 'pre_processamento', titulo: 'Passo 2 • Carga e Pré-Processamento Determinístico do Plano de Trabalho' },
+                    { id: 'alinea_a', titulo: 'Passo 3 • Alínea a) Mérito da Proposta e Modalidade Adotada' },
+                    { id: 'alinea_b', titulo: 'Passo 4 • Alínea b) Identidade e Reciprocidade de Interesses' },
+                    { id: 'alinea_c', titulo: 'Passo 5 • Alínea c) Viabilidade Técnica e Capacidade Instalada' },
+                    { id: 'alinea_d', titulo: 'Passo 6 • Alínea d) Cronograma de Desembolso Financeiro' },
+                    { id: 'alinea_e', titulo: 'Passo 7 • Alínea e) Meios e Rotinas de Fiscalização' },
+                    { id: 'designacoes_decisao', titulo: 'Passo 8 • Designações Oficiais e Parecer Conclusivo' }
+                ]
+            },
+            anexo8: {
+                nome: "ANEXO VIII • Avaliação da Comissão Colegiada de Seleção",
+                etapas: [
+                    { id: 'identificacao', titulo: 'Passo 1 • Origem e Identificação da Parceria' },
+                    { id: 'pre_processamento', titulo: 'Passo 2 • Carga e Pré-Processamento Determinístico do Plano de Trabalho' },
+                    { id: 'plano_bloco1', titulo: 'Passo 3 • Análise do Plano: Metas, Objeto e Capacidade (Itens 2.1 a 2.11)' },
+                    { id: 'plano_bloco2', titulo: 'Passo 4 • Análise do Plano: Monitoramento, Riscos e Prazos (Itens 2.12 a 2.22)' },
+                    { id: 'habilitacao_bloco', titulo: 'Passo 5 • Habilitação Documental e Jurídica da OSC (12 Requisitos)' },
+                    { id: 'deliberacao_selecao', titulo: 'Passo 6 • Deliberação Colegiada e Voto da Comissão' }
+                ]
+            },
+            anexo10: {
+                nome: "ANEXO X • Relatório de Monitoramento e Avaliação (Art. 59)",
+                etapas: [
+                    { id: 'identificacao', titulo: 'Passo 1 • Origem e Identificação da Parceria' },
+                    { id: 'pre_processamento', titulo: 'Passo 2 • Carga de Relatórios Periódicos e Transparência Ativa' },
+                    { id: 'transparencia_ativa', titulo: 'Passo 3 • Comprovação da Transparência Ativa (Art. 11)' },
+                    { id: 'atividades_metas', titulo: 'Passo 4 • Atividades Realizadas e Alcance de Metas (Art. 59, I)' },
+                    { id: 'impacto_social', titulo: 'Passo 5 • Resultados e Impacto Social Atestado (Art. 59, II)' },
+                    { id: 'auditorias_deliberacao', titulo: 'Passo 6 • Despesas, Auditorias e Homologação da Comissão' }
+                ]
+            },
+            anexo11: {
+                nome: "ANEXO XI • Parecer Técnico Conclusivo do Gestor (Art. 67)",
+                etapas: [
+                    { id: 'identificacao', titulo: 'Passo 1 • Origem e Identificação da Parceria' },
+                    { id: 'pre_processamento', titulo: 'Passo 2 • Ingestão da Prestação de Contas Final & Extratos' },
+                    { id: 'efetividade_pilares', titulo: 'Passo 3 • Eficácia e Efetividade: Resultados e Impacto (Pilares I e II)' },
+                    { id: 'satisfacao_sustentabilidade', titulo: 'Passo 4 • Satisfação do Público e Sustentabilidade (Pilares III e IV)' },
+                    { id: 'financeiro_glosas', titulo: 'Passo 5 • Conciliação Bancária, Glosas e Destinação de Bens' },
+                    { id: 'julgamento_final', titulo: 'Passo 6 • Julgamento Conclusivo das Contas (Art. 72)' }
+                ]
+            }
+        };
+
+        // INICIALIZA PONTUAÇÃO PADRÃO (2 PONTOS PARA TODOS)
+        CRITERIOS_PLANO_TRABALHO.forEach(c => {
+            dadosInstrucao.anexo8.notas_plano[c.id] = 2;
+            dadosInstrucao.anexo8.obs_plano[c.id] = "Atende integralmente às exigências legais nos autos.";
+        });
+        CRITERIOS_HABILITACAO.forEach(c => {
+            dadosInstrucao.anexo8.notas_hab[c.id] = 2;
+            dadosInstrucao.anexo8.obs_hab[c.id] = "Documento anexado no processo e em vigência.";
+        });
+
+
+        // GERENCIADOR DE TEMA ESCURO
+        function alternarTemaModoEscuro() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-toggle-icon');
+            const txt = document.getElementById('theme-toggle-text');
+
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.theme = 'light';
+                if (icon) icon.textContent = '🌙';
+                if (txt) txt.textContent = 'Modo Escuro';
+            } else {
+                html.classList.add('dark');
+                localStorage.theme = 'dark';
+                if (icon) icon.textContent = '☀️';
+                if (txt) txt.textContent = 'Modo Claro';
+            }
+        }
+
+        // CARREGA TERMO INICIAL
+        window.addEventListener('DOMContentLoaded', () => {
+            // Sincroniza ícone do tema
+            if (document.documentElement.classList.contains('dark')) {
+                const icon = document.getElementById('theme-toggle-icon');
+                const txt = document.getElementById('theme-toggle-text');
+                if (icon) icon.textContent = '☀️';
+                if (txt) txt.textContent = 'Modo Claro';
+            }
+
+            // Verifica se o termo já foi aceito na sessão
+            const aceitou = sessionStorage.getItem('prisma_termo_responsabilidade_aceito');
+            if (!aceitou) {
+                const modalTermo = document.getElementById('modal-termo-responsabilidade');
+                if (modalTermo) modalTermo.classList.remove('hidden');
+            }
+
+            const checkTermo = document.getElementById('check-aceite-termo-responsabilidade');
+            const btnTermo = document.getElementById('btn-confirmar-termo-responsabilidade');
+            if (checkTermo && btnTermo) {
+                checkTermo.addEventListener('change', (e) => {
+                    btnTermo.disabled = !e.target.checked;
+                });
+            }
+
+            carregarEmendasParaSelect();
+        });
+
+        function confirmarTermoInicial() {
+            sessionStorage.setItem('prisma_termo_responsabilidade_aceito', 'true');
+            const modalTermo = document.getElementById('modal-termo-responsabilidade');
+            if (modalTermo) modalTermo.classList.add('hidden');
+            mostrarToast("Termo de responsabilidade registrado. Navegação liberada.");
+        }
+
+        function mostrarToast(mensagem) {
+            const toast = document.getElementById('toast-gestao');
+            const msg = document.getElementById('toast-gestao-msg');
+            if (!toast || !msg) return;
+            msg.textContent = mensagem;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 3500);
+        }
+
+
+        // INICIA O WIZARD PARA O ATO SELECIONADO
+        function iniciarWizard(atoId) {
+            atoSelecionado = atoId;
+            etapaAtualIndex = 0;
+
+            const secSelecao = document.getElementById('secao-selecao-ato');
+            const secWizard = document.getElementById('wizard-container-geral');
+            const secResultado = document.getElementById('container-espelho-resultado');
+
+            if (secSelecao) secSelecao.classList.add('hidden');
+            if (secResultado) secResultado.classList.add('hidden');
+            if (secWizard) secWizard.classList.remove('hidden');
+
+            renderizarEtapaAtual();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function cancelarWizard() {
+            if (confirm("Deseja realmente cancelar a instrução atual e retornar ao menu inicial de atos? Os dados preenchidos até agora não serão exportados.")) {
+                reiniciarInstrucaoGeral();
+            }
+        }
+
+        function reiniciarInstrucaoGeral() {
+            atoSelecionado = null;
+            etapaAtualIndex = 0;
+            const secSelecao = document.getElementById('secao-selecao-ato');
+            const secWizard = document.getElementById('wizard-container-geral');
+            const secResultado = document.getElementById('container-espelho-resultado');
+
+            if (secSelecao) secSelecao.classList.remove('hidden');
+            if (secWizard) secWizard.classList.add('hidden');
+            if (secResultado) secResultado.classList.add('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // AVANÇAR ETAPA DO WIZARD
+        function avancarEtapaWizard() {
+            const atoConfig = DEFINICOES_ATOS[atoSelecionado];
+            if (!atoConfig) return;
+
+            // Salva dados da etapa atual no objeto global
+            salvarEstadoDaEtapaAtual();
+
+            // Validação de Trava da Etapa
+            const chkTrava = document.getElementById('wiz-check-conferencia-id') || document.getElementById('wiz-check-auditoria-etapa');
+            if (chkTrava && !chkTrava.checked) {
+                mostrarToast("⚠️ É obrigatório assinalar a declaração de conferência nos autos antes de avançar.");
+                chkTrava.focus();
+                return;
+            }
+
+            if (etapaAtualIndex < atoConfig.etapas.length - 1) {
+                etapaAtualIndex++;
+                renderizarEtapaAtual();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                // Fim do Wizard -> Exibe espelho final e salva backup atômico
+                finalizarWizardEExibirEspelho();
+            }
+        }
+
+        // VOLTAR ETAPA DO WIZARD
+        function voltarEtapaWizard() {
+            if (etapaAtualIndex > 0) {
+                salvarEstadoDaEtapaAtual();
+                etapaAtualIndex--;
+                renderizarEtapaAtual();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // RENDERIZAÇÃO DA ETAPA ATUAL
+        function renderizarEtapaAtual() {
+            const atoConfig = DEFINICOES_ATOS[atoSelecionado];
+            if (!atoConfig) return;
+
+            const etapaConfig = atoConfig.etapas[etapaAtualIndex];
+            const totalEtapas = atoConfig.etapas.length;
+
+            // Atualiza indicadores de cabeçalho
+            const elBadge = document.getElementById('wiz-badge-ato');
+            const elTitulo = document.getElementById('wiz-titulo-ato');
+            const elSub = document.getElementById('wiz-subtitulo-etapa');
+            const elCont = document.getElementById('wiz-contador-passos');
+            const btnAvancar = document.getElementById('wiz-btn-avancar');
+            const btnVoltar = document.getElementById('wiz-btn-voltar');
+
+            if (elBadge) elBadge.textContent = atoSelecionado.toUpperCase();
+            if (elTitulo) elTitulo.textContent = atoConfig.nome;
+            if (elSub) elSub.textContent = `${etapaConfig.titulo} (Passo ${etapaAtualIndex + 1} de ${totalEtapas})`;
+            if (elCont) elCont.textContent = `Etapa ${etapaAtualIndex + 1}/${totalEtapas}`;
+
+            if (btnVoltar) {
+                if (etapaAtualIndex === 0) btnVoltar.classList.add('invisible');
+                else btnVoltar.classList.remove('invisible');
+            }
+
+            if (btnAvancar) {
+                if (etapaAtualIndex === totalEtapas - 1) {
+                    btnAvancar.innerHTML = `<span>Finalizar Laudo & Gerar Espelho</span><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+                    btnAvancar.className = "w-full sm:w-auto px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded shadow-md transition flex items-center justify-center gap-2";
+                } else {
+                    btnAvancar.innerHTML = `<span>Confirmar & Avançar</span><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>`;
+                    btnAvancar.className = "w-full sm:w-auto px-6 py-2 bg-[#003399] dark:bg-blue-600 hover:bg-[#002266] dark:hover:bg-blue-700 text-white font-bold text-xs rounded shadow-md transition flex items-center justify-center gap-2";
+                }
+            }
+
+            const containerCorpo = document.getElementById('wizard-corpo-conteudo');
+            if (!containerCorpo) return;
+
+            // RENDERIZAÇÃO DO CONTEÚDO CONFORME O ID DA ETAPA
+            if (etapaConfig.id === 'identificacao') {
+                renderizarEtapaIdentificacao(containerCorpo);
+            } else if (etapaConfig.id === 'pre_processamento') {
+                renderizarEtapaPreProcessamento(containerCorpo);
+            } else if (atoSelecionado === 'anexo9') {
+                renderizarEtapaAnexo9(containerCorpo, etapaConfig.id);
+            } else if (atoSelecionado === 'anexo8') {
+                renderizarEtapaAnexo8(containerCorpo, etapaConfig.id);
+            } else if (atoSelecionado === 'anexo10') {
+                renderizarEtapaAnexo10(containerCorpo, etapaConfig.id);
+            } else if (atoSelecionado === 'anexo11') {
+                renderizarEtapaAnexo11(containerCorpo, etapaConfig.id);
+            }
+        }
+
+
+        // ETAPA 1: ORIGEM E IDENTIFICAÇÃO BÁSICA
+        function renderizarEtapaIdentificacao(container) {
+            const iden = dadosInstrucao.identificacao;
+
+            container.innerHTML = `
+                <div class="p-4 bg-blue-50 dark:bg-blue-950/40 border-l-4 border-[#003399] dark:border-blue-500 rounded text-xs space-y-1.5">
+                    <strong class="text-[#003399] dark:text-blue-300 font-bold block">Origem da Parceria & Identificação Processual</strong>
+                    <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+                        Selecione uma emenda impositiva cadastrada na base de 2026 para carregar os dados cadastrais automaticamente ou opte por <strong>"Preencher em Branco"</strong> para parcerias convencionais (chamamentos gerais, termos de colaboração ou repasses setoriais).
+                    </p>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Selecione a Origem dos Dados:</label>
+                        <select id="wiz-select-emenda-origem" onchange="aoSelecionarOrigemEmenda(this.value)" class="w-full bg-slate-50 dark:bg-[#17181a] border border-slate-300 dark:border-slate-700 rounded p-2.5 text-xs text-slate-900 dark:text-slate-100 font-medium outline-none focus:ring-2 focus:ring-[#003399]">
+                            <option value="EM_BRANCO" ${iden.origem === 'EM_BRANCO' ? 'selected' : ''}>📝 [PREENCHER EM BRANCO] Parceria Convencional / Digitação Livre</option>
+                            ${listaEmendasCarregadas.map(em => `
+                                <option value="${em.id}" ${iden.origem === em.id ? 'selected' : ''}>
+                                    ${em.tipo_execucao === 'Indireta' ? '⭐ [MROSC]' : '🏛️ [Direta]'} Proc: ${em.numero_processo || 'S/N'} • ${em.beneficiario || 'S/ Entidade'} (R$ ${(em.valor || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2})})
+                                </option>
+                            `).join('')}
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Nº do Processo Digital (Atende.Net) *</label>
+                            <input type="text" id="wiz-inp-processo" value="${iden.processo}" placeholder="Ex: 339102/2025" class="w-full bg-white dark:bg-[#17181a] border border-slate-300 dark:border-slate-700 rounded p-2 text-xs text-slate-900 dark:text-slate-100 font-mono outline-none focus:ring-2 focus:ring-[#003399]">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Organização da Sociedade Civil (OSC) *</label>
+                            <input type="text" id="wiz-inp-osc" value="${iden.osc}" placeholder="Ex: APAE Horizontina" class="w-full bg-white dark:bg-[#17181a] border border-slate-300 dark:border-slate-700 rounded p-2 text-xs text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-[#003399]">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">CNPJ da Entidade *</label>
+                            <input type="text" id="wiz-inp-cnpj" value="${iden.cnpj}" placeholder="00.000.000/0001-00" class="w-full bg-white dark:bg-[#17181a] border border-slate-300 dark:border-slate-700 rounded p-2 text-xs text-slate-900 dark:text-slate-100 font-mono outline-none focus:ring-2 focus:ring-[#003399]">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Valor Global da Parceria (R$) *</label>
+                            <input type="text" id="wiz-inp-valor" value="${iden.valor}" placeholder="R$ 50.000,00" class="w-full bg-white dark:bg-[#17181a] border border-slate-300 dark:border-slate-700 rounded p-2 text-xs text-emerald-700 dark:text-emerald-400 font-bold outline-none focus:ring-2 focus:ring-[#003399]">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Secretaria Municipal Gestora *</label>
+                            <input type="text" id="wiz-inp-secretaria" value="${iden.secretaria}" placeholder="Ex: SMDR ou SMECJL" class="w-full bg-white dark:bg-[#17181a] border border-slate-300 dark:border-slate-700 rounded p-2 text-xs text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-[#003399]">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Período de Execução Estimado</label>
+                            <input type="text" id="wiz-inp-periodo" value="Exercício de 2026 (12 meses)" class="w-full bg-white dark:bg-[#17181a] border border-slate-300 dark:border-slate-700 rounded p-2 text-xs text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-[#003399]">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Objeto Resumido da Parceria *</label>
+                        <textarea id="wiz-inp-objeto" rows="2" placeholder="Descreva sucintamente as ações pactuadas..." class="w-full bg-white dark:bg-[#17181a] border border-slate-300 dark:border-slate-700 rounded p-2.5 text-xs text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-[#003399] leading-relaxed">${iden.objeto}</textarea>
+                    </div>
+
+                    <!-- REFORÇO OBRIGATÓRIO DE CONFERÊNCIA -->
+                    <div class="p-3.5 bg-amber-50 border border-amber-300 rounded-lg space-y-2 mt-3">
+                        <label class="flex items-start gap-2.5 cursor-pointer">
+                            <input type="checkbox" id="wiz-check-conferencia-id" class="mt-0.5 w-4 h-4 text-[#003399] rounded border-slate-400 focus:ring-[#003399]">
+                            <span class="text-xs text-amber-950 font-semibold leading-tight">
+                                ⚖️ Confirmo que conferi os dados cadastrais (Processo, CNPJ, Valor e Objeto) diretamente no Processo Digital Atende.Net e assumo inteira responsabilidade funcional pela sua fidedignidade.
+                            </span>
+                        </label>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ETAPA 1.1 / PASSO 2: PARSER DETERMINÍSTICO E INGESTÃO DE TEXTO DO PLANO
+        function renderizarEtapaPreProcessamento(container) {
+            const prep = dadosInstrucao.pre_processamento;
+            const iden = dadosInstrucao.identificacao;
+
+            container.innerHTML = `
+                <div class="p-4 bg-slate-100 dark:bg-[#1e1f20] border-l-4 border-emerald-600 rounded text-xs space-y-2">
+                    <div class="flex items-center gap-2">
+                        <span class="px-2 py-0.5 rounded bg-emerald-600 text-white font-bold text-[10px] uppercase font-mono">Parser Local • Sem Custos de IA</span>
+                        <h3 class="font-bold text-slate-900 dark:text-slate-100 text-sm">Como deseja instruir este ato administrativo?</h3>
+                    </div>
+                    <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+                        Você pode iniciar o preenchimento sem dados prévios (em branco) ou <strong>colar trechos do Plano de Trabalho / Prestação de Contas</strong> protocolados pela OSC no Atende.Net. O motor heurístico local fará a sanitização, extração de metas e pré-preencherá evidências nos formulários a seguir de forma instantânea.
+                    </p>
+                </div>
+
+                <div class="space-y-4 pt-1">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <label class="p-3.5 bg-white dark:bg-[#1e1f20] border-2 ${!prep.ativo ? 'border-[#003399]' : 'border-slate-300 dark:border-slate-700'} rounded-lg cursor-pointer hover:border-[#003399] transition flex flex-col justify-between">
+                            <div class="flex items-start gap-2.5">
+                                <input type="radio" name="opcao_pre_proc" value="zerado" ${!prep.ativo ? 'checked' : ''} onchange="aoMudarOpcaoPreProc(false)" class="mt-1 text-[#003399]">
+                                <div>
+                                    <strong class="text-xs text-slate-900 dark:text-slate-100 block">Opção A: Começar Zerado (Preenchimento Direto)</strong>
+                                    <span class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 block leading-snug">Ideal para consultas rápidas ou quando você prefere redigir cada item manualmente sem analisar texto bruto.</span>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="p-3.5 bg-white dark:bg-[#1e1f20] border-2 ${prep.ativo ? 'border-emerald-600' : 'border-slate-300 dark:border-slate-700'} rounded-lg cursor-pointer hover:border-emerald-600 transition flex flex-col justify-between">
+                            <div class="flex items-start gap-2.5">
+                                <input type="radio" name="opcao_pre_proc" value="parser" ${prep.ativo ? 'checked' : ''} onchange="aoMudarOpcaoPreProc(true)" class="mt-1 text-emerald-600">
+                                <div>
+                                    <strong class="text-xs text-slate-900 dark:text-slate-100 block">Opção B: Ingestão de Texto do Processo (Recomendado)</strong>
+                                    <span class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 block leading-snug">Cole o texto do Plano de Trabalho, justificativa ou prestação da entidade para extração determinística de metas e dados.</span>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- BLOCO DE INGESTÃO DETERMINÍSTICA (EXIBIDO SE OPÇÃO B ATIVA) -->
+                    <div id="box-ingestao-parser" class="${prep.ativo ? 'block' : 'hidden'} space-y-3 p-4 bg-white dark:bg-[#1e1f20] border border-slate-300 dark:border-slate-700 rounded-lg">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-900 dark:text-slate-100">Cole aqui trechos do Plano de Trabalho / Proposta da OSC:</label>
+                                <span class="text-[11px] text-slate-500 dark:text-slate-400">Copie do PDF no Atende.Net (objeto, metas, recursos humanos, cronograma) e cole abaixo:</span>
+                            </div>
+                            <button type="button" onclick="executarParserHeuristicoLocal()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded shadow-xs transition flex items-center gap-1.5 shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                                Extrair & Pré-Validar
+                            </button>
+                        </div>
+
+                        <textarea id="wiz-textarea-documento-bruto" rows="6" placeholder="Cole aqui o texto copiado do documento da entidade no sistema Atende.Net..." class="w-full bg-slate-50 dark:bg-[#17181a] border border-slate-300 dark:border-slate-700 rounded p-3 text-xs text-slate-900 dark:text-slate-100 font-mono leading-relaxed outline-none focus:ring-2 focus:ring-emerald-500">${prep.texto_bruto}</textarea>
+
+                        <!-- RESULTADOS DA EXTRAÇÃO HEURÍSTICA -->
+                        <div id="resultado-extracao-heuristica" class="${prep.metas_detectadas.length > 0 || prep.valores_detectados.length > 0 ? 'block' : 'hidden'} p-3.5 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-300 dark:border-emerald-800/50 rounded-lg space-y-2 text-xs">
+                            <div class="flex items-center justify-between">
+                                <strong class="text-emerald-900 dark:text-emerald-300 font-bold flex items-center gap-1.5">
+                                    <span>🔍 Diagnóstico Heurístico Estruturado:</span>
+                                </strong>
+                                <span class="text-[10px] text-emerald-800 dark:text-emerald-400 font-mono bg-white dark:bg-[#1e1f20] px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+                                    ${Object.keys(prep.evidencias_plano).length} critérios do Anexo VIII com evidências
+                                </span>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-700 dark:text-slate-300">
+                                <div class="bg-white dark:bg-[#1e1f20] p-2.5 rounded border border-emerald-200 dark:border-emerald-900/50">
+                                    <b class="text-slate-900 dark:text-slate-100 block mb-1">🎯 Metas e Quantitativos Identificados:</b>
+                                    <span>${prep.metas_detectadas.length > 0 ? prep.metas_detectadas.join(' • ') : 'Nenhuma meta quantificada por regex'}</span>
+                                </div>
+                                <div class="bg-white dark:bg-[#1e1f20] p-2.5 rounded border border-emerald-200 dark:border-emerald-900/50">
+                                    <b class="text-slate-900 dark:text-slate-100 block mb-1">💰 Valores Financeiros e Cronograma:</b>
+                                    <span>${prep.valores_detectados.length > 0 ? prep.valores_detectados.slice(0, 4).join(' • ') : iden.valor} ${prep.cronograma_detectado ? `(${prep.cronograma_detectado})` : ''}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-amber-50 border border-amber-300 rounded-lg">
+                        <label class="flex items-start gap-2.5 cursor-pointer">
+                            <input type="checkbox" id="wiz-check-auditoria-etapa" class="mt-0.5 w-4 h-4 text-[#003399] rounded border-slate-400 focus:ring-[#003399]">
+                            <span class="text-xs text-amber-950 font-semibold leading-tight">
+                                ⚖️ Confirmo que a seleção da modalidade de análise (zerada ou com ingestão de texto) foi revisada e autorizo a aplicação das informações aos próximos passos.
+                            </span>
+                        </label>
+                    </div>
+                </div>
+            `;
+        }
+
+        function aoMudarOpcaoPreProc(ativar) {
+            dadosInstrucao.pre_processamento.ativo = ativar;
+            const box = document.getElementById('box-ingestao-parser');
+            if (box) {
+                if (ativar) box.classList.remove('hidden');
+                else box.classList.add('hidden');
+            }
+            renderizarEtapaPreProcessamento(document.getElementById('wizard-corpo-conteudo'));
+        }
+
+        // MOTOR DETERMINÍSTICO DE REGEX E HEURÍSTICA LOCAL
+        function executarParserHeuristicoLocal() {
+            const textarea = document.getElementById('wiz-textarea-documento-bruto');
+            if (!textarea || !textarea.value.trim()) {
+                mostrarToast("Cole o texto do Plano de Trabalho para executar o pré-processamento.");
+                return;
+            }
+
+            const texto = textarea.value;
+            const prep = dadosInstrucao.pre_processamento;
+            prep.texto_bruto = texto;
+            prep.ativo = true;
+
+            // 1. REGEX DE VALORES MONETÁRIOS
+            const regexValores = /R\$\s?[\d.,]+/gi;
+            const valoresEncontrados = texto.match(regexValores) || [];
+            prep.valores_detectados = Array.from(new Set(valoresEncontrados));
+
+            // 2. REGEX DE METAS QUANTITATIVAS (quantidades + substantivos de impacto social)
+            const regexMetas = /\b(\d+)\s*(famílias|oficinas|jovens|atendimentos|crianças|alunos|pessoas|usuários|sessões|encontros|horas|meses|dias|participantes|profissionais|kits|unidades|hortas|folhetos)\b/gi;
+            const metasEncontradas = texto.match(regexMetas) || [];
+            prep.metas_detectadas = Array.from(new Set(metasEncontradas));
+
+            // 3. HEURÍSTICA DE CRONOGRAMA E DESEMBOLSO
+            if (/parcela\s*única/i.test(texto)) prep.cronograma_detectado = 'Parcela Única';
+            else if (/(\d+)\s*parcelas/i.test(texto)) {
+                const m = texto.match(/(\d+)\s*parcelas/i);
+                prep.cronograma_detectado = `${m[1]} Parcelas Periódicas`;
+            } else if (/mensal|bimestral|trimestral/i.test(texto)) {
+                const m = texto.match(/mensal|bimestral|trimestral/i);
+                prep.cronograma_detectado = `Desembolso ${m[0]}`;
+            }
+
+            // 4. HEURÍSTICA E MAPEAMENTO DE EVIDÊNCIAS PARA OS 22 ITENS DO ANEXO VIII
+            const mapaHeuristico = [
+                { id: "2.1", termos: ["capacidade técnica", "experiência", "histórico", "atuação prévia", "profissionais"], rotulo: "Capacidade Técnica" },
+                { id: "2.2", termos: ["diagnóstico", "justificativa", "realidade", "problema", "vulnerabilidade"], rotulo: "Realidade e Nexo" },
+                { id: "2.3", termos: ["política pública", "plano municipal", "PPA", "diretrizes", "conselho"], rotulo: "Políticas Públicas" },
+                { id: "2.4", termos: ["público-alvo", "beneficiários", "faixa etária", "famílias", "comunidade"], rotulo: "Público-Alvo" },
+                { id: "2.5", termos: ["meta", "metas", "quantitativo", "alcançar", "mensurável"], rotulo: "Metas" },
+                { id: "2.6", termos: ["atividades", "ações", "projetos", "etapas", "oficinas"], rotulo: "Atividades" },
+                { id: "2.7", termos: ["aplicação de recursos", "desembolso", "financeiro", "parcelas"], rotulo: "Aplicação de Recursos" },
+                { id: "2.8", termos: ["orçamento", "custos", "planilha", "cotação", "despesas"], rotulo: "Orçamento" },
+                { id: "2.9", termos: ["cronograma", "fases", "prazos", "meses", "execução"], rotulo: "Cronograma" },
+                { id: "2.10", termos: ["metodologia", "forma de execução", "procedimentos", "equipe"], rotulo: "Forma de Execução" },
+                { id: "2.11", termos: ["indicadores", "aferição", "verificação", "resultados"], rotulo: "Indicadores" },
+                { id: "2.12", termos: ["monitoramento", "acompanhamento", "fiscalização", "relatórios"], rotulo: "Monitoramento" },
+                { id: "2.13", termos: ["avaliação", "pesquisa", "satisfação", "questionário"], rotulo: "Avaliação" },
+                { id: "2.14", termos: ["risco", "riscos", "mitigação", "contingência"], rotulo: "Gestão de Riscos" },
+                { id: "2.15", termos: ["transparência", "publicidade", "portal", "site", "redes sociais"], rotulo: "Transparência Ativa" },
+                { id: "2.16", termos: ["controle social", "ouvidoria", "contato", "denúncia", "feedback"], rotulo: "Controle Social" },
+                { id: "2.17", termos: ["comunicação", "mobilização", "engajamento", "divulgação"], rotulo: "Comunicação" },
+                { id: "2.18", termos: ["sustentabilidade", "continuidade", "término", "após a parceria"], rotulo: "Sustentabilidade" },
+                { id: "2.19", termos: ["coerência", "consistência", "alinhamento", "nexo causal"], rotulo: "Consistência" },
+                { id: "2.20", termos: ["equipe de trabalho", "remuneração", "salário", "encargos", "recursos humanos"], rotulo: "Remuneração da Equipe" },
+                { id: "2.21", termos: ["bens remanescentes", "equipamentos", "permanentes", "doação", "inalienabilidade"], rotulo: "Bens Remanescentes" },
+                { id: "2.22", termos: ["prestação de contas", "documentos fiscais", "extratos", "comprovantes"], rotulo: "Prestação de Contas" }
+            ];
+
+            prep.evidencias_plano = {};
+            mapaHeuristico.forEach(crit => {
+                const linhas = texto.split('\n');
+                for (let linha of linhas) {
+                    const lLower = linha.toLowerCase();
+                    const achou = crit.termos.some(t => lLower.includes(t.toLowerCase()));
+                    if (achou && linha.trim().length > 15) {
+                        const trechoLimpo = linha.trim().replace(/\s+/g, ' ');
+                        prep.evidencias_plano[crit.id] = `Constatado no Plano: "${trechoLimpo.substring(0, 110)}..."`;
+                        // Se estiver preenchendo Anexo VIII, alimenta a observação do critério
+                        dadosInstrucao.anexo8.obs_plano[crit.id] = prep.evidencias_plano[crit.id];
+                        break;
+                    }
+                }
+            });
+
+            // 5. AJUSTA ALÍNEAS DO ANEXO IX COM BASE NAS METAS REAIS EXTRAÍDAS
+            if (prep.metas_detectadas.length > 0) {
+                const resumoMetas = prep.metas_detectadas.slice(0, 3).join(', ');
+                dadosInstrucao.anexo9.alinea_a = `A proposta possui manifesto mérito social para consecução das metas pactuadas (${resumoMetas}), atendendo estritamente ao interesse público municipal e à política setorial informada.`;
+                dadosInstrucao.anexo9.alinea_c = `A entidade demonstra viabilidade técnica de execução para o alcance físico das metas identificadas (${resumoMetas}), com equipe e cronograma compatíveis.`;
+                dadosInstrucao.anexo10.atividades = `Foram verificadas as ações previstas no Plano de Trabalho com alcance progressivo das metas pactuadas (${resumoMetas}).`;
+                dadosInstrucao.anexo11.pilar_1 = `Metas físicas cumpridas em conformidade com o Plano (${resumoMetas}), atestadas por listas nominais de frequência e registros nos autos.`;
+            }
+
+            if (prep.cronograma_detectado) {
+                dadosInstrucao.anexo9.alinea_d = `Cronograma de desembolso verificado e compatível com as etapas de execução (${prep.cronograma_detectado}).`;
+            }
+
+            // Atualiza o painel visual
+            const resEl = document.getElementById('resultado-extracao-heuristica');
+            if (resEl) resEl.classList.remove('hidden');
+            renderizarEtapaPreProcessamento(document.getElementById('wizard-corpo-conteudo'));
+            mostrarToast("Parser executado com sucesso! Dados e evidências extraídos.");
+        }
+
+
+        // RENDERIZAÇÃO ANEXO IX (ÓRGÃO TÉCNICO - ART. 35, V)
+        function renderizarEtapaAnexo9(container, etapaId) {
+            const an9 = dadosInstrucao.anexo9;
+            let campoChave = '';
+            let tituloCampo = '';
+            let baseLegal = '';
+            let descAjuda = '';
+
+            if (etapaId === 'alinea_a') {
+                campoChave = 'alinea_a';
+                tituloCampo = 'Alínea a) Mérito da Proposta e Modalidade Adotada';
+                baseLegal = 'Art. 35, V, "a" da Lei 13.019/14 e Item 3.2 do Decreto 5.730/25';
+                descAjuda = 'Avalie o mérito social da proposta e confirme se a modalidade (Termo de Fomento para proposta da OSC ou Colaboração para iniciativa municipal) é a adequada.';
+                if (!an9[campoChave]) an9[campoChave] = 'A proposta demonstra manifesto interesse público e relevância setorial, estando plenamente adequada à celebração de Termo de Fomento.';
+            } else if (etapaId === 'alinea_b') {
+                campoChave = 'alinea_b';
+                tituloCampo = 'Alínea b) Identidade e Reciprocidade de Interesses';
+                baseLegal = 'Art. 35, V, "b" da Lei 13.019/14 e Item 3.4.1 do Decreto 5.730/25';
+                descAjuda = 'Certifique a mútua cooperação e a universalidade do atendimento público (vedada restrição a associados/sócios da entidade).';
+                if (!an9[campoChave]) an9[campoChave] = 'Há estrita reciprocidade de interesses entre o Município e a OSC na consecução das metas, assegurado o acesso gratuito e universal à comunidade.';
+            } else if (etapaId === 'alinea_c') {
+                campoChave = 'alinea_c';
+                tituloCampo = 'Alínea c) Viabilidade de Execução e Capacidade Instalada';
+                baseLegal = 'Art. 35, V, "c" e § 5º da Lei 13.019/14';
+                descAjuda = 'Analise a suficiência dos recursos orçamentários, prazos de início e capacidade técnica da equipe para entrega das metas.';
+                if (!an9[campoChave]) an9[campoChave] = 'A execução é viável técnica e operacionalmente, com cronograma coerente e equipe técnica habilitada para atingimento dos objetivos.';
+            } else if (etapaId === 'alinea_d') {
+                campoChave = 'alinea_d';
+                tituloCampo = 'Alínea d) Cronograma de Desembolso Financeiro';
+                baseLegal = 'Art. 35, V, "d" e Art. 48 da Lei 13.019/14';
+                descAjuda = 'Verifique a aderência entre as parcelas de repasse financeiro e as fases de execução física do Plano de Trabalho.';
+                if (!an9[campoChave]) an9[campoChave] = 'O cronograma de desembolso financeiro guarda estrita conformidade com as fases de execução do objeto pactuado.';
+            } else if (etapaId === 'alinea_e') {
+                campoChave = 'alinea_e';
+                tituloCampo = 'Alínea e) Meios e Procedimentos de Fiscalização';
+                baseLegal = 'Art. 35, V, "e" e Seção 3.2.5 do Decreto 5.730/25';
+                descAjuda = 'Descreva os instrumentos de controle físico e contábil (visitas in loco, relatórios periódicos, conciliação bancária por regime de caixa).';
+                if (!an9[campoChave]) an9[campoChave] = 'A fiscalização será exercida mediante acompanhamento contínuo no Processo Digital Atende.Net, visitas in loco e análise de relatórios mensais.';
+            } else if (etapaId === 'designacoes_decisao') {
+                container.innerHTML = `
+                    <div class="p-4 bg-blue-50 dark:bg-blue-950/40 border-l-4 border-[#003399] rounded text-xs space-y-1">
+                        <strong class="text-[#003399] dark:text-blue-300 font-bold block">Alíneas g, h e Parecer Conclusivo do Órgão Técnico</strong>
+                        <p class="text-slate-600 dark:text-slate-300">Designação nominal do Gestor da Parceria e indicação da Comissão de Monitoramento e Avaliação (Art. 35, V, "g" e "h").</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Designação do Gestor da Parceria (Alínea g) *</label>
+                            <input type="text" id="wiz-an9-gestor" value="${an9.gestor}" class="w-full bg-white dark:bg-[#17181a] border border-slate-300 dark:border-slate-700 rounded p-2 text-xs text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-[#003399]">
+                            <span class="text-[10px] text-slate-500 mt-0.5 block">Servidor público municipal responsável pela fiscalização contínua.</span>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Comissão de Monitoramento e Avaliação (Alínea h) *</label>
+                            <input type="text" id="wiz-an9-comissao" value="${an9.comissao}" class="w-full bg-white dark:bg-[#17181a] border border-slate-300 dark:border-slate-700 rounded p-2 text-xs text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-[#003399]">
+                            <span class="text-[10px] text-slate-500 mt-0.5 block">Identificação da Portaria Municipal de designação colegiada.</span>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-slate-100 dark:bg-[#17181a] rounded-lg border border-slate-300 dark:border-slate-700 space-y-3">
+                        <label class="block text-xs font-bold text-slate-900 dark:text-slate-100">Decisão e Parecer Final do Órgão Técnico: *</label>
+                        <div class="flex flex-wrap gap-4 text-xs font-semibold">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="wiz_an9_decisao" value="FAVORÁVEL" ${an9.decisao === 'FAVORÁVEL' ? 'checked' : ''} class="text-emerald-600">
+                                <span class="text-emerald-700 dark:text-emerald-400">✅ Favorável à Celebração</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="wiz_an9_decisao" value="FAVORÁVEL COM RESSALVAS" ${an9.decisao === 'FAVORÁVEL COM RESSALVAS' ? 'checked' : ''} class="text-amber-600">
+                                <span class="text-amber-700 dark:text-amber-400">⚠️ Favorável com Ressalvas (Art. 35, § 2º)</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="wiz_an9_decisao" value="DESFAVORÁVEL" ${an9.decisao === 'DESFAVORÁVEL' ? 'checked' : ''} class="text-red-600">
+                                <span class="text-red-700 dark:text-red-400">❌ Desfavorável</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-amber-50 border border-amber-300 rounded-lg">
+                        <label class="flex items-start gap-2.5 cursor-pointer">
+                            <input type="checkbox" id="wiz-check-auditoria-etapa" class="mt-0.5 w-4 h-4 text-[#003399] rounded border-slate-400 focus:ring-[#003399]">
+                            <span class="text-xs text-amber-950 font-semibold leading-tight">
+                                ⚖️ Confirmo que os atos de designação funcional e a conclusão exarada representam a manifestação técnica formal da Secretaria perante o processo.
+                            </span>
+                        </label>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="p-4 bg-blue-50 dark:bg-blue-950/40 border-l-4 border-[#003399] rounded text-xs space-y-1">
+                    <div class="flex justify-between items-center">
+                        <strong class="text-[#003399] dark:text-blue-300 font-bold text-sm">${tituloCampo}</strong>
+                        <span class="text-[10px] font-mono text-slate-500 bg-white dark:bg-[#17181a] px-2 py-0.5 rounded border border-slate-300 dark:border-slate-700">${baseLegal}</span>
+                    </div>
+                    <p class="text-slate-600 dark:text-slate-300">${descAjuda}</p>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold text-slate-800 dark:text-slate-200">Manifestação e Fundamentação Técnica da Pasta (100% Editável):</label>
+                    <textarea id="wiz-textarea-generica" rows="5" class="w-full bg-white dark:bg-[#17181a] border border-slate-300 dark:border-slate-700 rounded p-3 text-xs text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-[#003399] leading-relaxed">${an9[campoChave]}</textarea>
+                </div>
+
+                <div class="p-3 bg-amber-50 border border-amber-300 rounded-lg">
+                    <label class="flex items-start gap-2.5 cursor-pointer">
+                        <input type="checkbox" id="wiz-check-auditoria-etapa" class="mt-0.5 w-4 h-4 text-[#003399] rounded border-slate-400 focus:ring-[#003399]">
+                        <span class="text-xs text-amber-950 font-semibold leading-tight">
+                            ⚖️ Confirmo que li a redação acima, revisei as exigências da norma e atesto a viabilidade técnica e jurídica dos fatos narrados.
+                        </span>
+                    </label>
+                </div>
+            `;
+        }
+
+        // RENDERIZAÇÃO ANEXO VIII (COMISSÃO DE SELEÇÃO - 22 ITENS PLANO + 12 HABILITAÇÃO)
+        function renderizarEtapaAnexo8(container, etapaId) {
+            const an8 = dadosInstrucao.anexo8;
+
+            if (etapaId === 'plano_bloco1') {
+                const itens = CRITERIOS_PLANO_TRABALHO.slice(0, 11);
+                renderizarGradeCriterios(container, itens, an8.notas_plano, an8.obs_plano, "Análise do Plano de Trabalho • Metas, Objeto e Capacidade (Itens 2.1 a 2.11)", "plano");
+            } else if (etapaId === 'plano_bloco2') {
+                const itens = CRITERIOS_PLANO_TRABALHO.slice(11, 22);
+                renderizarGradeCriterios(container, itens, an8.notas_plano, an8.obs_plano, "Análise do Plano de Trabalho • Riscos, Monitoramento e Transparência (Itens 2.12 a 2.22)", "plano");
+            } else if (etapaId === 'habilitacao_bloco') {
+                renderizarGradeCriterios(container, CRITERIOS_HABILITACAO, an8.notas_hab, an8.obs_hab, "Habilitação Jurídica, Fiscal e Operacional da OSC (12 Requisitos)", "hab");
+            } else if (etapaId === 'deliberacao_selecao') {
+                // Cálculo de pontuação total
+                let pontosPlano = 0;
+                Object.values(an8.notas_plano).forEach(v => { if (typeof v === 'number') pontosPlano += v; });
+                let pontosHab = 0;
+                Object.values(an8.notas_hab).forEach(v => { if (typeof v === 'number') pontosHab += v; });
+
+                container.innerHTML = `
+                    <div class="p-4 bg-emerald-50 dark:bg-emerald-950/40 border-l-4 border-emerald-600 rounded text-xs space-y-1">
+                        <strong class="text-emerald-900 dark:text-emerald-300 font-bold block text-sm">Quadro Consolidado de Pontuação e Voto Colegiado</strong>
+                        <p class="text-slate-600 dark:text-slate-300">Conforme o Decreto nº 5.730/2025, o julgamento colegiado conclui pela habilitação com ou sem necessidade de diligência.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-white dark:bg-[#17181a] p-4 rounded-lg border border-slate-300 dark:border-slate-700 text-center">
+                            <span class="text-xs font-bold text-slate-500 uppercase">Pontuação do Plano de Trabalho:</span>
+                            <div class="text-3xl font-black text-[#003399] dark:text-blue-400 font-mono mt-1">${pontosPlano} / 44 pts</div>
+                            <span class="text-[11px] text-slate-400">${((pontosPlano/44)*100).toFixed(1)}% de aproveitamento técnico</span>
+                        </div>
+
+                        <div class="bg-white dark:bg-[#17181a] p-4 rounded-lg border border-slate-300 dark:border-slate-700 text-center">
+                            <span class="text-xs font-bold text-slate-500 uppercase">Pontuação da Habilitação Jurídica:</span>
+                            <div class="text-3xl font-black text-emerald-600 dark:text-emerald-400 font-mono mt-1">${pontosHab} / 24 pts</div>
+                            <span class="text-[11px] text-slate-400">${((pontosHab/24)*100).toFixed(1)}% de conformidade documental</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-slate-800 dark:text-slate-200">Observações Referentes ao Plano de Trabalho:</label>
+                        <textarea id="wiz-an8-obs-plano" rows="2" class="w-full bg-white dark:bg-[#17181a] border border-slate-300 dark:border-slate-700 rounded p-2.5 text-xs text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-emerald-500">${an8.obs_geral_plano}</textarea>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-slate-800 dark:text-slate-200">Observações Referentes à Habilitação Documental:</label>
+                        <textarea id="wiz-an8-obs-hab" rows="2" class="w-full bg-white dark:bg-[#17181a] border border-slate-300 dark:border-slate-700 rounded p-2.5 text-xs text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-emerald-500">${an8.obs_geral_hab}</textarea>
+                    </div>
+
+                    <div class="p-4 bg-slate-100 dark:bg-[#17181a] rounded-lg border border-slate-300 dark:border-slate-700 space-y-3">
+                        <label class="block text-xs font-bold text-slate-900 dark:text-slate-100">Decisão Conclusiva da Comissão de Seleção: *</label>
+                        <div class="flex flex-wrap gap-4 text-xs font-semibold">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="wiz_an8_decisao" value="APROVADO" ${an8.decisao === 'APROVADO' ? 'checked' : ''} class="text-emerald-600">
+                                <span class="text-emerald-700 dark:text-emerald-400">✅ APROVADO</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="wiz_an8_decisao" value="NECESSIDADE DE AJUSTES" ${an8.decisao === 'NECESSIDADE DE AJUSTES' ? 'checked' : ''} class="text-amber-600">
+                                <span class="text-amber-700 dark:text-amber-400">⚠️ NECESSIDADE DE AJUSTES (Prazo de 15 dias corridos)</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="wiz_an8_decisao" value="REPROVADO" ${an8.decisao === 'REPROVADO' ? 'checked' : ''} class="text-red-600">
+                                <span class="text-red-700 dark:text-red-400">❌ REPROVADO</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-amber-50 border border-amber-300 rounded-lg">
+                        <label class="flex items-start gap-2.5 cursor-pointer">
+                            <input type="checkbox" id="wiz-check-auditoria-etapa" class="mt-0.5 w-4 h-4 text-[#003399] rounded border-slate-400 focus:ring-[#003399]">
+                            <span class="text-xs text-amber-950 font-semibold leading-tight">
+                                ⚖️ Confirmamos que a Comissão de Seleção procedeu à verificação de cada um dos 34 critérios normativos, responsabilizando-se pelo resultado homologado.
+                            </span>
+                        </label>
+                    </div>
+                `;
+            }
+        }
+
+        // COMPONENTE AUXILIAR PARA RENDERIZAR TABELAS DE CRITÉRIOS (0 A 2 PTS)
+        function renderizarGradeCriterios(container, listaItens, objetoNotas, objetoObs, tituloBloco, tipoBloco) {
+            container.innerHTML = `
+                <div class="p-3 bg-slate-100 dark:bg-[#17181a] border-l-4 border-emerald-600 rounded text-xs flex justify-between items-center">
+                    <div>
+                        <strong class="text-slate-900 dark:text-slate-100 block font-bold">${tituloBloco}</strong>
+                        <span class="text-slate-500 dark:text-slate-400 text-[11px]">Pontuação: 2 (Atende Plenamente) • 1 (Parcial) • 0 (Não Atende) • Na (Não se Aplica)</span>
+                    </div>
+                    <button type="button" onclick="marcarTodosPontosLote('${tipoBloco}', 2)" class="px-2.5 py-1 bg-white dark:bg-[#28292a] hover:bg-emerald-50 border border-emerald-600 text-emerald-700 dark:text-emerald-300 font-bold text-[10px] rounded shadow-xs transition">
+                        ✓ Marcar Todos com 2 pts
+                    </button>
+                </div>
+
+                <div class="space-y-3">
+                    ${listaItens.map(item => `
+                        <div class="p-3 bg-white dark:bg-[#1e1f20] border border-slate-200 dark:border-[#333537] rounded-lg shadow-xs space-y-2">
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                                <div>
+                                    <span class="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400">${item.id}</span>
+                                    <strong class="text-xs text-slate-900 dark:text-slate-100 ml-1.5">${item.rotulo}</strong>
+                                    <p class="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5 leading-snug">${item.desc}</p>
+                                </div>
+                                <div class="flex items-center gap-1 shrink-0">
+                                    <select onchange="aoMudarNotaCriterio('${item.id}', this.value, '${tipoBloco}')" class="bg-slate-50 dark:bg-[#17181a] border border-slate-300 dark:border-slate-700 rounded p-1.5 text-xs font-bold text-slate-900 dark:text-slate-100 outline-none focus:ring-1 focus:ring-emerald-500">
+                                        <option value="2" ${objetoNotas[item.id] === 2 ? 'selected' : ''}>2 pts (Atende)</option>
+                                        <option value="1" ${objetoNotas[item.id] === 1 ? 'selected' : ''}>1 pt (Parcial)</option>
+                                        <option value="0" ${objetoNotas[item.id] === 0 ? 'selected' : ''}>0 pts (Não)</option>
+                                        <option value="Na" ${objetoNotas[item.id] === 'Na' ? 'selected' : ''}>Na (Dispensado)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <input type="text" value="${objetoObs[item.id] || ''}" onchange="aoMudarObsCriterio('${item.id}', this.value, '${tipoBloco}')" placeholder="Evidência nos autos / folha do processo digital..." class="w-full bg-slate-50 dark:bg-[#17181a] border border-slate-200 dark:border-slate-700 rounded px-2.5 py-1 text-[11px] text-slate-800 dark:text-slate-200 outline-none focus:ring-1 focus:ring-emerald-500">
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="p-3 bg-amber-50 border border-amber-300 rounded-lg">
+                    <label class="flex items-start gap-2.5 cursor-pointer">
+                        <input type="checkbox" id="wiz-check-auditoria-etapa" class="mt-0.5 w-4 h-4 text-[#003399] rounded border-slate-400 focus:ring-[#003399]">
+                        <span class="text-xs text-amber-950 font-semibold leading-tight">
+                            ⚖️ Confirmo a conferência individual dos critérios acima listados e assumo a responsabilidade pelas pontuações e observações atribuídas.
+                        </span>
+                    </label>
+                </div>
+            `;
+        }
+
+        function aoMudarNotaCriterio(id, valor, tipo) {
+            const num = valor === 'Na' ? 'Na' : Number(valor);
+            if (tipo === 'plano') dadosInstrucao.anexo8.notas_plano[id] = num;
+            else dadosInstrucao.anexo8.notas_hab[id] = num;
+        }
+
+        function aoMudarObsCriterio(id, valor, tipo) {
+            if (tipo === 'plano') dadosInstrucao.anexo8.obs_plano[id] = valor;
+            else dadosInstrucao.anexo8.obs_hab[id] = valor;
+        }
+
+        function marcarTodosPontosLote(tipo, pontuacao) {
+            if (tipo === 'plano') {
+                CRITERIOS_PLANO_TRABALHO.forEach(c => dadosInstrucao.anexo8.notas_plano[c.id] = pontuacao);
+            } else {
+                CRITERIOS_HABILITACAO.forEach(c => dadosInstrucao.anexo8.notas_hab[c.id] = pontuacao);
+            }
+            renderizarEtapaAtual();
+            mostrarToast(`Todos os critérios do bloco foram marcados com ${pontuacao} pontos.`);
+        }
+
+        // RENDERIZAÇÃO ANEXO X (MONITORAMENTO - ART. 59)
+        function renderizarEtapaAnexo10(container, etapaId) {
+            const an10 = dadosInstrucao.anexo10;
+
+            if (etapaId === 'transparencia_ativa') {
+                container.innerHTML = `
+                    <div class="p-4 bg-purple-50 dark:bg-purple-950/40 border-l-4 border-purple-600 rounded text-xs space-y-1">
+                        <strong class="text-purple-900 dark:text-purple-300 font-bold block text-sm">Comprovação da Divulgação e Transparência Ativa (Art. 11 da Lei 13.019/14)</strong>
+                        <p class="text-slate-600 dark:text-slate-300">Conforme o Item 3.3.3 do Decreto nº 5.730/2025, a OSC é obrigada a comprovar a divulgação pública das informações em portal na internet e locais visíveis de sua sede.</p>
+                    </div>
+
+                    <div class="p-4 bg-white dark:bg-[#17181a] rounded-lg border border-slate-300 dark:border-slate-700 space-y-3 text-xs">
+                        <strong class="text-slate-900 dark:text-slate-100 block">Itens Mínimos Verificados nos Autos:</strong>
+                        <div class="space-y-1.5 text-slate-700 dark:text-slate-300 text-[11px]">
+                            <p>✓ I - Data de assinatura, número do instrumento e órgão responsável.</p>
+                            <p>✓ II - Nome completo da OSC e número de inscrição no CNPJ/RFB.</p>
+                            <p>✓ III - Descrição detalhada do objeto da parceria.</p>
+                            <p>✓ IV - Valor total pactuado e valores efetivamente transferidos.</p>
+                            <p>✓ V - Situação da prestação de contas com data prevista de entrega.</p>
+                            <p>✓ VI - Relação da remuneração e funções da equipe de trabalho contratada.</p>
+                        </div>
+
+                        <div class="pt-2 border-t border-slate-200 dark:border-slate-700 flex items-center gap-3">
+                            <label class="flex items-center gap-2 cursor-pointer font-bold">
+                                <input type="radio" name="wiz_an10_transp" value="sim" ${an10.transparencia_ok ? 'checked' : ''} onchange="dadosInstrucao.anexo10.transparencia_ok = true" class="text-emerald-600">
+                                <span class="text-emerald-700 dark:text-emerald-400">Comprovou Publicidade em Portal e Murais</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer font-bold">
+                                <input type="radio" name="wiz_an10_transp" value="nao" ${!an10.transparencia_ok ? 'checked' : ''} onchange="dadosInstrucao.anexo10.transparencia_ok = false" class="text-red-600">
+                                <span class="text-red-700 dark:text-red-400">Não Comprovou / Pendente de Diligência</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-amber-50 border border-amber-300 rounded-lg">
+                        <label class="flex items-start gap-2.5 cursor-pointer">
+                            <input type="checkbox" id="wiz-check-auditoria-etapa" class="mt-0.5 w-4 h-4 text-[#003399] rounded border-slate-400 focus:ring-[#003399]">
+                            <span class="text-xs text-amber-950 font-semibold leading-tight">
+                                ⚖️ Confirmo que examinei os prints, links ou comprovantes de transparência ativa juntados aos autos digitais.
+                            </span>
+                        </label>
+                    </div>
+                `;
+            } else if (etapaId === 'atividades_metas') {
+                if (!an10.atividades) an10.atividades = 'Realizadas todas as oficinas e atendimentos planejados no Plano de Trabalho sem descontinuidade.';
+                if (!an10.metas) an10.metas = 'Cumprimento de 100% das metas quantitativas pactuadas nos autos.';
+
+                container.innerHTML = `
+                    <div class="p-4 bg-purple-50 dark:bg-purple-950/40 border-l-4 border-purple-600 rounded text-xs space-y-1">
+                        <strong class="text-purple-900 dark:text-purple-300 font-bold block text-sm">Atividades Executadas e Aferição de Metas (Art. 59, I)</strong>
+                        <p class="text-slate-600 dark:text-slate-300">Descreva as ações concretas e a proporção de metas alcançadas com suporte em evidências.</p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Quais atividades foram efetivamente realizadas? *</label>
+                            <textarea id="wiz-an10-ativ" rows="3" class="w-full bg-white dark:bg-[#17181a] border border-slate-300 dark:border-slate-700 rounded p-2.5 text-xs text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-purple-500 leading-relaxed">${an10.atividades}</textarea>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Metas quantitativas atingidas vs previstas (%): *</label>
+                            <textarea id="wiz-an10-metas" rows="2" class="w-full bg-white dark:bg-[#17181a] border border-slate-300 dark:border-slate-700 rounded p-2.5 text-xs text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-purple-500 leading-relaxed">${an10.metas}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-amber-50 border border-amber-300 rounded-lg">
+                        <label class="flex items-start gap-2.5 cursor-pointer">
+                            <input type="checkbox" id="wiz-check-auditoria-etapa" class="mt-0.5 w-4 h-4 text-[#003399] rounded border-slate-400 focus:ring-[#003399]">
+                            <span class="text-xs text-amber-950 font-semibold leading-tight">
+                                ⚖️ Confirmo que a aferição de metas foi embasada nas listas nominais, fotografias ou laudos inseridos no Atende.Net.
+                            </span>
+                        </label>
+                    </div>
+                `;
+            } else if (etapaId === 'impacto_social') {
+                if (!an10.impacto_social) an10.impacto_social = 'Observou-se elevação da qualidade de vida dos munícipes atendidos, superando a vulnerabilidade inicial.';
+                if (!an10.continuidade) an10.continuidade = 'Comitê local e parcerias complementares asseguram a manutenção das ações após o encerramento do fomento.';
+
+                container.innerHTML = `
+                    <div class="p-4 bg-purple-50 dark:bg-purple-950/40 border-l-4 border-purple-600 rounded text-xs space-y-1">
+                        <strong class="text-purple-900 dark:text-purple-300 font-bold block text-sm">Impacto Social e Pesquisa de Satisfação (Art. 59, II, III e IV)</strong>
+                        <p class="text-slate-600 dark:text-slate-300">Avalie os ganhos sociais, percentual apurado na pesquisa de satisfação e plano de sustentabilidade.</p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Grau de Satisfação dos Beneficiários (%):</label>
+                                <input type="text" id="wiz-an10-satisfacao" value="${an10.satisfacao_pct}" class="w-full bg-white dark:bg-[#17181a] border border-slate-300 dark:border-slate-700 rounded p-2 text-xs text-slate-900 dark:text-slate-100 font-bold outline-none focus:ring-2 focus:ring-purple-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Impacto Social Obtido:</label>
+                                <input type="text" id="wiz-an10-impacto" value="${an10.impacto_social}" class="w-full bg-white dark:bg-[#17181a] border border-slate-300 dark:border-slate-700 rounded p-2 text-xs text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-purple-500">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Planos para Continuidade Pós-Término (Sustentabilidade):</label>
+                            <textarea id="wiz-an10-continuidade" rows="2" class="w-full bg-white dark:bg-[#17181a] border border-slate-300 dark:border-slate-700 rounded p-2.5 text-xs text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-purple-500 leading-relaxed">${an10.continuidade}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-amber-50 border border-amber-300 rounded-lg">
+                        <label class="flex items-start gap-2.5 cursor-pointer">
+                            <input type="checkbox" id="wiz-check-auditoria-etapa" class="mt-0.5 w-4 h-4 text-[#003399] rounded border-slate-400 focus:ring-[#003399]">
+                            <span class="text-xs text-amber-950 font-semibold leading-tight">
+                                ⚖️ Confirmo a conferência dos resultados sociais e pesquisas aplicadas aos munícipes beneficiados.
+                            </span>
+                        </label>
+                    </div>
+                `;
+            } else if (etapaId === 'auditorias_deliberacao') {
+                container.innerHTML = `
+                    <div class="p-4 bg-purple-50 dark:bg-purple-950/40 border-l-4 border-purple-600 rounded text-xs space-y-1">
+                        <strong class="text-purple-900 dark:text-purple-300 font-bold block text-sm">Comprovação de Despesas, Auditorias e Homologação da Comissão</strong>
+                        <p class="text-slate-600 dark:text-slate-300">Conclusão dos trabalhos e deliberação da Comissão Colegiada de Monitoramento e Avaliação.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                        <div class="bg-white dark:bg-[#17181a] p-3 rounded-lg border border-slate-300 dark:border-slate-700">
+                            <label class="block font-bold text-slate-800 dark:text-slate-200 mb-1">Comprovantes de Despesas Conferem com o Plano? (Art. 59, V)</label>
+                            <select id="wiz-an10-desp" class="w-full bg-slate-50 dark:bg-[#1e1f20] border border-slate-300 dark:border-slate-700 rounded p-1.5 text-xs">
+                                <option value="Sim" ${an10.despesas_ok === 'Sim' ? 'selected' : ''}>Sim, 100% aderentes</option>
+                                <option value="Parcial" ${an10.despesas_ok === 'Parcial' ? 'selected' : ''}>Parcial com inconsistências formais</option>
+                                <option value="Não" ${an10.despesas_ok === 'Não' ? 'selected' : ''}>Não conferem</option>
+                            </select>
+                        </div>
+
+                        <div class="bg-white dark:bg-[#17181a] p-3 rounded-lg border border-slate-300 dark:border-slate-700">
+                            <label class="block font-bold text-slate-800 dark:text-slate-200 mb-1">Houve Auditoria Interna / Externa? (Art. 59, VI)</label>
+                            <select id="wiz-an10-auditoria" class="w-full bg-slate-50 dark:bg-[#1e1f20] border border-slate-300 dark:border-slate-700 rounded p-1.5 text-xs">
+                                <option value="false" ${!an10.auditoria_houve ? 'selected' : ''}>Não houve auditorias formais no período</option>
+                                <option value="true" ${an10.auditoria_houve ? 'selected' : ''}>Sim, realizada inspeção pelo Controle Interno</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-slate-100 dark:bg-[#17181a] rounded-lg border border-slate-300 dark:border-slate-700 space-y-3">
+                        <label class="block text-xs font-bold text-slate-900 dark:text-slate-100">Voto Colegiado da Comissão de Monitoramento e Avaliação: *</label>
+                        <div class="flex flex-wrap gap-4 text-xs font-semibold">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="wiz_an10_decisao" value="Homologo em todos os termos" ${an10.decisao === 'Homologo em todos os termos' ? 'checked' : ''} class="text-emerald-600">
+                                <span class="text-emerald-700 dark:text-emerald-400">✅ Homologo em todos os termos</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="wiz_an10_decisao" value="Homologo com ressalvas" ${an10.decisao === 'Homologo com ressalvas' ? 'checked' : ''} class="text-amber-600">
+                                <span class="text-amber-700 dark:text-amber-400">⚠️ Homologo com ressalvas</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="wiz_an10_decisao" value="Não homologo" ${an10.decisao === 'Não homologo' ? 'checked' : ''} class="text-red-600">
+                                <span class="text-red-700 dark:text-red-400">❌ Não homologo</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-amber-50 border border-amber-300 rounded-lg">
+                        <label class="flex items-start gap-2.5 cursor-pointer">
+                            <input type="checkbox" id="wiz-check-auditoria-etapa" class="mt-0.5 w-4 h-4 text-[#003399] rounded border-slate-400 focus:ring-[#003399]">
+                            <span class="text-xs text-amber-950 font-semibold leading-tight">
+                                ⚖️ Confirmamos a deliberação colegiada do Relatório Técnico de Monitoramento, com voto lançado para publicação oficial.
+                            </span>
+                        </label>
+                    </div>
+                `;
+            }
+        }
+
+        // RENDERIZAÇÃO ANEXO XI (PRESTAÇÃO DE CONTAS - ART. 67 / LEI 13.204/15)
+        function renderizarEtapaAnexo11(container, etapaId) {
+            const an11 = dadosInstrucao.anexo11;
+
+            if (etapaId === 'efetividade_pilares') {
+                if (!an11.pilar_1) an11.pilar_1 = 'Cumprimento de 100% das metas físicas comprovado nos autos, gerando benefícios diretos aos munícipes.';
+                if (!an11.pilar_2) an11.pilar_2 = 'Impacto econômico e social atestado na comunidade, garantindo eficácia na destinação das verbas públicas.';
+
+                container.innerHTML = `
+                    <div class="p-4 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-600 rounded text-xs space-y-1">
+                        <strong class="text-amber-900 dark:text-amber-300 font-bold block text-sm">Pilares de Eficácia e Efetividade (Art. 67, § 4º da Lei 13.019/14)</strong>
+                        <p class="text-slate-600 dark:text-slate-300">A avaliação do Gestor sobre as contas é obrigatoriamente centrada na entrega de resultados à população.</p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Pilar I: Resultados Alcançados e Seus Benefícios: *</label>
+                            <textarea id="wiz-an11-pilar1" rows="3" class="w-full bg-white dark:bg-[#17181a] border border-slate-300 dark:border-slate-700 rounded p-2.5 text-xs text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-amber-500 leading-relaxed">${an11.pilar_1}</textarea>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Pilar II: Impactos Econômicos e Sociais Gerados: *</label>
+                            <textarea id="wiz-an11-pilar2" rows="2" class="w-full bg-white dark:bg-[#17181a] border border-slate-300 dark:border-slate-700 rounded p-2.5 text-xs text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-amber-500 leading-relaxed">${an11.pilar_2}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-amber-50 border border-amber-300 rounded-lg">
+                        <label class="flex items-start gap-2.5 cursor-pointer">
+                            <input type="checkbox" id="wiz-check-auditoria-etapa" class="mt-0.5 w-4 h-4 text-[#003399] rounded border-slate-400 focus:ring-[#003399]">
+                            <span class="text-xs text-amber-950 font-semibold leading-tight">
+                                ⚖️ Confirmo que examinei o nexo de causalidade entre as despesas e as metas alcançadas.
+                            </span>
+                        </label>
+                    </div>
+                `;
+            } else if (etapaId === 'satisfacao_sustentabilidade') {
+                if (!an11.pilar_4) an11.pilar_4 = 'Continuidade das ações prevista mediante recursos institucionais da própria entidade e voluntariado.';
+
+                container.innerHTML = `
+                    <div class="p-4 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-600 rounded text-xs space-y-1">
+                        <strong class="text-amber-900 dark:text-amber-300 font-bold block text-sm">Pilares III e IV: Satisfação Popular e Sustentabilidade</strong>
+                        <p class="text-slate-600 dark:text-slate-300">Aferição do grau de aprovação dos usuários e perenidade dos efeitos públicos.</p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Pilar III: Grau de Satisfação do Público-Alvo e Instrumento Utilizado: *</label>
+                            <input type="text" id="wiz-an11-pilar3" value="${an11.pilar_3}" class="w-full bg-white dark:bg-[#17181a] border border-slate-300 dark:border-slate-700 rounded p-2 text-xs text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-amber-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Pilar IV: Possibilidade de Sustentabilidade das Ações Após Conclusão: *</label>
+                            <textarea id="wiz-an11-pilar4" rows="2" class="w-full bg-white dark:bg-[#17181a] border border-slate-300 dark:border-slate-700 rounded p-2.5 text-xs text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-amber-500 leading-relaxed">${an11.pilar_4}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-amber-50 border border-amber-300 rounded-lg">
+                        <label class="flex items-start gap-2.5 cursor-pointer">
+                            <input type="checkbox" id="wiz-check-auditoria-etapa" class="mt-0.5 w-4 h-4 text-[#003399] rounded border-slate-400 focus:ring-[#003399]">
+                            <span class="text-xs text-amber-950 font-semibold leading-tight">
+                                ⚖️ Confirmo que a sustentabilidade pós-parceria foi comprovada pela OSC parceira.
+                            </span>
+                        </label>
+                    </div>
+                `;
+            } else if (etapaId === 'financeiro_glosas') {
+                container.innerHTML = `
+                    <div class="p-4 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-600 rounded text-xs space-y-1">
+                        <strong class="text-amber-900 dark:text-amber-300 font-bold block text-sm">Controle Financeiro, Glosas e Destinação de Bens Remanescentes</strong>
+                        <p class="text-slate-600 dark:text-slate-300">Conferência de extratos bancários, apuração de despesas não aceitas e titularidade de equipamentos.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                        <div class="bg-white dark:bg-[#17181a] p-3 rounded-lg border border-slate-300 dark:border-slate-700 space-y-2">
+                            <label class="block font-bold text-slate-800 dark:text-slate-200">Houve Glosas Financeiras (Despesas Rejeitadas)?</label>
+                            <select id="wiz-an11-sel-glosas" onchange="aoMudarGlosas(this.value)" class="w-full bg-slate-50 dark:bg-[#1e1f20] border border-slate-300 dark:border-slate-700 rounded p-1.5 text-xs">
+                                <option value="false" ${!an11.glosas_houve ? 'selected' : ''}>Não (Nenhuma glosa aplicada)</option>
+                                <option value="true" ${an11.glosas_houve ? 'selected' : ''}>Sim (Identificado desvio ou falta de comprovação)</option>
+                            </select>
+                            <input type="text" id="wiz-an11-glosas-desc" value="${an11.glosas_desc}" placeholder="Descrição e valor da glosa a ressarcir..." class="w-full bg-slate-50 dark:bg-[#1e1f20] border border-slate-300 dark:border-slate-700 rounded p-1.5 text-[11px]">
+                        </div>
+
+                        <div class="bg-white dark:bg-[#17181a] p-3 rounded-lg border border-slate-300 dark:border-slate-700 space-y-2">
+                            <label class="block font-bold text-slate-800 dark:text-slate-200">Destinação dos Bens Remanescentes (Anexo VII)</label>
+                            <input type="text" id="wiz-an11-bens" value="${an11.bens_permanentes}" placeholder="Ex: Termo de Doação assinado ao Município..." class="w-full bg-slate-50 dark:bg-[#1e1f20] border border-slate-300 dark:border-slate-700 rounded p-1.5 text-xs">
+                            <span class="text-[10px] text-slate-500">Conforme o Art. 36 e Item 3.5 do Decreto Municipal.</span>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-amber-50 border border-amber-300 rounded-lg">
+                        <label class="flex items-start gap-2.5 cursor-pointer">
+                            <input type="checkbox" id="wiz-check-auditoria-etapa" class="mt-0.5 w-4 h-4 text-[#003399] rounded border-slate-400 focus:ring-[#003399]">
+                            <span class="text-xs text-amber-950 font-semibold leading-tight">
+                                ⚖️ Confirmo que analisei a conciliação bancária por regime de caixa e que os saldos remanescentes foram devidamente devolvidos ao erário municipal.
+                            </span>
+                        </label>
+                    </div>
+                `;
+            } else if (etapaId === 'julgamento_final') {
+                container.innerHTML = `
+                    <div class="p-4 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-600 rounded text-xs space-y-1">
+                        <strong class="text-amber-900 dark:text-amber-300 font-bold block text-sm">Julgamento Conclusivo da Prestação de Contas (Art. 72 da Lei 13.019/14)</strong>
+                        <p class="text-slate-600 dark:text-slate-300">Decisão final fundamentada emitida pelo Gestor da Parceria.</p>
+                    </div>
+
+                    <div class="p-4 bg-slate-100 dark:bg-[#17181a] rounded-lg border border-slate-300 dark:border-slate-700 space-y-3">
+                        <label class="block text-xs font-bold text-slate-900 dark:text-slate-100">Avaliação Conclusiva das Contas pelo Gestor: *</label>
+                        <div class="flex flex-col sm:flex-row gap-4 text-xs font-semibold">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="wiz_an11_decisao" value="Regulares" ${an11.decisao === 'Regulares' ? 'checked' : ''} class="text-emerald-600">
+                                <span class="text-emerald-700 dark:text-emerald-400">✅ Regulares (Art. 72, I)</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="wiz_an11_decisao" value="Regulares com Ressalva" ${an11.decisao === 'Regulares com Ressalva' ? 'checked' : ''} class="text-amber-600">
+                                <span class="text-amber-700 dark:text-amber-400">⚠️ Regulares com Ressalva (Art. 72, II)</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="wiz_an11_decisao" value="Irregulares" ${an11.decisao === 'Irregulares' ? 'checked' : ''} class="text-red-600">
+                                <span class="text-red-700 dark:text-red-400">❌ Irregulares (com Tomada de Contas Especial / PAS)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-amber-50 border border-amber-300 rounded-lg">
+                        <label class="flex items-start gap-2.5 cursor-pointer">
+                            <input type="checkbox" id="wiz-check-auditoria-etapa" class="mt-0.5 w-4 h-4 text-[#003399] rounded border-slate-400 focus:ring-[#003399]">
+                            <span class="text-xs text-amber-950 font-semibold leading-tight">
+                                ⚖️ Exaro minha manifestação como Gestor da Parceria, assumindo as responsabilidades legais pelo julgamento proposto.
+                            </span>
+                        </label>
+                    </div>
+                `;
+            }
+        }
+
+        function aoMudarGlosas(val) {
+            dadosInstrucao.anexo11.glosas_houve = (val === 'true');
+        }
+
+
+        // SALVA DADOS DA ETAPA ANTES DE AVANÇAR/VOLTAR
+        function salvarEstadoDaEtapaAtual() {
+            const atoConfig = DEFINICOES_ATOS[atoSelecionado];
+            const etapaConfig = atoConfig.etapas[etapaAtualIndex];
+            const etapaId = etapaConfig.id;
+
+            if (etapaId === 'identificacao') {
+                const elProc = document.getElementById('wiz-inp-processo');
+                const elOsc = document.getElementById('wiz-inp-osc');
+                const elCnpj = document.getElementById('wiz-inp-cnpj');
+                const elVal = document.getElementById('wiz-inp-valor');
+                const elSec = document.getElementById('wiz-inp-secretaria');
+                const elObj = document.getElementById('wiz-inp-objeto');
+
+                if (elProc) dadosInstrucao.identificacao.processo = elProc.value.trim();
+                if (elOsc) dadosInstrucao.identificacao.osc = elOsc.value.trim();
+                if (elCnpj) dadosInstrucao.identificacao.cnpj = elCnpj.value.trim();
+                if (elVal) dadosInstrucao.identificacao.valor = elVal.value.trim();
+                if (elSec) dadosInstrucao.identificacao.secretaria = elSec.value.trim();
+                if (elObj) dadosInstrucao.identificacao.objeto = elObj.value.trim();
+            } else if (etapaId === 'pre_processamento') {
+                const txt = document.getElementById('wiz-textarea-documento-bruto');
+                if (txt) dadosInstrucao.pre_processamento.texto_bruto = txt.value;
+            } else if (atoSelecionado === 'anexo9') {
+                const txtGen = document.getElementById('wiz-textarea-generica');
+                if (txtGen && etapaId.startsWith('alinea_')) {
+                    dadosInstrucao.anexo9[etapaId] = txtGen.value;
+                } else if (etapaId === 'designacoes_decisao') {
+                    const elGes = document.getElementById('wiz-an9-gestor');
+                    const elCom = document.getElementById('wiz-an9-comissao');
+                    const elDec = document.querySelector('input[name="wiz_an9_decisao"]:checked');
+                    if (elGes) dadosInstrucao.anexo9.gestor = elGes.value;
+                    if (elCom) dadosInstrucao.anexo9.comissao = elCom.value;
+                    if (elDec) dadosInstrucao.anexo9.decisao = elDec.value;
+                }
+            } else if (atoSelecionado === 'anexo8' && etapaId === 'deliberacao_selecao') {
+                const elObsP = document.getElementById('wiz-an8-obs-plano');
+                const elObsH = document.getElementById('wiz-an8-obs-hab');
+                const elDec = document.querySelector('input[name="wiz_an8_decisao"]:checked');
+                if (elObsP) dadosInstrucao.anexo8.obs_geral_plano = elObsP.value;
+                if (elObsH) dadosInstrucao.anexo8.obs_geral_hab = elObsH.value;
+                if (elDec) dadosInstrucao.anexo8.decisao = elDec.value;
+            } else if (atoSelecionado === 'anexo10') {
+                const elAtiv = document.getElementById('wiz-an10-ativ');
+                const elMet = document.getElementById('wiz-an10-metas');
+                const elSat = document.getElementById('wiz-an10-satisfacao');
+                const elImp = document.getElementById('wiz-an10-impacto');
+                const elCont = document.getElementById('wiz-an10-continuidade');
+                const elDesp = document.getElementById('wiz-an10-desp');
+                const elAud = document.getElementById('wiz-an10-auditoria');
+                const elDec = document.querySelector('input[name="wiz_an10_decisao"]:checked');
+
+                if (elAtiv) dadosInstrucao.anexo10.atividades = elAtiv.value;
+                if (elMet) dadosInstrucao.anexo10.metas = elMet.value;
+                if (elSat) dadosInstrucao.anexo10.satisfacao_pct = elSat.value;
+                if (elImp) dadosInstrucao.anexo10.impacto_social = elImp.value;
+                if (elCont) dadosInstrucao.anexo10.continuidade = elCont.value;
+                if (elDesp) dadosInstrucao.anexo10.despesas_ok = elDesp.value;
+                if (elAud) dadosInstrucao.anexo10.auditoria_houve = (elAud.value === 'true');
+                if (elDec) dadosInstrucao.anexo10.decisao = elDec.value;
+            } else if (atoSelecionado === 'anexo11') {
+                const elP1 = document.getElementById('wiz-an11-pilar1');
+                const elP2 = document.getElementById('wiz-an11-pilar2');
+                const elP3 = document.getElementById('wiz-an11-pilar3');
+                const elP4 = document.getElementById('wiz-an11-pilar4');
+                const elGlosDesc = document.getElementById('wiz-an11-glosas-desc');
+                const elBens = document.getElementById('wiz-an11-bens');
+                const elDec = document.querySelector('input[name="wiz_an11_decisao"]:checked');
+
+                if (elP1) dadosInstrucao.anexo11.pilar_1 = elP1.value;
+                if (elP2) dadosInstrucao.anexo11.pilar_2 = elP2.value;
+                if (elP3) dadosInstrucao.anexo11.pilar_3 = elP3.value;
+                if (elP4) dadosInstrucao.anexo11.pilar_4 = elP4.value;
+                if (elGlosDesc) dadosInstrucao.anexo11.glosas_desc = elGlosDesc.value;
+                if (elBens) dadosInstrucao.anexo11.bens_permanentes = elBens.value;
+                if (elDec) dadosInstrucao.anexo11.decisao = elDec.value;
+            }
+        }
+
+        // SELEÇÃO DE EMENDA NO PASSO 1
+        function aoSelecionarOrigemEmenda(valor) {
+            if (valor === 'EM_BRANCO') {
+                dadosInstrucao.identificacao.origem = 'EM_BRANCO';
+                dadosInstrucao.identificacao.processo = '';
+                dadosInstrucao.identificacao.osc = '';
+                dadosInstrucao.identificacao.cnpj = '';
+                dadosInstrucao.identificacao.valor = 'R$ 0,00';
+                dadosInstrucao.identificacao.secretaria = '';
+                dadosInstrucao.identificacao.objeto = '';
+            } else {
+                const achou = listaEmendasCarregadas.find(e => e.id === valor);
+                if (achou) {
+                    dadosInstrucao.identificacao.origem = achou.id;
+                    dadosInstrucao.identificacao.processo = achou.numero_processo || '';
+                    dadosInstrucao.identificacao.osc = achou.beneficiario || '';
+                    dadosInstrucao.identificacao.cnpj = achou.cnpj || '94.888.112/0001-08';
+                    dadosInstrucao.identificacao.valor = `R$ ${(achou.valor || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+                    dadosInstrucao.identificacao.secretaria = achou.secretaria || '';
+                    dadosInstrucao.identificacao.objeto = achou.objeto || '';
+                }
+            }
+            renderizarEtapaIdentificacao(document.getElementById('wizard-corpo-conteudo'));
+        }
+
+
+        // FINALIZA O WIZARD E RENDERIZA O ESPELHO FORMAL A4
+        function finalizarWizardEExibirEspelho() {
+            const secWizard = document.getElementById('wizard-container-geral');
+            const secResultado = document.getElementById('container-espelho-resultado');
+            if (secWizard) secWizard.classList.add('hidden');
+            if (secResultado) secResultado.classList.remove('hidden');
+
+            const folha = document.getElementById('folha-laudo-oficial-impressao');
+            if (!folha) return;
+
+            const iden = dadosInstrucao.identificacao;
+            const dataHoje = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+
+            let htmlAtoEspecifico = '';
+
+            if (atoSelecionado === 'anexo9') {
+                const an9 = dadosInstrucao.anexo9;
+                htmlAtoEspecifico = `
+                    <div class="text-center pb-4 border-b-2 border-slate-900 space-y-1">
+                        <h2 class="text-base font-black uppercase tracking-wide">MUNICÍPIO DE HORIZONTINA – RS</h2>
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-800">PARECER DO ÓRGÃO TÉCNICO MUNICIPAL</h3>
+                        <p class="text-xs text-slate-600 font-mono">Artigo 35, Inciso V da Lei Federal nº 13.019/2014 • Decreto Municipal nº 5.730/2025 (Anexo IX)</p>
+                    </div>
+
+                    <div class="space-y-3 text-xs pt-2">
+                        <table class="w-full border-collapse border border-slate-400 text-left">
+                            <tr class="bg-slate-100"><th colspan="2" class="p-2 border border-slate-400 font-bold uppercase">1. Identificação da Parceria</th></tr>
+                            <tr><td class="p-2 border border-slate-400 font-semibold w-1/3">OSC Parceira:</td><td class="p-2 border border-slate-400">${iden.osc} (CNPJ: ${iden.cnpj})</td></tr>
+                            <tr><td class="p-2 border border-slate-400 font-semibold">Nº do Processo Digital:</td><td class="p-2 border border-slate-400 font-mono">${iden.processo}</td></tr>
+                            <tr><td class="p-2 border border-slate-400 font-semibold">Valor Global da Parceria:</td><td class="p-2 border border-slate-400 font-bold text-emerald-800">${iden.valor}</td></tr>
+                            <tr><td class="p-2 border border-slate-400 font-semibold">Secretaria Responsável:</td><td class="p-2 border border-slate-400">${iden.secretaria}</td></tr>
+                            <tr><td class="p-2 border border-slate-400 font-semibold">Objeto Pactuado:</td><td class="p-2 border border-slate-400">${iden.objeto}</td></tr>
+                        </table>
+
+                        <div class="space-y-2 pt-2">
+                            <h4 class="font-bold text-xs uppercase text-slate-900 border-b border-slate-300 pb-1">2. Parecer Técnico Fundamentado (Art. 35, V)</h4>
+                            <p><b>a) Mérito da proposta e conformidade com a modalidade adotada:</b><br>${an9.alinea_a}</p>
+                            <p><b>b) Identidade e reciprocidade de interesse entre as partes:</b><br>${an9.alinea_b}</p>
+                            <p><b>c) Viabilidade de execução (recursos, prazos, capacidade técnica instalada):</b><br>${an9.alinea_c}</p>
+                            <p><b>d) Verificação do cronograma de desembolso:</b><br>${an9.alinea_d}</p>
+                            <p><b>e) Meios e procedimentos de fiscalização física e financeira:</b><br>${an9.alinea_e}</p>
+                            <p><b>g) Designação do Gestor da Parceria:</b><br>${an9.gestor}</p>
+                            <p><b>h) Designação da Comissão de Monitoramento e Avaliação:</b><br>${an9.comissao}</p>
+                        </div>
+
+                        <div class="p-3 bg-slate-100 border border-slate-400 rounded text-center space-y-1 mt-4">
+                            <span class="font-bold text-xs uppercase block">3. Parecer Final do Órgão Técnico</span>
+                            <div class="text-sm font-black uppercase text-blue-900">${an9.decisao}</div>
+                        </div>
+
+                        <div class="pt-8 text-center text-xs space-y-8">
+                            <p>Horizontina/RS, ${dataHoje}.</p>
+                            <div class="w-72 mx-auto border-t border-slate-800 pt-1">
+                                <span class="font-bold block">Órgão Técnico Municipal</span>
+                                <span class="text-slate-600 font-mono">${iden.secretaria} • Município de Horizontina</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (atoSelecionado === 'anexo8') {
+                const an8 = dadosInstrucao.anexo8;
+                htmlAtoEspecifico = `
+                    <div class="text-center pb-4 border-b-2 border-slate-900 space-y-1">
+                        <h2 class="text-base font-black uppercase tracking-wide">MUNICÍPIO DE HORIZONTINA – RS</h2>
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-800">COMISSÃO DE SELEÇÃO – FORMULÁRIO DE AVALIAÇÃO</h3>
+                        <p class="text-xs text-slate-600 font-mono">Decreto Municipal nº 5.730/2025 • ANEXO VIII (Manual das Parcerias - 3ª Edição)</p>
+                    </div>
+
+                    <div class="space-y-4 text-xs pt-2">
+                        <table class="w-full border-collapse border border-slate-400 text-left">
+                            <tr class="bg-slate-100"><th colspan="2" class="p-2 border border-slate-400 font-bold uppercase">Identificação da Parceria</th></tr>
+                            <tr><td class="p-2 border border-slate-400 font-semibold w-1/3">OSC / CNPJ:</td><td class="p-2 border border-slate-400">${iden.osc} • ${iden.cnpj}</td></tr>
+                            <tr><td class="p-2 border border-slate-400 font-semibold">Nº Processo Digital:</td><td class="p-2 border border-slate-400 font-mono">${iden.processo}</td></tr>
+                            <tr><td class="p-2 border border-slate-400 font-semibold">Valor Global Aprovado:</td><td class="p-2 border border-slate-400 font-bold text-emerald-800">${iden.valor}</td></tr>
+                        </table>
+
+                        <div class="space-y-2">
+                            <h4 class="font-bold text-xs uppercase text-slate-900 border-b border-slate-300 pb-1">Tabela 1: Avaliação do Plano de Trabalho (22 Critérios)</h4>
+                            <table class="w-full border-collapse border border-slate-400 text-left text-[10px]">
+                                <tr class="bg-slate-100"><th class="p-1 border border-slate-400 w-8">Item</th><th class="p-1 border border-slate-400">Critério Avaliado</th><th class="p-1 border border-slate-400 w-16 text-center">Nota (0-2)</th><th class="p-1 border border-slate-400">Evidência no Processo</th></tr>
+                                ${CRITERIOS_PLANO_TRABALHO.map(c => `
+                                    <tr>
+                                        <td class="p-1 border border-slate-400 font-mono text-center">${c.id}</td>
+                                        <td class="p-1 border border-slate-400"><b>${c.rotulo}</b>: ${c.desc}</td>
+                                        <td class="p-1 border border-slate-400 font-bold text-center">${an8.notas_plano[c.id]} pts</td>
+                                        <td class="p-1 border border-slate-400 text-slate-600">${an8.obs_plano[c.id] || '-'}</td>
+                                    </tr>
+                                `).join('')}
+                            </table>
+                            <p class="text-[11px] text-slate-700 italic"><b>Observações do Plano:</b> ${an8.obs_geral_plano}</p>
+                        </div>
+
+                        <div class="space-y-2 pt-2">
+                            <h4 class="font-bold text-xs uppercase text-slate-900 border-b border-slate-300 pb-1">Tabela 2: Habilitação Documental e Jurídica (12 Critérios)</h4>
+                            <table class="w-full border-collapse border border-slate-400 text-left text-[10px]">
+                                <tr class="bg-slate-100"><th class="p-1 border border-slate-400 w-8">Item</th><th class="p-1 border border-slate-400">Documento Exigido</th><th class="p-1 border border-slate-400 w-16 text-center">Nota (0-2)</th><th class="p-1 border border-slate-400">Conferência nos Autos</th></tr>
+                                ${CRITERIOS_HABILITACAO.map(c => `
+                                    <tr>
+                                        <td class="p-1 border border-slate-400 font-mono text-center">${c.id}</td>
+                                        <td class="p-1 border border-slate-400"><b>${c.rotulo}</b>: ${c.desc}</td>
+                                        <td class="p-1 border border-slate-400 font-bold text-center">${an8.notas_hab[c.id]} pts</td>
+                                        <td class="p-1 border border-slate-400 text-slate-600">${an8.obs_hab[c.id] || '-'}</td>
+                                    </tr>
+                                `).join('')}
+                            </table>
+                            <p class="text-[11px] text-slate-700 italic"><b>Observações da Habilitação:</b> ${an8.obs_geral_hab}</p>
+                        </div>
+
+                        <div class="p-3 bg-slate-100 border border-slate-400 rounded text-center space-y-1 mt-4">
+                            <span class="font-bold text-xs uppercase block">Deliberação Colegiada da Comissão de Seleção</span>
+                            <div class="text-sm font-black uppercase text-emerald-900">${an8.decisao}</div>
+                        </div>
+
+                        <div class="pt-8 text-center text-xs space-y-8">
+                            <p>Horizontina/RS, ${dataHoje}.</p>
+                            <div class="grid grid-cols-3 gap-4 pt-4">
+                                <div class="border-t border-slate-800 pt-1 font-bold">Relator da Comissão</div>
+                                <div class="border-t border-slate-800 pt-1 font-bold">Membro da Comissão</div>
+                                <div class="border-t border-slate-800 pt-1 font-bold">Membro da Comissão</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (atoSelecionado === 'anexo10') {
+                const an10 = dadosInstrucao.anexo10;
+                htmlAtoEspecifico = `
+                    <div class="text-center pb-4 border-b-2 border-slate-900 space-y-1">
+                        <h2 class="text-base font-black uppercase tracking-wide">MUNICÍPIO DE HORIZONTINA – RS</h2>
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-800">COMISSÃO DE MONITORAMENTO E AVALIAÇÃO – RELATÓRIO TÉCNICO FINAL</h3>
+                        <p class="text-xs text-slate-600 font-mono">Artigo 59 da Lei Federal nº 13.019/2014 • ANEXO X do Decreto Municipal nº 5.730/2025</p>
+                    </div>
+
+                    <div class="space-y-3 text-xs pt-2">
+                        <table class="w-full border-collapse border border-slate-400 text-left">
+                            <tr class="bg-slate-100"><th colspan="2" class="p-2 border border-slate-400 font-bold uppercase">1. Identificação da Parceria Monitorada</th></tr>
+                            <tr><td class="p-2 border border-slate-400 font-semibold w-1/3">OSC / CNPJ:</td><td class="p-2 border border-slate-400">${iden.osc} • ${iden.cnpj}</td></tr>
+                            <tr><td class="p-2 border border-slate-400 font-semibold">Nº Processo Digital:</td><td class="p-2 border border-slate-400 font-mono">${iden.processo}</td></tr>
+                            <tr><td class="p-2 border border-slate-400 font-semibold">Valor Total da Parceria:</td><td class="p-2 border border-slate-400 font-bold text-emerald-800">${iden.valor}</td></tr>
+                        </table>
+
+                        <div class="space-y-2 pt-2">
+                            <h4 class="font-bold text-xs uppercase text-slate-900 border-b border-slate-300 pb-1">2. Execução do Objeto e Metas Atestadas</h4>
+                            <p><b>Atividades Realizadas (Art. 59, I):</b><br>${an10.atividades}</p>
+                            <p><b>Metas Quantitativas Atingidas:</b><br>${an10.metas}</p>
+                            <p><b>Impacto Social Obtido e Grau de Satisfação:</b><br>${an10.impacto_social} (Grau de Satisfação: ${an10.satisfacao_pct})</p>
+                            <p><b>Divulgação e Transparência Ativa (Art. 11):</b><br>${an10.transparencia_ok ? 'Comprovada a publicidade em murais, site e redes sociais conforme os autos.' : 'Não comprovada regularmente.'}</p>
+                            <p><b>Comprovação de Despesas (Art. 59, V):</b><br>${an10.despesas_ok}</p>
+                        </div>
+
+                        <div class="p-3 bg-slate-100 border border-slate-400 rounded text-center space-y-1 mt-4">
+                            <span class="font-bold text-xs uppercase block">Homologação da Comissão de Monitoramento e Avaliação</span>
+                            <div class="text-sm font-black uppercase text-purple-900">${an10.decisao}</div>
+                        </div>
+
+                        <div class="pt-8 text-center text-xs space-y-8">
+                            <p>Horizontina/RS, ${dataHoje}.</p>
+                            <div class="w-72 mx-auto border-t border-slate-800 pt-1">
+                                <span class="font-bold block">Relator da Comissão de Monitoramento</span>
+                                <span class="text-slate-600 font-mono">Portaria Municipal • Atende.Net</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (atoSelecionado === 'anexo11') {
+                const an11 = dadosInstrucao.anexo11;
+                htmlAtoEspecifico = `
+                    <div class="text-center pb-4 border-b-2 border-slate-900 space-y-1">
+                        <h2 class="text-base font-black uppercase tracking-wide">MUNICÍPIO DE HORIZONTINA – RS</h2>
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-800">PARECER TÉCNICO CONCLUSIVO DO GESTOR DA PARCERIA</h3>
+                        <p class="text-xs text-slate-600 font-mono">Artigo 67, § 4º da Lei Federal nº 13.019/2014 • ANEXO XI do Decreto Municipal nº 5.730/2025</p>
+                    </div>
+
+                    <div class="space-y-3 text-xs pt-2">
+                        <table class="w-full border-collapse border border-slate-400 text-left">
+                            <tr class="bg-slate-100"><th colspan="2" class="p-2 border border-slate-400 font-bold uppercase">1. Identificação da Prestação de Contas</th></tr>
+                            <tr><td class="p-2 border border-slate-400 font-semibold w-1/3">OSC Parceira:</td><td class="p-2 border border-slate-400">${iden.osc} (CNPJ: ${iden.cnpj})</td></tr>
+                            <tr><td class="p-2 border border-slate-400 font-semibold">Nº Processo Digital:</td><td class="p-2 border border-slate-400 font-mono">${iden.processo}</td></tr>
+                            <tr><td class="p-2 border border-slate-400 font-semibold">Valor Total Recebido:</td><td class="p-2 border border-slate-400 font-bold text-emerald-800">${iden.valor}</td></tr>
+                        </table>
+
+                        <div class="space-y-2 pt-2">
+                            <h4 class="font-bold text-xs uppercase text-slate-900 border-b border-slate-300 pb-1">2. Pilares de Eficácia e Efetividade (§ 4º, Lei 13.204/2015)</h4>
+                            <p><b>I - Resultados alcançados e benefícios sociais/econômicos:</b><br>${an11.pilar_1}</p>
+                            <p><b>II - Impactos econômicos e sociais gerados pela execução:</b><br>${an11.pilar_2}</p>
+                            <p><b>III - Grau de satisfação do público-alvo:</b><br>${an11.pilar_3}</p>
+                            <p><b>IV - Possibilidade de sustentabilidade das ações:</b><br>${an11.pilar_4}</p>
+                            <p><b>Conformidade Financeira e Glosas:</b><br>${an11.glosas_houve ? `Glosas apuradas: ${an11.glosas_desc}` : 'Nenhuma glosa aplicada; despesas 100% aderentes ao plano.'}</p>
+                            <p><b>Destinação de Bens Remanescentes:</b><br>${an11.bens_permanentes}</p>
+                        </div>
+
+                        <div class="p-3 bg-slate-100 border border-slate-400 rounded text-center space-y-1 mt-4">
+                            <span class="font-bold text-xs uppercase block">3. Julgamento das Contas pelo Gestor (Art. 72)</span>
+                            <div class="text-sm font-black uppercase text-amber-900">${an11.decisao}</div>
+                        </div>
+
+                        <div class="pt-8 text-center text-xs space-y-8">
+                            <p>Horizontina/RS, ${dataHoje}.</p>
+                            <div class="w-72 mx-auto border-t border-slate-800 pt-1">
+                                <span class="font-bold block">Gestor da Parceria</span>
+                                <span class="text-slate-600 font-mono">Agente Público Municipal Designado</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            folha.innerHTML = htmlAtoEspecifico;
+            salvarBackupNuvemEconomico();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // EXPORTAÇÃO PARA MICROSOFT WORD (.DOC)
+        function exportarParaWordDoc() {
+            const folha = document.getElementById('folha-laudo-oficial-impressao');
+            if (!folha) return;
+
+            const conteudoHtml = folha.innerHTML;
+            const docCompleto = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                <head>
+                    <meta charset='utf-8'>
+                    <title>Laudo MROSC - Horizontina</title>
+                    <style>
+                        body { font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.3; }
+                        table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+                        th, td { border: 1px solid #333333; padding: 6px; font-size: 10pt; }
+                        th { background-color: #f2f2f2; font-weight: bold; }
+                        h2 { font-size: 14pt; margin: 0; }
+                        h3 { font-size: 12pt; margin: 3px 0; }
+                        p { margin: 6px 0; }
+                    </style>
+                </head>
+                <body>
+                    ${conteudoHtml}
+                </body>
+                </html>
+            `;
+
+            const blob = new Blob(['\ufeff' + docCompleto], { type: 'application/msword' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            const nomeArq = `Laudo_MROSC_${atoSelecionado ? atoSelecionado.toUpperCase() : 'ATO'}_${new Date().getTime()}.doc`;
+            link.download = nomeArq;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            mostrarToast("Documento editável (.doc) gerado com sucesso!");
+        }
+
+        function imprimirDocumento() {
+            window.print();
+        }
+
+        // BACKUP ATÔMICO EM NUVEM (ECONOMIA TOTAL: ZERO LEITURAS)
+        function salvarBackupNuvemEconomico() {
+            try {
+                const snapshot = {
+                    data_registro: new Date().toISOString(),
+                    ato: atoSelecionado,
+                    identificacao: dadosInstrucao.identificacao,
+                    decisao: dadosInstrucao[atoSelecionado]?.decisao || 'N/A'
+                };
+                // Salva em localStorage para redundância
+                const historicoLocal = JSON.parse(localStorage.getItem('prisma_backup_laudos_mrosc') || '[]');
+                historicoLocal.push(snapshot);
+                localStorage.setItem('prisma_backup_laudos_mrosc', JSON.stringify(historicoLocal));
+            } catch (e) {
+                console.warn("Falha no backup local", e);
+            }
+        }
+
+        // CARREGA EMENDAS DO CACHE LOCAL / FIREBASE PARA O PASSO 1
+        function carregarEmendasParaSelect() {
+            try {
+                const cache = localStorage.getItem('emendas_cache_v3');
+                if (cache) {
+                    const parsed = JSON.parse(cache);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        listaEmendasCarregadas = parsed;
+                    }
+                }
+            } catch (e) {
+                console.warn("Sem cache de emendas", e);
+            }
+        }
+    </script>
+</body>
+</html>
