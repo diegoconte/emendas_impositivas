@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRISMA • Manifesto Científico e de Governança Pública</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #0e0f10;
+            color: #e3e3e3;
+        }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0e0f10; }
+        ::-webkit-scrollbar-thumb { background: #26282c; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #33363b; }
+
+        /* Estilo sóbrio de prancheta técnica */
+        .technical-grid {
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            background-size: 28px 28px;
+        }
+
+        /* Botões de controle foscos e sem neon */
+        .btn-tab {
+            transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+        }
+        .btn-tab.active {
+            background-color: #1e293b;
+            border-color: #475569;
+            color: #f8fafc;
+        }
+
+        .actor-pill {
+            transition: all 0.15s ease;
+        }
+        .actor-pill.active {
+            border-color: #64748b;
+            background-color: #1e2229;
+        }
+    </style>
+</head>
+<body class="bg-[#0e0f10] text-[#e3e3e3] min-h-screen flex flex-col antialiased technical-grid">
+
+    <!-- BARRA SUPERIOR DE CONTEXTO CIENTÍFICO -->
+    <header class="bg-[#121315] border-b border-[#26282c] sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-[#1a1c20] border border-[#2a2c32] flex items-center justify-center text-base text-slate-200 font-mono font-bold">
+                    Σ
+                </div>
+                <div class="flex flex-col">
+                    <div class="flex items-center gap-2">
+                        <span class="font-extrabold text-base tracking-tight text-white">PRISMA</span>
+                        <span class="text-[10px] font-mono font-semibold uppercase tracking-wider text-slate-300 bg-[#1a1c20] px-2 py-0.5 rounded border border-[#2a2c32]">
+                            Pesquisa & Parceria Acadêmica • Governança Pública
+                        </span>
+                    </div>
+                    <span class="text-[11px] text-[#9aa0a6]">Plataforma de Rastreamento de Investimentos e Sistema de Metas Abertas</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <a href="index.html" class="flex items-center gap-1.5 text-xs font-semibold bg-[#17191d] hover:bg-[#202328] text-slate-200 border border-[#2e3137] px-3.5 py-2 rounded-lg transition">
+                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    <span>Portal Público</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-6">
+
+        <!-- CABEÇALHO COM DESMEMBRAMENTO DIDÁTICO DA SIGLA P.R.I.S.M.A. -->
+        <section class="bg-[#141518] border border-[#26282c] rounded-2xl p-6 sm:p-7">
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 pb-6 border-b border-[#232529]">
+                <div class="max-w-3xl">
+                    <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-[#1a1c20] border border-[#2a2c32] text-[10px] font-mono text-slate-300 mb-3">
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                        <span>MANIFESTO INSTITUCIONAL DE EFICIÊNCIA DO GASTO PÚBLICO</span>
+                    </div>
+                    <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight leading-snug">
+                        O Que É o PRISMA?
+                    </h1>
+                    <p class="text-xs sm:text-sm text-[#9aa0a6] mt-1.5 leading-relaxed">
+                        Uma matriz científica e operacional criada em Horizontina/RS para romper com a cultura das emendas como "compras isoladas" e instituir o rigor das <strong class="text-slate-200 font-semibold">Políticas Públicas Baseadas em Evidências</strong>.
+                    </p>
+                </div>
+
+                <!-- CARIMBO DE VINCULAÇÃO TERRITORIAL -->
+                <div class="bg-[#101113] p-3.5 rounded-xl border border-[#222428] text-xs font-mono space-y-1 shrink-0 w-full sm:w-auto">
+                    <div class="flex justify-between gap-4 text-[11px]">
+                        <span class="text-slate-400">Município:</span>
+                        <strong class="text-white">Horizontina / RS</strong>
+                    </div>
+                    <div class="flex justify-between gap-4 text-[11px]">
+                        <span class="text-slate-400">Região:</span>
+                        <strong class="text-slate-300">COREDE Fronteira Noroeste</strong>
+                    </div>
+                    <div class="flex justify-between gap-4 text-[11px]">
+                        <span class="text-slate-400">Base Normativa:</span>
+                        <strong class="text-slate-300">Decreto 5.730/25 • Lei 13.019/14</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AS 6 LETRAS ESTRUTURANTES DA SIGLA PRISMA -->
+            <div class="pt-5">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold block mb-3">
+                    Significado & Concepção da Sigla:
+                </span>
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+                    <div class="bg-[#101113] border border-[#232529] p-3 rounded-xl flex flex-col justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="w-6 h-6 rounded bg-[#1a1c20] text-slate-100 font-mono font-bold flex items-center justify-center text-xs border border-[#2e3137]">P</span>
+                            <strong class="text-xs text-white">Plataforma</strong>
+                        </div>
+                        <p class="text-[11px] text-[#9aa0a6] mt-2 leading-relaxed">Ambiente digital único integrando Executivo, Legislativo, Entidades e Cidadão.</p>
+                    </div>
+
+                    <div class="bg-[#101113] border border-[#232529] p-3 rounded-xl flex flex-col justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="w-6 h-6 rounded bg-[#1a1c20] text-slate-100 font-mono font-bold flex items-center justify-center text-xs border border-[#2e3137]">R</span>
+                            <strong class="text-xs text-white">Rastreamento</strong>
+                        </div>
+                        <p class="text-[11px] text-[#9aa0a6] mt-2 leading-relaxed">Trilha auditável desde o protocolo da emenda até a prestação de contas no Atende.Net.</p>
+                    </div>
+
+                    <div class="bg-[#101113] border border-[#232529] p-3 rounded-xl flex flex-col justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="w-6 h-6 rounded bg-[#1a1c20] text-slate-100 font-mono font-bold flex items-center justify-center text-xs border border-[#2e3137]">I</span>
+                            <strong class="text-xs text-white">Investimentos</strong>
+                        </div>
+                        <p class="text-[11px] text-[#9aa0a6] mt-2 leading-relaxed">Alocação orçamentária tratada como investimento social de retorno comprovado.</p>
+                    </div>
+
+                    <div class="bg-[#101113] border border-[#232529] p-3 rounded-xl flex flex-col justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="w-6 h-6 rounded bg-[#1a1c20] text-slate-100 font-mono font-bold flex items-center justify-center text-xs border border-[#2e3137]">S</span>
+                            <strong class="text-xs text-white">Sistema de</strong>
+                        </div>
+                        <p class="text-[11px] text-[#9aa0a6] mt-2 leading-relaxed">Método padronizado que substitui a subjetividade por formulários regulamentados.</p>
+                    </div>
+
+                    <div class="bg-[#101113] border border-[#232529] p-3 rounded-xl flex flex-col justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="w-6 h-6 rounded bg-[#1a1c20] text-slate-100 font-mono font-bold flex items-center justify-center text-xs border border-[#2e3137]">M</span>
+                            <strong class="text-xs text-white">Metas</strong>
+                        </div>
+                        <p class="text-[11px] text-[#9aa0a6] mt-2 leading-relaxed">Obrigação de entregar produtos mensuráveis: horas de serviço, alunos, famílias atendidas.</p>
+                    </div>
+
+                    <div class="bg-[#101113] border border-[#232529] p-3 rounded-xl flex flex-col justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="w-6 h-6 rounded bg-[#1a1c20] text-slate-100 font-mono font-bold flex items-center justify-center text-xs border border-[#2e3137]">A</span>
+                            <strong class="text-xs text-white">Abertas</strong>
+                        </div>
+                        <p class="text-[11px] text-[#9aa0a6] mt-2 leading-relaxed">Transparência ativa permanente (Art. 11 da Lei 13.019/14) para o controle da sociedade.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SELETOR DINÂMICO DE PAINÉIS (SUBSTITUI O TEXTO CORRIDO POR BOTÕES OBJETIVOS) -->
+        <div class="flex flex-wrap gap-2.5 border-b border-[#26282c] pb-2">
+            <button type="button" onclick="alternarPainel('balcao')" id="tab-btn-balcao" class="btn-tab active px-4 py-2.5 rounded-xl border border-[#2e3137] text-xs font-bold flex items-center gap-2">
+                <span>01</span>
+                <span>O Problema: Gasto de Balcão vs. Interesse Público</span>
+            </button>
+
+            <button type="button" onclick="alternarPainel('helice')" id="tab-btn-helice" class="btn-tab px-4 py-2.5 rounded-xl border border-[#2e3137] bg-[#141518] text-[#9aa0a6] text-xs font-bold flex items-center gap-2 hover:text-white">
+                <span>02</span>
+                <span>A Hélice Quádrupla da Governança</span>
+            </button>
+
+            <button type="button" onclick="alternarPainel('teoria')" id="tab-btn-teoria" class="btn-tab px-4 py-2.5 rounded-xl border border-[#2e3137] bg-[#141518] text-[#9aa0a6] text-xs font-bold flex items-center gap-2 hover:text-white">
+                <span>03</span>
+                <span>Teoria da Mudança & Casos Práticos</span>
+            </button>
+
+            <button type="button" onclick="alternarPainel('academia')" id="tab-btn-academia" class="btn-tab px-4 py-2.5 rounded-xl border border-[#2e3137] bg-[#141518] text-[#9aa0a6] text-xs font-bold flex items-center gap-2 hover:text-white">
+                <span>04</span>
+                <span>Rigor Científico & Pesquisa Aplicada</span>
+            </button>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- PAINEL 01: A FALÁCIA DO GASTO DE BALCÃO & O INTERESSE PÚBLICO -->
+        <!-- ========================================================================= -->
+        <section id="painel-balcao" class="space-y-6">
+            
+            <div class="bg-[#141518] border border-[#26282c] rounded-2xl p-6 sm:p-7 space-y-4">
+                <div class="max-w-3xl">
+                    <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold bg-[#1a1c20] px-2.5 py-1 rounded border border-[#2a2c32]">
+                        Diagnóstico Crítico da Gestão Municipal Brasileira
+                    </span>
+                    <h2 class="text-xl sm:text-2xl font-bold text-white mt-2.5 tracking-tight">
+                        Por Que Repassar Recursos Não Significa Solucionar Problemas?
+                    </h2>
+                    <p class="text-xs sm:text-sm text-[#9aa0a6] leading-relaxed mt-1.5">
+                        No Brasil, consolidou-se um abismo conceitual entre o que é <strong class="text-slate-200">fazer uma despesa contábil</strong> e o que é <strong class="text-slate-200">atender ao interesse público</strong>. Muitas vezes, tanto quem indica a emenda (vereadores e assessores) quanto as próprias entidades receptoras (OSCs) desconhecem as balizas legais do regime de parcerias.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                    
+                    <!-- CARTÃO: A VISÃO DISTORCIDA (O ERRO HISTÓRICO) -->
+                    <div class="bg-[#101113] border border-[#2e2626] rounded-xl p-5 space-y-3.5">
+                        <div class="flex items-center gap-2.5 pb-2.5 border-b border-[#262020]">
+                            <span class="w-6 h-6 rounded bg-[#201515] text-slate-300 font-mono text-xs font-bold flex items-center justify-center border border-[#3b2323]">✕</span>
+                            <div>
+                                <strong class="text-xs text-slate-200 block font-bold">A Ilusão da "Compra de Balcão"</strong>
+                                <span class="text-[10px] font-mono text-slate-500">Prática habitual sem foco no cidadão</span>
+                            </div>
+                        </div>
+
+                        <ul class="space-y-2.5 text-xs text-[#9aa0a6] leading-relaxed">
+                            <li class="flex items-start gap-2">
+                                <span class="text-slate-400 font-mono shrink-0">•</span>
+                                <div>
+                                    <strong class="text-slate-300">Equipamentos sem serviço contínuo:</strong>
+                                    O repasse é pleiteado para comprar ar-condicionado, computadores ou veículos isolados, sem que a entidade ofereça nenhuma ampliação de atendimento direto às famílias vulneráveis.
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-slate-400 font-mono shrink-0">•</span>
+                                <div>
+                                    <strong class="text-slate-300">Conformidade puramente de extrato:</strong>
+                                    A administração historicamente aprovava contas apenas verificando se a nota fiscal batia com o cheque. Se nenhuma criança aprendeu ou se a fila de saúde continuou igual, o fiscal não registrava.
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-slate-400 font-mono shrink-0">•</span>
+                                <div>
+                                    <strong class="text-slate-300">Restrição ilegítima a "sócios" (Clube Fechado):</strong>
+                                    Utilização de dinheiro do contribuinte para subsidiar atividades restritas a associados ou matriculados em entidades privadas, violando a impessoalidade e o Art. 3.4.1 do Decreto Municipal.
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-slate-400 font-mono shrink-0">•</span>
+                                <div>
+                                    <strong class="text-slate-300">Burla da licitação ordinária:</strong>
+                                    Entidades usadas como "atalho de compra" para itens que a própria prefeitura deveria licitar ou fornecer diretamente via concorrência pública.
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- CARTÃO: A VISÃO DO PRISMA (INTERESSE PÚBLICO REAL) -->
+                    <div class="bg-[#101113] border border-[#202924] rounded-xl p-5 space-y-3.5">
+                        <div class="flex items-center gap-2.5 pb-2.5 border-b border-[#1b2b21]">
+                            <span class="w-6 h-6 rounded bg-[#13241a] text-slate-200 font-mono text-xs font-bold flex items-center justify-center border border-[#21432f]">✓</span>
+                            <div>
+                                <strong class="text-xs text-slate-200 block font-bold">O Interesse Público no Paradigma PRISMA</strong>
+                                <span class="text-[10px] font-mono text-slate-500">MROSC • Lei 13.019/14 & Decreto 5.730/25</span>
+                            </div>
+                        </div>
+
+                        <ul class="space-y-2.5 text-xs text-[#9aa0a6] leading-relaxed">
+                            <li class="flex items-start gap-2">
+                                <span class="text-slate-300 font-mono shrink-0">•</span>
+                                <div>
+                                    <strong class="text-slate-300">Diagnóstico do Problema Público Obrigatório:</strong>
+                                    Nenhum recurso é indicado sem responder previamente: <em>"Qual carência comunitária (saúde, educação ou inclusão) será solucionada e para quem?"</em>
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-slate-300 font-mono shrink-0">•</span>
+                                <div>
+                                    <strong class="text-slate-300">Universalidade e Gratuidade Inegociáveis:</strong>
+                                    O serviço financiado com recurso público deve ser obrigatoriamente gratuito e acessível a qualquer munícipe que se enquadre nos critérios sociais, vedada qualquer preferência a sócios.
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-slate-300 font-mono shrink-0">•</span>
+                                <div>
+                                    <strong class="text-slate-300">Cadeia Causal (Linha de Base vs. Meta Física):</strong>
+                                    Exige-se registrar o ponto de partida (ex: 25 crianças na fila sem fonoaudiologia) e auditar a entrega na prestação de contas (1.000 horas de sessões atestadas com laudos nominais).
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-slate-300 font-mono shrink-0">•</span>
+                                <div>
+                                    <strong class="text-slate-300">Blindagem e Segurança Jurídica nos 4 Atos:</strong>
+                                    O servidor e a comissão atuam protegidos pelos formulários formais dos Anexos VIII, IX, X e XI, com análise de 3 orçamentos, regra de revelia de 15 dias e vedações estritas do Art. 39.
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- QUADRO DE VEDAÇÕES EXPRESSAS QUE O SISTEMA AUDITA -->
+            <div class="bg-[#141518] border border-[#26282c] rounded-2xl p-5 sm:p-6 space-y-3">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold block">
+                    Vedações Inegociáveis do Marco Regulatório (Art. 39 da Lei 13.019/14 & Item 3.4.1 do Decreto Municipal):
+                </span>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs leading-relaxed">
+                    <div class="p-3 bg-[#101113] rounded-xl border border-[#232529]">
+                        <strong class="text-slate-300 block mb-1">Vedação a Dirigentes Públicos</strong>
+                        <p class="text-[#9aa0a6] text-[11px]">Proibido repasse a entidades cujos dirigentes sejam vereadores, secretários, prefeitos ou comissionados municipais (e parentes até 2º grau).</p>
+                    </div>
+                    <div class="p-3 bg-[#101113] rounded-xl border border-[#232529]">
+                        <strong class="text-slate-300 block mb-1">Vedação a Restrições de Acesso</strong>
+                        <p class="text-[#9aa0a6] text-[11px]">Proibido destinar recursos públicos para atividades exclusivas de sócios de clubes, agremiações ou entidades privadas fechadas.</p>
+                    </div>
+                    <div class="p-3 bg-[#101113] rounded-xl border border-[#232529]">
+                        <strong class="text-slate-300 block mb-1">Pesquisa de Preços Obrigatória</strong>
+                        <p class="text-[#9aa0a6] text-[11px]">Mínimo obrigatório de 3 orçamentos de mercado anexados ao plano de trabalho no Atende.Net para garantir a economicidade pública.</p>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- PAINEL 02: A HÉLICE QUÁDRUPLA DA GOVERNANÇA SOCIAL -->
+        <!-- ========================================================================= -->
+        <section id="painel-helice" class="hidden space-y-6">
+            
+            <div class="bg-[#141518] border border-[#26282c] rounded-2xl p-6 sm:p-7 space-y-4">
+                <div class="max-w-3xl">
+                    <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold bg-[#1a1c20] px-2.5 py-1 rounded border border-[#2a2c32]">
+                        Fundamento Teórico • Carayannis & Campbell (2009, 2012)
+                    </span>
+                    <h2 class="text-xl sm:text-2xl font-bold text-white mt-2.5 tracking-tight">
+                        O Ecossistema da Hélice Quádrupla no Município
+                    </h2>
+                    <p class="text-xs sm:text-sm text-[#9aa0a6] leading-relaxed mt-1.5">
+                        A gestão municipal não pode operar isolada em gabinetes. O modelo da Hélice Quádrupla articula quatro forças sociais autônomas que cooperam, se fiscalizam e garantem que os projetos sociais não morram quando o mandato político terminar.
+                    </p>
+                </div>
+
+                <!-- SELETOR DOS 4 ATORES DA HÉLICE QUÁDRUPLA -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2">
+                    <button type="button" onclick="selecionarAtorHelice('publico')" id="pill-ator-publico" class="actor-pill active text-left p-3.5 bg-[#101113] border border-[#33363d] rounded-xl">
+                        <span class="text-[10px] font-mono text-slate-400 font-bold block">HÉLICE 01</span>
+                        <strong class="text-xs text-white block mt-0.5">Poder Público</strong>
+                        <span class="text-[11px] text-[#9aa0a6] block mt-1">Executivo & Legislativo</span>
+                    </button>
+
+                    <button type="button" onclick="selecionarAtorHelice('sociedade')" id="pill-ator-sociedade" class="actor-pill text-left p-3.5 bg-[#101113] border border-[#232529] rounded-xl hover:border-[#33363d]">
+                        <span class="text-[10px] font-mono text-slate-400 font-bold block">HÉLICE 02</span>
+                        <strong class="text-xs text-white block mt-0.5">Terceiro Setor</strong>
+                        <span class="text-[11px] text-[#9aa0a6] block mt-1">OSCs & Sociedade Civil</span>
+                    </button>
+
+                    <button type="button" onclick="selecionarAtorHelice('academia')" id="pill-ator-academia" class="actor-pill text-left p-3.5 bg-[#101113] border border-[#232529] rounded-xl hover:border-[#33363d]">
+                        <span class="text-[10px] font-mono text-slate-400 font-bold block">HÉLICE 03</span>
+                        <strong class="text-xs text-white block mt-0.5">Academia & Pesquisa</strong>
+                        <span class="text-[11px] text-[#9aa0a6] block mt-1">Rigor Científico & Evidências</span>
+                    </button>
+
+                    <button type="button" onclick="selecionarAtorHelice('mercado')" id="pill-ator-mercado" class="actor-pill text-left p-3.5 bg-[#101113] border border-[#232529] rounded-xl hover:border-[#33363d]">
+                        <span class="text-[10px] font-mono text-slate-400 font-bold block">HÉLICE 04</span>
+                        <strong class="text-xs text-white block mt-0.5">Setor Produtivo</strong>
+                        <span class="text-[11px] text-[#9aa0a6] block mt-1">Indústria, Cooperativas & COREDE</span>
+                    </button>
+                </div>
+
+                <!-- PAINEL DE DETALHE DO ATOR SELECIONADO -->
+                <div class="bg-[#101113] border border-[#26282c] rounded-xl p-5 sm:p-6 space-y-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-3 border-b border-[#232529]">
+                        <div>
+                            <span id="detalhe-codigo-ator" class="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">HÉLICE 01 • GOVERNANÇA E ESTADO</span>
+                            <h3 id="detalhe-titulo-ator" class="text-base font-bold text-white mt-0.5">Poder Público Municipal (Prefeitura & Câmara de Vereadores)</h3>
+                        </div>
+                        <span id="detalhe-norma-ator" class="text-xs font-mono text-slate-400 bg-[#161719] px-2.5 py-1 rounded border border-[#2a2c30]">Decreto Municipal nº 5.730/2025 • Art. 166 CF/88</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs leading-relaxed">
+                        <div class="space-y-1">
+                            <strong class="text-slate-300 block">Papel Institucional:</strong>
+                            <p id="detalhe-papel-ator" class="text-[#9aa0a6]">
+                                Fixa as metas plurianuais no PPA, autoriza as despesas por meio da LDO e LOA e audita a legalidade orçamentária. As emendas impositivas deixam de ser negociadas por conveniência e passam a atender estritamente à universalidade pública.
+                            </p>
+                        </div>
+                        <div class="space-y-1">
+                            <strong class="text-slate-300 block">Mecanismo de Controle & Efetividade:</strong>
+                            <p id="detalhe-controle-ator" class="text-[#9aa0a6]">
+                                Exige conformidade técnica estrita do Artigo 35-V da Lei 13.019/14 (Anexo IX), emissão prévia de pareceres técnicos, reserva de dotação e vedação expressa a desvios de finalidade ou compras de balcão.
+                            </p>
+                        </div>
+                        <div class="space-y-1">
+                            <strong class="text-slate-300 block">Contribuição para a Pesquisa Científica:</strong>
+                            <p id="detalhe-tese-ator" class="text-[#9aa0a6]">
+                                Fornece dados abertos e rastreabilidade total de processos via sistema Atende.Net, permitindo mensurar a relação entre a intenção legislativa e a efetiva entrega do Executivo à população.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- PAINEL 03: TEORIA DA MUDANÇA & CASOS PRÁTICOS -->
+        <!-- ========================================================================= -->
+        <section id="painel-teoria" class="hidden space-y-6">
+            
+            <div class="bg-[#141518] border border-[#26282c] rounded-2xl p-6 sm:p-7 space-y-4">
+                <div class="max-w-3xl">
+                    <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold bg-[#1a1c20] px-2.5 py-1 rounded border border-[#2a2c32]">
+                        Metodologia • Theory of Change (ToC)
+                    </span>
+                    <h2 class="text-xl sm:text-2xl font-bold text-white mt-2.5 tracking-tight">
+                        A Cadeia Lógica: Como a Mudança Social Ocorre
+                    </h2>
+                    <p class="text-xs sm:text-sm text-[#9aa0a6] leading-relaxed mt-1.5">
+                        Selecione um dos desafios públicos abaixo para visualizar como o PRISMA estrutura cada elo da cadeia de valor, desde a alocação do centavo orçamentário até a transformação mensurável na vida da comunidade.
+                    </p>
+                </div>
+
+                <!-- SELETOR DE CASOS PRÁTICOS -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2">
+                    <button type="button" onclick="selecionarCasoMudanca('saude_tea')" id="btn-caso-saude_tea" class="p-3.5 bg-[#101113] border border-[#475569] rounded-xl text-left transition">
+                        <span class="text-[10px] font-mono text-slate-400 font-bold block uppercase">Saúde Especializada</span>
+                        <strong class="text-xs text-white block mt-0.5">Estimulação Sensorial no Espectro Autista</strong>
+                        <span class="text-[11px] text-[#9aa0a6] block mt-1">Parceria APAE Horizontina • R$ 50.000,00</span>
+                    </button>
+
+                    <button type="button" onclick="selecionarCasoMudanca('trabalho_solda')" id="btn-caso-trabalho_solda" class="p-3.5 bg-[#101113] border border-[#232529] rounded-xl text-left transition hover:border-[#33363d]">
+                        <span class="text-[10px] font-mono text-slate-400 font-bold block uppercase">Desenvolvimento Econômico</span>
+                        <strong class="text-xs text-white block mt-0.5">Qualificação Industrial Metalmecânica</strong>
+                        <span class="text-[11px] text-[#9aa0a6] block mt-1">Parceria ACEHOR / SENAI • R$ 60.000,00</span>
+                    </button>
+
+                    <button type="button" onclick="selecionarCasoMudanca('educacao_contraturno')" id="btn-caso-educacao_contraturno" class="p-3.5 bg-[#101113] border border-[#232529] rounded-xl text-left transition hover:border-[#33363d]">
+                        <span class="text-[10px] font-mono text-slate-400 font-bold block uppercase">Juventude & Cidadania</span>
+                        <strong class="text-xs text-white block mt-0.5">Oficinas no Contraturno Escolar</strong>
+                        <span class="text-[11px] text-[#9aa0a6] block mt-1">Parceria Assoc. Viver Bem • R$ 38.500,00</span>
+                    </button>
+                </div>
+
+                <!-- CADEIA DE 5 ELOS DA TEORIA DA MUDANÇA -->
+                <div class="bg-[#101113] border border-[#26282c] rounded-xl p-5 sm:p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-3.5">
+                        
+                        <!-- ELO 1: DIAGNÓSTICO -->
+                        <div class="bg-[#141518] p-3.5 rounded-xl border border-[#232529] space-y-1.5">
+                            <span class="text-[10px] font-mono font-bold text-slate-300 bg-[#1a1c20] px-2 py-0.5 rounded border border-[#2e3137] block w-fit">
+                                ELO 01 • PROBLEMA
+                            </span>
+                            <strong class="text-xs text-white block font-semibold">Diagnóstico da Carência</strong>
+                            <p id="toc-diagnostico" class="text-[11px] text-[#9aa0a6] leading-relaxed">
+                                25 crianças neuroatípicas aguardando atendimento continuado por escassez de vagas públicas locais.
+                            </p>
+                        </div>
+
+                        <!-- ELO 2: LINHA DE BASE -->
+                        <div class="bg-[#141518] p-3.5 rounded-xl border border-[#232529] space-y-1.5">
+                            <span class="text-[10px] font-mono font-bold text-slate-300 bg-[#1a1c20] px-2 py-0.5 rounded border border-[#2e3137] block w-fit">
+                                ELO 02 • BASELINE
+                            </span>
+                            <strong class="text-xs text-white block font-semibold">Linha de Base Documentada</strong>
+                            <p id="toc-baseline" class="text-[11px] text-[#9aa0a6] leading-relaxed">
+                                0 horas de integração sensorial disponíveis na rede pública municipal antes da intervenção.
+                            </p>
+                        </div>
+
+                        <!-- ELO 3: BLINDAGEM MROSC -->
+                        <div class="bg-[#141518] p-3.5 rounded-xl border border-[#232529] space-y-1.5">
+                            <span class="text-[10px] font-mono font-bold text-slate-300 bg-[#1a1c20] px-2 py-0.5 rounded border border-[#2e3137] block w-fit">
+                                ELO 03 • MROSC
+                            </span>
+                            <strong class="text-xs text-white block font-semibold">Plano & Blindagem Legal</strong>
+                            <p id="toc-mrosc" class="text-[11px] text-[#9aa0a6] leading-relaxed">
+                                Termo de Fomento pactuado via Anexos VIII e IX; equipe técnica habilitada, sem agentes públicos dirigentes.
+                            </p>
+                        </div>
+
+                        <!-- ELO 4: PRODUTO AUDITADO -->
+                        <div class="bg-[#141518] p-3.5 rounded-xl border border-[#232529] space-y-1.5">
+                            <span class="text-[10px] font-mono font-bold text-slate-300 bg-[#1a1c20] px-2 py-0.5 rounded border border-[#2e3137] block w-fit">
+                                ELO 04 • OUTPUT
+                            </span>
+                            <strong class="text-xs text-white block font-semibold">Meta Física Atestada</strong>
+                            <p id="toc-output" class="text-[11px] text-[#9aa0a6] leading-relaxed">
+                                1.000 horas individuais de estimulação sensorial com listas nominais e relatórios mensais do fiscal.
+                            </p>
+                        </div>
+
+                        <!-- ELO 5: IMPACTO SOCIAL -->
+                        <div class="bg-[#141518] p-3.5 rounded-xl border border-[#232529] space-y-1.5">
+                            <span class="text-[10px] font-mono font-bold text-slate-300 bg-[#1a1c20] px-2 py-0.5 rounded border border-[#2e3137] block w-fit">
+                                ELO 05 • IMPACT
+                            </span>
+                            <strong class="text-xs text-white block font-semibold">Impacto e Perenidade</strong>
+                            <p id="toc-impact" class="text-[11px] text-[#9aa0a6] leading-relaxed">
+                                92% de evolução motora atestada por laudo clínico; 0 glosas financeiras e bens incorporados à política pública.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="mt-5 pt-3 border-t border-[#232529] flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs text-[#9aa0a6] gap-2 font-mono">
+                        <div>
+                            <span>Alinhamento Regional: </span>
+                            <strong id="toc-eixo-corede" class="text-white">Eixo 02: Saúde, Inclusão Social e Qualidade de Vida Regional (COREDE)</strong>
+                        </div>
+                        <span class="text-slate-300 font-semibold">✓ Nexo Causal Auditável perante o TCE-RS</span>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- PAINEL 04: RIGOR CIENTÍFICO & TESE DE DOUTORADO -->
+        <!-- ========================================================================= -->
+        <section id="painel-academia" class="hidden space-y-6">
+            
+            <div class="bg-[#141518] border border-[#26282c] rounded-2xl p-6 sm:p-7 space-y-5">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-[#232529]">
+                    <div>
+                        <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold bg-[#1a1c20] px-2.5 py-1 rounded border border-[#2a2c32]">
+                            Pesquisa Aplicada em Governança Pública
+                        </span>
+                        <h2 class="text-xl sm:text-2xl font-bold text-white mt-2 tracking-tight">
+                            A Conexão Entre a Gestão Pública e a Produção Científica
+                        </h2>
+                    </div>
+                    <span class="text-xs font-mono text-slate-300 bg-[#101113] px-3 py-1.5 rounded-lg border border-[#232529]">
+                        Inovação em Políticas Públicas
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs leading-relaxed">
+                    <div class="space-y-3">
+                        <strong class="text-slate-200 text-sm block">Por Que Integrar a Academia à Gestão Municipal?</strong>
+                        <p class="text-[#9aa0a6]">
+                            Historicamente, a administração pública municipal e os centros de pesquisa operam de forma desconectada: a academia diagnostica as ineficiências em artigos teóricos, enquanto o município enfrenta carências práticas imediatas sem ferramentas analíticas padronizadas.
+                        </p>
+                        <p class="text-[#9aa0a6]">
+                            A integração da pesquisa científica ao PRISMA estabelece uma via de mão dupla. O município converte suas rotinas operacionais em laboratório de inovação em governança, testando na prática instrumentos que asseguram transparência, impessoalidade e blindagem jurídica. Em contrapartida, a pesquisa oferece métodos rigorosos de auditoria de dados e avaliação de impacto social.
+                        </p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <strong class="text-slate-200 text-sm block">Rigor Metodológico & Avaliação de Impacto:</strong>
+                        <div class="p-4 bg-[#101113] rounded-xl border border-[#232529] space-y-3 text-xs leading-relaxed">
+                            <p class="text-[#9aa0a6]">
+                                A presença acadêmica atua como fiadora da neutralidade metodológica. Ela audita a veracidade das linhas de base, analisa o nexo de causalidade entre os recursos aplicados e os resultados entregues e impede avaliações puramente formais ou complacentes.
+                            </p>
+                            <p class="text-[#9aa0a6]">
+                                O resultado é um ecossistema replicável: a experiência consolidada em Horizontina gera conhecimento científico aplicável a outros municípios brasileiros que buscam qualificar o gasto público e superar a lógica do compadrio político.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- SEÇÃO DE AUTORIA E INICIATIVA FUNCIONAL (SEMPRE VISÍVEL ANTES DO RODAPÉ) -->
+        <section class="bg-[#121316] border border-[#232529] rounded-2xl p-5 sm:p-6">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-[#1f2125] pb-3 mb-3">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+                    <span class="text-[10px] font-mono text-slate-400 font-bold uppercase tracking-wider">Origem & Iniciativa Funcional</span>
+                </div>
+                <span class="text-xs font-mono text-slate-300 font-semibold">Diego e Raquel</span>
+            </div>
+            <div class="text-xs text-[#9aa0a6] space-y-2 leading-relaxed">
+                <p>
+                    O PRISMA não nasceu de determinação superior, de contratação externa de consultoria ou de projeto com qualquer remuneração ou gratificação extraordinária. Diego e Raquel são servidores públicos municipais que estruturaram a iniciativa de forma espontânea.
+                </p>
+                <p>
+                    Nenhum dos dois possui formação na área de Tecnologia da Informação. O sistema foi edificado no tempo que restava entre as rotinas de trabalho, movido pela convicção de que o imposto pago pelo cidadão precisa se transformar em serviço de qualidade — com gratuidade, impessoalidade e rigor técnico —, rompendo a lógica da politicagem paroquial para consolidar uma autêntica política pública republicana.
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-[#101113] border-t border-[#232529] py-6 text-xs text-[#9aa0a6] mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div>
+                <span class="font-semibold text-white">PRISMA • Plataforma de Rastreamento de Investimentos e Sistema de Metas Abertas</span>
+                <p class="text-[11px] text-[#9aa0a6]">Pesquisa Aplicada em Governança Pública • Decreto Municipal nº 5.730/2025 • Horizontina / RS</p>
+            </div>
+            <span class="text-[11px] font-mono text-slate-400">Horizontina / RS • 2026</span>
+        </div>
+    </footer>
+
+    <!-- LOGICA PURA DE NAVEGAÇÃO ENTRE PAINÉIS (SEM SCROLL PERGAMINHO) -->
+    <script>
+        // ALTERNA PAINÉIS PRINCIPAIS
+        function alternarPainel(painelId) {
+            const paineis = ['balcao', 'helice', 'teoria', 'academia'];
+            
+            paineis.forEach(p => {
+                const sec = document.getElementById(`painel-${p}`);
+                const btn = document.getElementById(`tab-btn-${p}`);
+                if (sec && btn) {
+                    if (p === painelId) {
+                        sec.classList.remove('hidden');
+                        btn.classList.add('active');
+                        btn.classList.remove('bg-[#141518]', 'text-[#9aa0a6]');
+                        btn.classList.add('text-white');
+                    } else {
+                        sec.classList.add('hidden');
+                        btn.classList.remove('active', 'text-white');
+                        btn.classList.add('bg-[#141518]', 'text-[#9aa0a6]');
+                    }
+                }
+            });
+        }
+
+        // BANCO DE DADOS DA HÉLICE QUÁDRUPLA
+        const DADOS_HELICE = {
+            publico: {
+                codigo: "HÉLICE 01 • GOVERNANÇA E ESTADO",
+                titulo: "Poder Público Municipal (Prefeitura & Câmara de Vereadores)",
+                norma: "Decreto Municipal nº 5.730/2025 • Art. 166 CF/88",
+                papel: "Fixa as metas plurianuais no PPA, autoriza as despesas por meio da LDO e LOA e audita a legalidade orçamentária. As emendas impositivas deixam de ser negociadas por conveniência e passam a atender estritamente à universalidade pública.",
+                controle: "Exige conformidade técnica estrita do Artigo 35-V da Lei 13.019/14 (Anexo IX), emissão prévia de pareceres técnicos, reserva de dotação e vedação expressa a desvios de finalidade ou compras de balcão.",
+                tese: "Fornece dados abertos e rastreabilidade total de processos via sistema Atende.Net, permitindo mensurar a relação entre a intenção legislativa e a efetiva entrega do Executivo à população."
+            },
+            sociedade: {
+                codigo: "HÉLICE 02 • SOCIEDADE CIVIL ORGANIZADA",
+                titulo: "Organizações da Sociedade Civil (OSCs & Terceiro Setor)",
+                norma: "Lei Federal nº 13.019/2014 • MROSC",
+                papel: "Executa serviços contínuos onde a máquina pública não tem capilaridade direta. Não atua como 'fornecedora' de compras, mas como parceira voluntária em regime de mútua cooperação para a consecução de finalidades públicas compartilhadas.",
+                controle: "Cumprimento obrigatório dos 22 itens do Plano de Trabalho e 12 itens de habilitação jurídica (Anexo VIII), proibição de destinação a associados e comprovação de transparência ativa (Art. 11).",
+                tese: "Evidencia que entidades qualificadas aumentam a eficiência alocativa do gasto público quando protegidas de ingerências político-partidárias e dotadas de segurança jurídica."
+            },
+            academia: {
+                codigo: "HÉLICE 03 • CONHECIMENTO E RIGOR CIENTÍFICO",
+                titulo: "Academia & Pesquisa Aplicada em Governança",
+                norma: "Metodologia Baseada em Evidências • Teoria da Mudança",
+                papel: "Conecta a administração pública municipal à vanguarda da literatura científica sobre finanças públicas, avaliação de impacto e tomada de decisão informada por dados empíricos.",
+                controle: "Auditoria externa dos dados, cálculo do contrafactual, monitoramento de linhas de base e blindagem do ecossistema contra desvios metodológicos ou relatórios complacentes.",
+                tese: "Formaliza e valida a experiência de Horizontina em modelo de governança científica replicável, criando uma matriz de gestão baseada em evidências passível de adoção por outros municípios brasileiros."
+            },
+            mercado: {
+                codigo: "HÉLICE 04 • SUSTENTABILIDADE E DESENVOLVIMENTO REGIONAL",
+                titulo: "Setor Produtivo, Cooperativas & COREDE Noroeste",
+                norma: "Planejamento Estratégico Regional COREDE 2030",
+                papel: "Garante a sustentabilidade de longo prazo para que as intervenções sociais gerem inclusão produtiva, empregabilidade e autonomia, sem dependência eterna do orçamento público municipal.",
+                controle: "Conexão direta das metas dos projetos com a demanda real por trabalhadores qualificados na indústria metalmecânica local e com os programas agrícolas do território.",
+                tese: "Comprova a articulação horizontal entre o orçamento municipal e os eixos estratégicos regionais estabelecidos pelo Conselho Regional de Desenvolvimento (COREDE)."
+            }
+        };
+
+        function selecionarAtorHelice(chave) {
+            const d = DADOS_HELICE[chave];
+            if (!d) return;
+
+            ['publico', 'sociedade', 'academia', 'mercado'].forEach(k => {
+                const el = document.getElementById(`pill-ator-${k}`);
+                if (el) {
+                    if (k === chave) {
+                        el.classList.add('active', 'border-[#64748b]');
+                        el.classList.remove('border-[#232529]');
+                    } else {
+                        el.classList.remove('active', 'border-[#64748b]');
+                        el.classList.add('border-[#232529]');
+                    }
+                }
+            });
+
+            document.getElementById('detalhe-codigo-ator').textContent = d.codigo;
+            document.getElementById('detalhe-titulo-ator').textContent = d.titulo;
+            document.getElementById('detalhe-norma-ator').textContent = d.norma;
+            document.getElementById('detalhe-papel-ator').textContent = d.papel;
+            document.getElementById('detalhe-controle-ator').textContent = d.controle;
+            document.getElementById('detalhe-tese-ator').textContent = d.tese;
+        }
+
+        // CASOS PRÁTICOS DA TEORIA DA MUDANÇA
+        const CASOS_MUDANCA = {
+            saude_tea: {
+                diagnostico: "25 crianças neuroatípicas aguardando atendimento continuado por escassez de vagas públicas locais.",
+                baseline: "0 horas de integração sensorial disponíveis na rede pública municipal antes da intervenção.",
+                mrosc: "Termo de Fomento pactuado via Anexos VIII e IX; equipe técnica habilitada, sem agentes públicos dirigentes.",
+                output: "1.000 horas individuais de estimulação sensorial com listas nominais e relatórios mensais do fiscal.",
+                impact: "92% de evolução motora atestada por laudo clínico; 0 glosas financeiras e bens incorporados à política pública.",
+                corede: "Eixo 02: Saúde, Inclusão Social e Qualidade de Vida Regional (COREDE)"
+            },
+            trabalho_solda: {
+                diagnostico: "Demanda reprimida de soldadores e mecânicos industriais em Horizontina frente à carência de jovens qualificados.",
+                baseline: "0 turmas descentralizadas de solda industrial ativa voltadas para jovens de baixa renda no município.",
+                mrosc: "Termo de Colaboração com matriz de pesquisa de preços auditada (mínimo de 3 orçamentos conforme Item 3.4.4).",
+                output: "40 jovens com 160 horas de capacitação teórica e prática com certificação oficial homologada.",
+                impact: "65% dos egressos contratados pela indústria metalmecânica em até 90 dias após a conclusão do projeto.",
+                corede: "Eixo 01: Inovação, Indústria Metalmecânica e Emprego Regional (COREDE)"
+            },
+            educacao_contraturno: {
+                diagnostico: "Vulnerabilidade social e evasão escolar no Bairro Campina no turno inverso das aulas ordinárias.",
+                baseline: "Demanda reprimida de 45 jovens sem acesso a reforço escolar ou contraturno estruturado na comunidade.",
+                mrosc: "Parecer Técnico Art. 35-V homologado pelo órgão gestor com aprovação do Plano de Trabalho e metas temporais.",
+                output: "30 jovens acolhidos durante 10 meses com reforço pedagógico, iniciação científica e acompanhamento familiar.",
+                impact: "Queda de 80% nos índices de infrequência escolar e zero reprovações registradas entre os alunos participantes.",
+                corede: "Eixo 03: Educação, Ciência, Tecnologia e Formação Docente (COREDE)"
+            }
+        };
+
+        function selecionarCasoMudanca(chave) {
+            const c = CASOS_MUDANCA[chave];
+            if (!c) return;
+
+            ['saude_tea', 'trabalho_solda', 'educacao_contraturno'].forEach(k => {
+                const btn = document.getElementById(`btn-caso-${k}`);
+                if (btn) {
+                    if (k === chave) {
+                        btn.classList.add('border-[#475569]');
+                        btn.classList.remove('border-[#232529]');
+                    } else {
+                        btn.classList.remove('border-[#475569]');
+                        btn.classList.add('border-[#232529]');
+                    }
+                }
+            });
+
+            document.getElementById('toc-diagnostico').textContent = c.diagnostico;
+            document.getElementById('toc-baseline').textContent = c.baseline;
+            document.getElementById('toc-mrosc').textContent = c.mrosc;
+            document.getElementById('toc-output').textContent = c.output;
+            document.getElementById('toc-impact').textContent = c.impact;
+            document.getElementById('toc-eixo-corede').textContent = c.corede;
+        }
+    </script>
+
+</body>
+</html>
