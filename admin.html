@@ -40,9 +40,66 @@
 
     <div id="toast-container" class="fixed bottom-4 right-4 z-[100] flex flex-col gap-2"></div>
 
-    <!-- ========================================================================= -->
-    <!--                          MODAL DE CONFIRMAÇÃO                             -->
-    <!-- ========================================================================= -->
+    <!-- MODAL DE BOAS-VINDAS / DUPLO PAINEL DE ATIVIDADES -->
+    <div id="welcome-modal" class="hidden fixed inset-0 bg-black/75 z-[95] flex items-center justify-center backdrop-blur-sm transition-opacity p-4">
+        <div id="welcome-card" class="bg-slate-800 rounded-2xl shadow-2xl p-5 sm:p-6 w-full max-w-xl max-h-[90vh] flex flex-col border border-slate-700 transform transition-all relative overflow-hidden">
+            <div class="absolute -right-12 -top-12 w-36 h-36 bg-blue-600/10 rounded-full filter blur-2xl pointer-events-none"></div>
+            
+            <div class="flex items-start gap-3.5 mb-3 shrink-0">
+                <div class="w-11 h-11 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-2xl shrink-0 text-blue-400 shadow-inner">
+                    👋
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-blue-400 bg-blue-900/30 px-2 py-0.5 rounded border border-blue-800/50">Acesso Identificado</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-100 mt-0.5">
+                        Bem-vindo(a), <span id="welcome-nome-usuario" class="text-blue-400">Usuário</span>!
+                    </h3>
+                    <p class="text-xs text-slate-400">Resumo de movimentações recentes no sistema de emendas.</p>
+                </div>
+            </div>
+
+            <div class="my-2 space-y-3 overflow-y-auto pr-1 flex-grow">
+                <!-- Seção 1: Últimas da Equipe -->
+                <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-700/60">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                            Últimas movimentações de toda a equipe
+                        </span>
+                        <span class="text-[10px] text-slate-500 font-mono">Geral</span>
+                    </div>
+                    <ul id="welcome-lista-equipe" class="space-y-2 text-xs">
+                        <!-- Preenchido via JS -->
+                    </ul>
+                </div>
+
+                <!-- Seção 2: Últimas do Usuário Logado -->
+                <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-700/60">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                            Suas últimas alterações registradas
+                        </span>
+                        <span class="text-[10px] text-emerald-400/80 font-mono">Pessoal</span>
+                    </div>
+                    <ul id="welcome-lista-usuario" class="space-y-2 text-xs">
+                        <!-- Preenchido via JS -->
+                    </ul>
+                </div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-700/50 flex justify-end shrink-0">
+                <button type="button" id="btn-welcome-continuar" class="w-full sm:w-auto px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-md transition flex items-center justify-center gap-2 border border-blue-500">
+                    Continuar para o painel
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIRMAÇÃO -->
     <div id="confirm-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-[80] flex items-center justify-center backdrop-blur-sm transition-opacity">
         <div class="bg-slate-800 rounded-xl shadow-2xl p-6 w-full max-w-sm mx-4 transform transition-all border border-slate-700">
             <h3 class="text-lg font-bold text-slate-100 mb-2" id="confirm-title">Atenção</h3>
@@ -54,9 +111,7 @@
         </div>
     </div>
 
-    <!-- ========================================================================= -->
-    <!--                              TELA DE LOGIN                                -->
-    <!-- ========================================================================= -->
+    <!-- TELA DE LOGIN -->
     <div id="login-screen" class="flex items-center justify-center min-h-screen bg-slate-900">
         <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl w-full max-w-md mx-4 border border-slate-700">
             <div class="text-center mb-8">
@@ -78,9 +133,7 @@
         </div>
     </div>
 
-    <!-- ========================================================================= -->
-    <!--                      TELA PRINCIPAL (DASHBOARD)                           -->
-    <!-- ========================================================================= -->
+    <!-- TELA PRINCIPAL (DASHBOARD) -->
     <div id="dashboard-screen" class="hidden flex-col flex-grow">
         
         <!-- NAVBAR -->
@@ -94,6 +147,7 @@
                             <span id="app-version-admin" class="text-[10px] font-mono font-medium text-slate-400 bg-slate-900/50 px-2 py-0.5 rounded border border-slate-700 shadow-sm hidden sm:inline-block">Carregando...</span>
                         </div>
                     </div>
+
                     <div class="flex items-center gap-4">
                         <span class="text-sm text-slate-400 hidden sm:block" id="user-email-display">admin@...</span>
                         <button id="btn-logout" class="text-sm font-medium text-slate-300 hover:text-red-400 px-3 py-2 rounded-md hover:bg-slate-700 transition">Sair</button>
@@ -104,6 +158,36 @@
         
         <main class="flex-grow p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
             
+            <!-- PAINEL EXCLUSIVO PRISMA (PESQUISA & DOUTORADO - DIEGO & RAQUEL) -->
+            <div id="painel-prisma-admin" class="hidden mb-6 bg-gradient-to-r from-blue-950/80 via-slate-900 to-indigo-950/80 border border-blue-800/50 rounded-xl p-4 shadow-md flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-blue-600/30 border border-blue-500/40 flex items-center justify-center text-blue-300 shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-sm font-bold text-white tracking-tight">Ambiente de Pesquisa PRISMA</h3>
+                            <span class="text-[10px] font-mono font-semibold uppercase px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">Acesso Restrito Diego & Raquel</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-0.5">Módulos em desenvolvimento para a tese de políticas públicas.</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-2 w-full md:w-auto">
+                    <a href="entidades.html" target="_blank" class="flex-1 md:flex-none flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-blue-900/60 text-slate-200 hover:text-white rounded-lg border border-slate-700 hover:border-blue-500/50 text-xs font-semibold transition">
+                        M3: Sociedade Civil
+                    </a>
+                    <a href="legislativo.html" target="_blank" class="flex-1 md:flex-none flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-blue-900/60 text-slate-200 hover:text-white rounded-lg border border-slate-700 hover:border-blue-500/50 text-xs font-semibold transition">
+                        M4: Legislativo
+                    </a>
+                    <a href="gestao.html" target="_blank" class="flex-1 md:flex-none flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-blue-900/60 text-slate-200 hover:text-white rounded-lg border border-slate-700 hover:border-blue-500/50 text-xs font-semibold transition">
+                        M2: Parcerias MROSC
+                    </a>
+                    <a href="indicadores.html" target="_blank" class="flex-1 md:flex-none flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-blue-900/60 text-slate-200 hover:text-white rounded-lg border border-slate-700 hover:border-blue-500/50 text-xs font-semibold transition">
+                        M5: Indicadores COREDE
+                    </a>
+                </div>
+            </div>
+
             <!-- HEADER E BOTÕES SUPERIORES -->
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                 <div>
@@ -124,7 +208,7 @@
                         Relatório
                     </a>
                     <a href="dashboard.html" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-indigo-900/50 hover:bg-indigo-800 text-indigo-300 hover:text-indigo-100 font-bold py-2.5 px-4 rounded-lg shadow-sm transition border border-indigo-700/50">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2h-2a2 2 0 01-2-2h-2a2 2 0 01-2-2z"></path></svg>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2h-2a2 2 0 01-2-2z"></path></svg>
                         Dashboard
                     </a>
                     <button id="btn-sincronizar" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-slate-800 border border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-slate-100 font-medium py-2.5 px-4 rounded-lg shadow-sm transition">
@@ -192,7 +276,7 @@
                         <option value="Individual">Individuais</option>
                     </select>
                     
-                   <select id="filtro-status" class="w-full sm:w-1/3 block pl-3 pr-10 py-2 text-sm border border-slate-600 rounded-lg bg-slate-900 text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                    <select id="filtro-status" class="w-full sm:w-1/3 block pl-3 pr-10 py-2 text-sm border border-slate-600 rounded-lg bg-slate-900 text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
                         <option value="">Todos os Status</option>
                         <option value="Atrasada">❗ Atrasadas</option>
                         <option value="Em Andamento">Em Andamento</option>
@@ -205,7 +289,6 @@
                             <input id="filtro-remanejada" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-600 rounded bg-slate-800">
                             <label for="filtro-remanejada" class="ml-2 block text-sm text-slate-300 select-none cursor-pointer">Só Remanejadas</label>
                         </div>
-                        <!-- NOVO FILTRO AQUI -->
                         <div class="flex items-center border-l border-slate-700 pl-4">
                             <input id="filtro-engenharia" type="checkbox" class="h-4 w-4 text-amber-500 focus:ring-amber-500 border-slate-600 rounded bg-slate-800">
                             <label for="filtro-engenharia" class="ml-2 block text-sm text-slate-300 select-none cursor-pointer">C/ Eng 🏗️</label>
@@ -213,8 +296,8 @@
                     </div>
                 </div>
             </div>
-            
-            <!-- NOVO: ABAS DA TABELA -->
+
+            <!-- ABAS DA TABELA -->
             <div class="flex gap-2 mb-4 border-b border-slate-700 pb-2">
                 <button id="btn-aba-ativas" class="px-4 py-2 font-bold text-sm text-blue-400 border-b-2 border-blue-400 transition focus:outline-none">
                     Ativas / Em Andamento
@@ -223,6 +306,7 @@
                     Finalizadas / Arquivadas
                 </button>
             </div>
+
             <!-- TABELA DE EMENDAS -->
             <div class="bg-slate-800 rounded-xl shadow-sm border border-slate-700 overflow-hidden mb-6">
                 <div class="overflow-x-auto max-h-[600px]">
@@ -260,9 +344,7 @@
         </main>
     </div>
 
-    <!-- ========================================================================= -->
-    <!--                   MODAL DE CADASTRO/EDIÇÃO DE EMENDA                      -->
-    <!-- ========================================================================= -->
+    <!-- MODAL DE CADASTRO/EDIÇÃO DE EMENDA -->
     <div id="modal-emenda" class="hidden fixed inset-0 bg-black bg-opacity-70 z-[50] flex items-center justify-center backdrop-blur-sm p-4 sm:p-6 transition-opacity">
         <div class="bg-slate-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[95vh] flex flex-col overflow-hidden border border-slate-700">
             
@@ -455,7 +537,6 @@
                                 <div>
                                     <label class="block text-xs font-medium text-slate-400 mb-1">Marco Atingido</label>
                                     <select id="nova_etapa_status" class="w-full p-2 bg-slate-800 border border-slate-600 text-slate-200 rounded focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
-                                        <!-- Opções carregadas via JS -->
                                     </select>
                                 </div>
                             </div>
@@ -470,7 +551,7 @@
                                 </div>
                             </div>
 
-                            <!-- NOVOS DADOS DA ORIGEM (PREFEITURA) -->
+                            <!-- DADOS DA ORIGEM (PREFEITURA) -->
                             <h6 class="text-[10px] font-bold text-slate-400 uppercase mb-2 mt-4 border-b border-indigo-800/30 pb-1">📍 Dados da Ação na Origem (Prefeitura)</h6>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-end">
                                 <div>
@@ -494,7 +575,6 @@
                         <!-- LISTA DE HISTÓRICO -->
                         <div class="pl-2">
                             <ul id="timeline-lista" class="border-l-2 border-slate-700 ml-3 space-y-4 pb-2">
-                                <!-- Preenchido via JS -->
                             </ul>
                         </div>
                     </div>
@@ -502,7 +582,6 @@
                     <div id="container-versoes-remanejamento" class="hidden mt-8">
                         <h4 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-4 border-b border-slate-700 pb-2 text-purple-400">Histórico de Remanejamentos</h4>
                         <div id="lista-versoes-remanejamento" class="space-y-4">
-                            <!-- Preenchido via JS -->
                         </div>
                     </div>
 
@@ -522,9 +601,7 @@
         </div>
     </div>
 
-    <!-- ========================================================================= -->
-    <!--                   MODAL DE CONFIGURAÇÃO DE ETAPAS BASE                    -->
-    <!-- ========================================================================= -->
+    <!-- MODAL DE CONFIGURAÇÃO DE ETAPAS BASE -->
     <div id="modal-etapas-config" class="hidden fixed inset-0 bg-black bg-opacity-70 z-[70] flex items-center justify-center backdrop-blur-sm p-4 transition-opacity">
         <div class="bg-slate-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden border border-slate-700">
             <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center bg-slate-900/50">
@@ -557,7 +634,6 @@
                         </tr>
                     </thead>
                     <tbody id="tbody-config-etapas" class="divide-y divide-slate-700/50">
-                        <!-- Carregado via JS -->
                     </tbody>
                 </table>
             </div>
@@ -569,9 +645,6 @@
         </div>
     </div>
 
-    <!-- ========================================================================= -->
-    <!--                        INÍCIO DO JAVASCRIPT (LÓGICA)                      -->
-    <!-- ========================================================================= -->
-     <script type="module" src="app.js"></script>
+    <script type="module" src="app.js"></script>
 </body>
 </html>

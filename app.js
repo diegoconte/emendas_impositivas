@@ -44,6 +44,7 @@ let currentSortDirection = 'asc';
 let selecionadasGlobais = new Set();
 let filtradosGlobais = [];
 let abaAtualTabela = 'ativas';
+let welcomeModalJaExibidoNestaSessao = false;
 
 let ETAPAS_DIRETA = [
     { id: 0, status: "Emenda CANCELADA", pct: 100, class: "bg-red-900/30 text-red-400 border-red-800/50" },
@@ -104,10 +105,24 @@ async function carregarEtapasDoBanco() {
 
 async function enviarNotificacaoEmail(processo, emenda, autor, acaoRealizada, detalhes) {
     if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL === "") return;
-    const payload = { processo: processo || "N/A", emenda: emenda || "N/A", autor: autor || "N/A", acaoRealizada: acaoRealizada || "Ação não especificada", detalhes: detalhes || "Sem detalhes adicionais.", usuario: auth.currentUser ? auth.currentUser.email : "Administrador" };
+    const payload = { 
+        processo: processo || "N/A", 
+        emenda: emenda || "N/A", 
+        autor: autor || "N/A", 
+        acaoRealizada: acaoRealizada || "Ação não especificada", 
+        detalhes: detalhes || "Sem detalhes adicionais.", 
+        usuario: auth.currentUser ? auth.currentUser.email : "Administrador" 
+    };
     try {
-        await fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) });
-    } catch (error) { console.error("[E-MAIL] Erro:", error); }
+        await fetch(GOOGLE_SCRIPT_URL, { 
+            method: "POST", 
+            mode: "no-cors", 
+            headers: { "Content-Type": "text/plain;charset=utf-8" }, 
+            body: JSON.stringify(payload) 
+        });
+    } catch (error) { 
+        console.error("[E-MAIL] Erro:", error); 
+    }
 }
 
 const loginScreen = document.getElementById('login-screen');
@@ -131,7 +146,7 @@ const listaVersoesRemanejamento = document.getElementById('lista-versoes-remanej
 const selTipoExecucao = document.getElementById('tipo_execucao');
 const selNovaEtapaStatus = document.getElementById('nova_etapa_status');
 
-let indexEditandoEtapa = -1; // Controle de edição de etapas do histórico
+let indexEditandoEtapa = -1;
 
 function getEtapaInfo(statusName, tipoExecucao) {
     const list = tipoExecucao === 'Indireta' ? ETAPAS_INDIRETA : ETAPAS_DIRETA;
@@ -143,6 +158,7 @@ function getEtapaInfo(statusName, tipoExecucao) {
 
 function showToast(mensagem, tipo = 'success') {
     const container = document.getElementById('toast-container');
+    if (!container) return;
     const toast = document.createElement('div');
     let bgClass = 'bg-green-600/90 border-green-500';
     let icon = '<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
@@ -162,6 +178,7 @@ function showConfirm(mensagem, onConfirm) {
     const msgEl = document.getElementById('confirm-message');
     const btnOk = document.getElementById('btn-confirm-ok');
     const btnCancel = document.getElementById('btn-confirm-cancel');
+    if (!modal || !msgEl || !btnOk || !btnCancel) return;
     msgEl.textContent = mensagem;
     modal.classList.remove('hidden');
     btnOk.onclick = null; btnCancel.onclick = null;
@@ -193,6 +210,16 @@ onAuthStateChanged(auth, async (user) => {
         loginScreen.classList.add('hidden');
         dashboardScreen.classList.remove('hidden');
         dashboardScreen.classList.add('flex');
+
+        // LIBERA ACESSO EXCLUSIVO AOS MÓDULOS PRISMA PARA DIEGO E RAQUEL
+        if (user.email && ADMIN_EMAILS_EXCLUSAO.includes(user.email.toLowerCase())) {
+            const painelPrisma = document.getElementById('painel-prisma-admin');
+            if (painelPrisma) {
+                painelPrisma.classList.remove('hidden');
+                painelPrisma.classList.add('flex');
+            }
+        }
+
         await carregarEtapasDoBanco();
         carregarEmendasDaMemoriaOuBanco();
     } else {
@@ -228,6 +255,7 @@ document.getElementById('form-login').addEventListener('submit', (e) => {
 });
 
 document.getElementById('btn-logout').addEventListener('click', () => {
+    welcomeModalJaExibidoNestaSessao = false;
     signOut(auth).catch(() => showToast("Erro ao sair.", "error"));
 });
 
@@ -259,11 +287,16 @@ async function carregarEmendasDaMemoriaOuBanco(forcarSincronizacao = false) {
             localStorage.removeItem('filtro_status_pendente');
         }
         aplicarFiltrosEOrdenacao();
+        verificarEExibirBoasVindas();
     } catch (error) {
         showToast("Erro ao buscar dados do servidor.", "error");
         console.error(error);
         const cache = localStorage.getItem(CACHE_KEY);
-        if (cache) { dadosEmendasGlobais = JSON.parse(cache); aplicarFiltrosEOrdenacao(); }
+        if (cache) { 
+            dadosEmendasGlobais = JSON.parse(cache); 
+            aplicarFiltrosEOrdenacao(); 
+            verificarEExibirBoasVindas();
+        }
     }
 }
 
@@ -301,11 +334,12 @@ function atualizarVelocimetro(dadosParaAnalise) {
         return !status.includes("CANCELADA");
     });
 
+    const infoSelecao = document.getElementById('vel-info-selecao');
     if (selecionadasGlobais.size > 0) {
         dadosAtivos = dadosAtivos.filter(e => selecionadasGlobais.has(e.id));
-        document.getElementById('vel-info-selecao').innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Analisando ${selecionadasGlobais.size} emenda(s) selecionada(s).`;
+        if (infoSelecao) infoSelecao.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Analisando ${selecionadasGlobais.size} emenda(s) selecionada(s).`;
     } else {
-        document.getElementById('vel-info-selecao').innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Analisando todas as ${dadosAtivos.length} emendas ativas da lista.`;
+        if (infoSelecao) infoSelecao.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Analisando todas as ${dadosAtivos.length} emendas ativas da lista.`;
     }
 
     if (dadosAtivos.length === 0) {
@@ -313,7 +347,8 @@ function atualizarVelocimetro(dadosParaAnalise) {
         return;
     }
 
-    let somaAtual = 0; let somaEsperado = 0;
+    let somaAtual = 0; 
+    let somaEsperado = 0;
     dadosAtivos.forEach(emenda => {
         const statusAtual = emenda.historico_status && emenda.historico_status.length > 0 ? emenda.historico_status[emenda.historico_status.length - 1].status : "Recepção e Cadastro da Emenda";
         const tipoExec = emenda.tipo_execucao || "Direta";
@@ -333,6 +368,7 @@ function renderizarGauge(atual, esperado) {
     const pathAtual = document.getElementById('svg-atual');
     const pathEsperado = document.getElementById('svg-esperado');
     const badge = document.getElementById('vel-status-badge');
+    if (!elAtualText || !elEsperadoText || !elCenter || !pathAtual || !pathEsperado || !badge) return;
 
     elAtualText.textContent = atual.toFixed(1) + "%";
     elEsperadoText.textContent = esperado.toFixed(1) + "%";
@@ -470,16 +506,15 @@ document.getElementById('filtro-status').addEventListener('change', aplicarFiltr
 document.getElementById('filtro-remanejada').addEventListener('change', aplicarFiltrosEOrdenacao);
 document.getElementById('filtro-engenharia').addEventListener('change', aplicarFiltrosEOrdenacao);
 
-
-// NOVO: Cliques nas Abas da Tabela
 const btnAbaAtivas = document.getElementById('btn-aba-ativas');
 const btnAbaFinalizadas = document.getElementById('btn-aba-finalizadas');
+
 if (btnAbaAtivas && btnAbaFinalizadas) {
     btnAbaAtivas.addEventListener('click', () => {
         abaAtualTabela = 'ativas';
         btnAbaAtivas.className = "px-4 py-2 font-bold text-sm text-blue-400 border-b-2 border-blue-400 transition focus:outline-none";
         btnAbaFinalizadas.className = "px-4 py-2 font-bold text-sm text-slate-400 border-b-2 border-transparent hover:text-slate-200 transition focus:outline-none";
-        document.getElementById('filtro-status').value = ""; 
+        document.getElementById('filtro-status').value = "";
         aplicarFiltrosEOrdenacao();
     });
     
@@ -487,7 +522,7 @@ if (btnAbaAtivas && btnAbaFinalizadas) {
         abaAtualTabela = 'finalizadas';
         btnAbaFinalizadas.className = "px-4 py-2 font-bold text-sm text-blue-400 border-b-2 border-blue-400 transition focus:outline-none";
         btnAbaAtivas.className = "px-4 py-2 font-bold text-sm text-slate-400 border-b-2 border-transparent hover:text-slate-200 transition focus:outline-none";
-        document.getElementById('filtro-status').value = ""; 
+        document.getElementById('filtro-status').value = "";
         aplicarFiltrosEOrdenacao();
     });
 }
@@ -578,7 +613,14 @@ function renderizarTabela(dados) {
         tabelaCorpo.appendChild(tr);
     });
 
-    document.querySelectorAll('.check-emenda').forEach(cb => { cb.addEventListener('change', (e) => { if(e.target.checked) selecionadasGlobais.add(e.target.value); else selecionadasGlobais.delete(e.target.value); verificarCheckTodos(); atualizarVelocimetro(filtradosGlobais); }); });
+    document.querySelectorAll('.check-emenda').forEach(cb => { 
+        cb.addEventListener('change', (e) => { 
+            if(e.target.checked) selecionadasGlobais.add(e.target.value); 
+            else selecionadasGlobais.delete(e.target.value); 
+            verificarCheckTodos(); 
+            atualizarVelocimetro(filtradosGlobais); 
+        }); 
+    });
     verificarCheckTodos();
 }
 
@@ -597,19 +639,22 @@ if (elCheckTodos) {
     elCheckTodos.addEventListener('change', (e) => {
         const checkboxes = document.querySelectorAll('.check-emenda');
         const isChecked = e.target.checked;
-        checkboxes.forEach(cb => { cb.checked = isChecked; if(isChecked) selecionadasGlobais.add(cb.value); else selecionadasGlobais.delete(cb.value); });
+        checkboxes.forEach(cb => { 
+            cb.checked = isChecked; 
+            if(isChecked) selecionadasGlobais.add(cb.value); 
+            else selecionadasGlobais.delete(cb.value); 
+        });
         atualizarVelocimetro(filtradosGlobais);
     });
 }
 
 function limparEFecharModal() {
-    // --- INÍCIO: DESTRAVAR EMENDA ---
+    // --- DESTRAVAR EMENDA CONCORRENTE ---
     const elIdAtivo = document.getElementById('emenda_id');
     const btnSalvarAtivo = document.getElementById('btn-salvar');
     if (elIdAtivo && elIdAtivo.value && btnSalvarAtivo && !btnSalvarAtivo.classList.contains('hidden')) {
         updateDoc(doc(db, "emendas", elIdAtivo.value), { lockedBy: null, lockedAt: null }).catch(()=>{});
     }
-    // --- FIM: DESTRAVAR EMENDA ---
 
     if(modalEmenda) modalEmenda.classList.add('hidden');
     document.body.style.overflow = 'auto';
@@ -654,7 +699,8 @@ if(btnNovaEmenda) {
         const dateInput = document.getElementById('nova_etapa_data');
         if(dateInput) dateInput.valueAsDate = new Date();
         
-        document.getElementById('banner-grupo').classList.add('hidden');
+        const bannerGrupo = document.getElementById('banner-grupo');
+        if(bannerGrupo) bannerGrupo.classList.add('hidden');
         
         if(modalEmenda) modalEmenda.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
@@ -737,11 +783,8 @@ function renderizarHistoricoNoModal() {
         const tagChecagem = etapa.usuario_checagem ? `<div class="text-[10px] text-purple-400/90 font-medium mt-0.5 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg> Checado por: ${etapa.usuario_checagem} (${dataChecagemStr})</div>` : '';
 
         const indexReal = historicoAtualDaEdicao.indexOf(etapa);
-        
-        // VERIFICA SE ESTÁ NO MODO "SOMENTE LEITURA" (Botão Salvar oculto)
         const isSomenteLeitura = document.getElementById('btn-salvar').classList.contains('hidden');
         
-        // SÓ CRIA OS BOTÕES SE NÃO ESTIVER NO MODO LEITURA
         const botoesAcaoHtml = isSomenteLeitura ? '' : `
             <div class="mt-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                 <button type="button" class="btn-editar-etapa flex items-center gap-1 px-2 py-1 bg-slate-700 hover:bg-blue-600 text-white text-[10px] font-bold rounded shadow-sm transition" data-index="${indexReal}">✏️ Editar</button>
@@ -822,7 +865,7 @@ if(btnAdicionarEtapa) {
                 data_original: dataOriginal, usuario_original: usuarioOriginal, data_checagem: dataChecagem, usuario_checagem: usuarioLogado
             };
             indexEditandoEtapa = -1;
-            btnAdicionarEtapa.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> Atual Progresso`;
+            btnAdicionarEtapa.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> Atualizar Progresso`;
             btnAdicionarEtapa.classList.replace("bg-blue-600", "bg-indigo-600");
             btnAdicionarEtapa.classList.replace("border-blue-500", "border-indigo-500");
             showToast("Etapa atualizada! Salve a emenda para confirmar.", "success");
@@ -834,7 +877,10 @@ if(btnAdicionarEtapa) {
             showToast("Etapa adicionada! Salve a emenda para confirmar.", "success");
         }
 
-        document.getElementById('nova_etapa_obs').value = ''; document.getElementById('nova_etapa_responsavel').value = ''; document.getElementById('nova_etapa_data_original').value = ''; document.getElementById('nova_etapa_usuario_original').value = '';
+        document.getElementById('nova_etapa_obs').value = ''; 
+        document.getElementById('nova_etapa_responsavel').value = ''; 
+        document.getElementById('nova_etapa_data_original').value = ''; 
+        document.getElementById('nova_etapa_usuario_original').value = '';
         renderizarHistoricoNoModal();
     });
 }
@@ -853,7 +899,6 @@ if(tabelaCorpo) {
 }
 
 async function preencherModalEdicao(id, somenteLeitura = false) {
-    // --- INÍCIO: CHECAR TRAVA ANTES DE ABRIR ---
     if (!somenteLeitura) {
         try {
             const docSnap = await getDoc(doc(db, "emendas", id));
@@ -861,25 +906,20 @@ async function preencherModalEdicao(id, somenteLeitura = false) {
                 const data = docSnap.data();
                 const usuarioAtual = auth.currentUser ? auth.currentUser.email : 'Admin';
                 
-                // Se existe uma trava e o dono da trava não é a pessoa logada
                 if (data.lockedBy && data.lockedBy !== usuarioAtual) {
                     const minutosPassados = (new Date().getTime() - new Date(data.lockedAt).getTime()) / 60000;
-                    
-                    // Se a trava tem menos de 15 minutos (evita que um PC desligado trave a emenda para sempre)
                     if (minutosPassados < 15) { 
                         showToast(`⚠️ EM USO: O usuário [${data.lockedBy}] está editando esta emenda agora. Aguarde.`, "error");
-                        return; // Interrompe a abertura da tela!
+                        return;
                     }
                 }
                 
-                // Se não está travada (ou se a trava venceu), este usuário pega a trava para ele
                 await updateDoc(doc(db, "emendas", id), { lockedBy: usuarioAtual, lockedAt: new Date().toISOString() });
             }
         } catch (e) { 
             console.error("Erro ao checar trava", e); 
         }
     }
-    // --- FIM: CHECAR TRAVA ---
 
     limparEFecharModal(); 
     const emenda = dadosEmendasGlobais.find(e => e.id === id);
@@ -890,8 +930,15 @@ async function preencherModalEdicao(id, somenteLeitura = false) {
     formElements.forEach(el => el.disabled = somenteLeitura);
     const boxAdicionarEtapa = document.getElementById('box-adicionar-etapa');
 
-    if (somenteLeitura) { document.getElementById('modal-titulo').textContent = "Detalhes da Emenda"; if(btnSalvar) btnSalvar.classList.add('hidden'); if(boxAdicionarEtapa) boxAdicionarEtapa.classList.add('hidden'); } 
-    else { document.getElementById('modal-titulo').textContent = "Editar Emenda e Histórico"; if(btnSalvar) btnSalvar.classList.remove('hidden'); if(boxAdicionarEtapa) boxAdicionarEtapa.classList.remove('hidden'); }
+    if (somenteLeitura) { 
+        document.getElementById('modal-titulo').textContent = "Detalhes da Emenda"; 
+        if(btnSalvar) btnSalvar.classList.add('hidden'); 
+        if(boxAdicionarEtapa) boxAdicionarEtapa.classList.add('hidden'); 
+    } else { 
+        document.getElementById('modal-titulo').textContent = "Editar Emenda e Histórico"; 
+        if(btnSalvar) btnSalvar.classList.remove('hidden'); 
+        if(boxAdicionarEtapa) boxAdicionarEtapa.classList.remove('hidden'); 
+    }
     if (containerHistorico) containerHistorico.classList.remove('hidden');
 
     const bannerGrupo = document.getElementById('banner-grupo');
@@ -903,7 +950,9 @@ async function preencherModalEdicao(id, somenteLeitura = false) {
     document.getElementById('emenda_id').value = emenda.id;
     document.getElementById('num_processo').value = emenda.numero_processo || '';
     document.getElementById('num_emenda').value = emenda.numero_emenda || '';
-    let pri = emenda.prioridade || ''; if (pri === '1º Primeiro') pri = '1º Primeira'; document.getElementById('prioridade').value = pri;
+    let pri = emenda.prioridade || ''; 
+    if (pri === '1º Primeiro') pri = '1º Primeira'; 
+    document.getElementById('prioridade').value = pri;
 
     const selBancada = document.getElementById('bancada'); if(emenda.bancada && selBancada) selBancada.value = emenda.bancada;
     const selVer = document.getElementById('vereador'); if(emenda.vereador && selVer) selVer.value = emenda.vereador;
@@ -953,12 +1002,16 @@ async function preencherModalEdicao(id, somenteLeitura = false) {
                 `;
             });
         }
-    } else { if(containerVersoesRemanejamento) containerVersoesRemanejamento.classList.add('hidden'); }
+    } else { 
+        if(containerVersoesRemanejamento) containerVersoesRemanejamento.classList.add('hidden'); 
+    }
 
     historicoAtualDaEdicao = emenda.historico_status ? [...emenda.historico_status] : [];
-    const dateInput = document.getElementById('nova_etapa_data'); if(dateInput) dateInput.valueAsDate = new Date();
+    const dateInput = document.getElementById('nova_etapa_data'); 
+    if(dateInput) dateInput.valueAsDate = new Date();
     renderizarHistoricoNoModal();
-    if(modalEmenda) modalEmenda.classList.remove('hidden'); document.body.style.overflow = 'hidden';
+    if(modalEmenda) modalEmenda.classList.remove('hidden'); 
+    document.body.style.overflow = 'hidden';
 }
 
 function inativarEmenda(id) {
@@ -995,7 +1048,10 @@ function excluirEmendaDefinitivamente(id) {
                 const autorParaEmail = emendaExcluida.vereador !== "Nenhum (Emenda de Bancada)" ? emendaExcluida.vereador : emendaExcluida.bancada;
                 enviarNotificacaoEmail(emendaExcluida.numero_processo, emendaExcluida.numero_emenda, autorParaEmail, "EXCLUIU A EMENDA DEFINITIVAMENTE", "A emenda e todo o seu histórico foram apagados do banco de dados.");
             }
-        } catch (error) { console.error("Erro ao excluir documento: ", error); showToast("Erro ao tentar excluir a emenda.", "error"); }
+        } catch (error) { 
+            console.error("Erro ao excluir documento: ", error); 
+            showToast("Erro ao tentar excluir a emenda.", "error"); 
+        }
     });
 }
 
@@ -1008,13 +1064,21 @@ if(btnSalvar) {
         const tipoExec = selTipoExecucao ? selTipoExecucao.value : "Direta";
         
         const novaEmendaData = {
-            numero_processo: document.getElementById('num_processo').value, numero_emenda: document.getElementById('num_emenda').value,
-            prioridade: document.getElementById('prioridade').value, bancada: document.getElementById('bancada').value,
-            vereador: document.getElementById('vereador').value, secretaria: document.getElementById('sec_executora') ? document.getElementById('sec_executora').value : "",
-            tipo_execucao: tipoExec, beneficiario: document.getElementById('beneficiario').value, enquadramento: document.getElementById('enquadramento').value,
-            valor: parseFloat(document.getElementById('valor').value), acao: document.getElementById('acao').value,
-            dotacao: document.getElementById('dotacao').value, objeto: document.getElementById('objeto').value,
-            remanejada: document.getElementById('remanejada').checked, projeto_engenharia: document.getElementById('projeto_engenharia').checked,
+            numero_processo: document.getElementById('num_processo').value, 
+            numero_emenda: document.getElementById('num_emenda').value,
+            prioridade: document.getElementById('prioridade').value, 
+            bancada: document.getElementById('bancada').value,
+            vereador: document.getElementById('vereador').value, 
+            secretaria: document.getElementById('sec_executora') ? document.getElementById('sec_executora').value : "",
+            tipo_execucao: tipoExec, 
+            beneficiario: document.getElementById('beneficiario').value, 
+            enquadramento: document.getElementById('enquadramento').value,
+            valor: parseFloat(document.getElementById('valor').value), 
+            acao: document.getElementById('acao').value,
+            dotacao: document.getElementById('dotacao').value, 
+            objeto: document.getElementById('objeto').value,
+            remanejada: document.getElementById('remanejada').checked, 
+            projeto_engenharia: document.getElementById('projeto_engenharia').checked,
             data_atualizacao: new Date().toISOString(),
             lockedBy: null,
             lockedAt: null
@@ -1025,19 +1089,23 @@ if(btnSalvar) {
         btnSalvar.disabled = true;
 
         try {
-            let emailAcao = ""; let emailDetalhes = "";
+            let emailAcao = ""; 
+            let emailDetalhes = "";
 
             if (idEdicao && idEdicao.trim() !== '') {
                 novaEmendaData.historico_status = historicoAtualDaEdicao;
                 let versoesRemanejamento = emendaOriginalSendoEditada && emendaOriginalSendoEditada.versoes_remanejamento ? [...emendaOriginalSendoEditada.versoes_remanejamento] : [];
-                emailAcao = "ATUALIZOU A EMENDA"; emailDetalhes = `O histórico/dados básicos foram atualizados. Novo status atual: ${historicoAtualDaEdicao.length > 0 ? historicoAtualDaEdicao[historicoAtualDaEdicao.length-1].status : 'Desconhecido'}`;
+                emailAcao = "ATUALIZOU A EMENDA"; 
+                emailDetalhes = `O histórico/dados básicos foram atualizados. Novo status atual: ${historicoAtualDaEdicao.length > 0 ? historicoAtualDaEdicao[historicoAtualDaEdicao.length-1].status : 'Desconhecido'}`;
 
                 if (novaEmendaData.remanejada && emendaOriginalSendoEditada) {
                     const mudouEstrutura = (novaEmendaData.beneficiario !== emendaOriginalSendoEditada.beneficiario || novaEmendaData.acao !== emendaOriginalSendoEditada.acao || novaEmendaData.dotacao !== emendaOriginalSendoEditada.dotacao || novaEmendaData.objeto !== emendaOriginalSendoEditada.objeto);
                     if (mudouEstrutura) {
-                        emailAcao = "REMANEJOU A EMENDA"; emailDetalhes = `Houve alteração na estrutura da emenda.<br><b>Era:</b> ${emendaOriginalSendoEditada.beneficiario} | Obj: ${emendaOriginalSendoEditada.objeto}<br><b>Ficou:</b> ${novaEmendaData.beneficiario} | Obj: ${novaEmendaData.objeto}`;
+                        emailAcao = "REMANEJOU A EMENDA"; 
+                        emailDetalhes = `Houve alteração na estrutura da emenda.<br><b>Era:</b> ${emendaOriginalSendoEditada.beneficiario} | Obj: ${emendaOriginalSendoEditada.objeto}<br><b>Ficou:</b> ${novaEmendaData.beneficiario} | Obj: ${novaEmendaData.objeto}`;
                         versoesRemanejamento.push({
-                            data_alteracao: new Date().toISOString(), usuario: auth.currentUser ? auth.currentUser.email : 'Administrador',
+                            data_alteracao: new Date().toISOString(), 
+                            usuario: auth.currentUser ? auth.currentUser.email : 'Administrador',
                             anterior: { beneficiario: emendaOriginalSendoEditada.beneficiario || '-', acao: emendaOriginalSendoEditada.acao || '-', dotacao: emendaOriginalSendoEditada.dotacao || '-', objeto: emendaOriginalSendoEditada.objeto || '-' },
                             novo: { beneficiario: novaEmendaData.beneficiario || '-', acao: novaEmendaData.acao || '-', dotacao: novaEmendaData.dotacao || '-', objeto: novaEmendaData.objeto || '-' }
                         });
@@ -1051,7 +1119,8 @@ if(btnSalvar) {
                 showToast("Emenda atualizada com sucesso!");
             } else {
                 novaEmendaData.data_cadastro = new Date().toISOString();
-                emailAcao = "CADASTROU NOVA EMENDA"; emailDetalhes = `Beneficiário inicial: ${novaEmendaData.beneficiario}. Valor: R$ ${novaEmendaData.valor}`;
+                emailAcao = "CADASTROU NOVA EMENDA"; 
+                emailDetalhes = `Beneficiário inicial: ${novaEmendaData.beneficiario}. Valor: R$ ${novaEmendaData.valor}`;
                 novaEmendaData.historico_status = [{ data: new Date().toISOString().split('T')[0], status: "Recepção e Cadastro da Emenda", observacao: "Cadastro Inicial do Processo", usuario: auth.currentUser ? auth.currentUser.email : 'Administrador' }];
                 const docRef = await addDoc(collection(db, "emendas"), novaEmendaData);
                 dadosEmendasGlobais.push({ id: docRef.id, ...novaEmendaData });
@@ -1094,109 +1163,16 @@ if(btnSalvar) {
             const autorParaEmail = novaEmendaData.vereador !== "Nenhum (Emenda de Bancada)" ? novaEmendaData.vereador : novaEmendaData.bancada;
             enviarNotificacaoEmail(novaEmendaData.numero_processo, novaEmendaData.numero_emenda, autorParaEmail, emailAcao, emailDetalhes);
             limparEFecharModal(); 
-        } catch (error) { console.error(error); showToast("Erro de conexão ao salvar.", "error"); } finally { btnSalvar.innerHTML = btnNormalText; btnSalvar.disabled = false; }
-    });
-}
-
-const elTabTabela = document.getElementById('btn-tab-tabela');
-const elTabDash = document.getElementById('btn-tab-dash');
-const viewTabelaContainer = document.querySelector('.bg-slate-800.rounded-xl.shadow-sm.border.border-slate-700.overflow-hidden');
-const viewDashContainer = document.getElementById('view-dashboard');
-const filtroContainer = document.querySelector('.bg-slate-800.p-4.rounded-xl.shadow-sm.border.border-slate-700.mb-6.flex');
-
-if(elTabTabela && elTabDash && viewTabelaContainer && viewDashContainer && filtroContainer) {
-    elTabTabela.addEventListener('click', () => {
-        elTabTabela.className = "px-5 py-2 bg-blue-600 text-white rounded-md text-sm font-bold shadow-sm transition";
-        elTabDash.className = "px-5 py-2 text-slate-400 hover:text-slate-100 hover:bg-slate-700 rounded-md text-sm font-bold transition flex items-center gap-2";
-        viewDashContainer.classList.add('hidden'); viewDashContainer.classList.remove('flex');
-        viewTabelaContainer.classList.remove('hidden'); filtroContainer.classList.remove('hidden'); filtroContainer.classList.add('flex');
-    });
-    elTabDash.addEventListener('click', () => {
-        elTabDash.className = "px-5 py-2 bg-blue-600 text-white rounded-md text-sm font-bold shadow-sm transition flex items-center gap-2";
-        elTabTabela.className = "px-5 py-2 text-slate-400 hover:text-slate-100 hover:bg-slate-700 rounded-md text-sm font-bold transition";
-        viewTabelaContainer.classList.add('hidden'); filtroContainer.classList.add('hidden'); filtroContainer.classList.remove('flex');
-        viewDashContainer.classList.remove('hidden'); viewDashContainer.classList.add('flex');
-        renderizarDashboard(filtradosGlobais);
-    });
-}
-
-let graficosInstanciados = {};
-function formatarMoedaAbreviada(valor) { if (valor >= 1000000) return (valor / 1000000).toFixed(1).replace('.', ',') + 'M'; if (valor >= 1000) return (valor / 1000).toFixed(1).replace('.', ',') + 'k'; return valor.toString(); }
-
-function renderizarDashboard(dados) {
-    if(!dados || dados.length === 0) return;
-    let cGeral = { NoPrazo: 0, Atrasada: 0, Concluida: 0, Cancelada: 0 }; let cTipo = { Direta: 0, Indireta: 0 }; let cEng = { Sim: 0, Nao: 0 }; let cRem = { Sim: 0, Nao: 0 }; let cSec = {}; let vSec = {}; let cAut = {}; let vAut = {}; let cPri = {}; let cCont = {}; let gargalos = {}; let evolucao = {}; let vTipo = { Direta: 0, Indireta: 0 }; let topBen = {}; let atrasadasList = [];
-
-    dados.forEach(e => {
-        const tipoExec = e.tipo_execucao || "Direta";
-        let statusAtual = "Recepção e Cadastro da Emenda";
-        if (e.historico_status && e.historico_status.length > 0) statusAtual = e.historico_status[e.historico_status.length - 1].status;
-        const etapaInfo = getEtapaInfo(statusAtual, tipoExec);
-        const isCanc = statusAtual.includes("CANCELADA");
-        const isAtras = isAtrasada(e, etapaInfo);
-        const valor = parseFloat(e.valor || 0);
-
-        if (isCanc) cGeral.Cancelada++; else if (etapaInfo.pct === 100) cGeral.Concluida++; else if (isAtras) { cGeral.Atrasada++; atrasadasList.push(e); } else cGeral.NoPrazo++;
-        cTipo[tipoExec]++; vTipo[tipoExec] += valor; e.projeto_engenharia ? cEng.Sim++ : cEng.Nao++; e.remanejada ? cRem.Sim++ : cRem.Nao++;
-
-        const sec = e.secretaria || "Sem Sec."; cSec[sec] = (cSec[sec] || 0) + 1; vSec[sec] = (vSec[sec] || 0) + valor;
-        const autor = (e.vereador && e.vereador !== "Nenhum (Emenda de Bancada)") ? e.vereador : (e.bancada || "Sem Autor"); cAut[autor] = (cAut[autor] || 0) + 1; vAut[autor] = (vAut[autor] || 0) + valor;
-        const pri = e.prioridade ? e.prioridade.split(' ')[0] : "S/P"; cPri[pri] = (cPri[pri] || 0) + 1;
-        const cont = e.enquadramento || "N/C"; cCont[cont] = (cCont[cont] || 0) + 1;
-        const ben = e.beneficiario || "Desconhecido"; topBen[ben] = (topBen[ben] || 0) + valor;
-
-        if (e.historico_status && e.historico_status.length > 0) {
-            const hist = [...e.historico_status].sort((a,b) => new Date(a.data) - new Date(b.data));
-            hist.forEach((etapa, idx) => {
-                const mesAno = etapa.data.substring(0, 7); evolucao[mesAno] = (evolucao[mesAno] || 0) + 1;
-                if (idx > 0) { const dAnt = new Date(hist[idx-1].data); const dAtu = new Date(etapa.data); const dias = Math.ceil(Math.abs(dAtu - dAnt) / (1000*60*60*24)); const nomeAnt = hist[idx-1].status; if(!gargalos[nomeAnt]) gargalos[nomeAnt] = []; gargalos[nomeAnt].push(dias); }
-            });
+        } catch (error) { 
+            console.error(error); 
+            showToast("Erro de conexão ao salvar.", "error"); 
+        } finally { 
+            btnSalvar.innerHTML = btnNormalText; 
+            btnSalvar.disabled = false; 
         }
     });
-
-    const renderDoughnut = (id, labels, data, colors) => { if(graficosInstanciados[id]) graficosInstanciados[id].destroy(); graficosInstanciados[id] = new Chart(document.getElementById(id), { type: 'doughnut', data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 1, borderColor: '#1e293b' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#94a3b8', font: { size: 10 } } } } } }); };
-    const renderBar = (id, labels, data, color, isCurrency=false) => { if(graficosInstanciados[id]) graficosInstanciados[id].destroy(); graficosInstanciados[id] = new Chart(document.getElementById(id), { type: 'bar', data: { labels, datasets: [{ data, backgroundColor: color, borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => isCurrency ? 'R$ '+c.raw.toLocaleString('pt-BR') : c.raw } } }, scales: { y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8', callback: (v) => isCurrency ? formatarMoedaAbreviada(v) : v } }, x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 }, maxRotation: 45 } } } } }); };
-    const renderHBar = (id, labels, data, color, appendDias=false) => { if(graficosInstanciados[id]) graficosInstanciados[id].destroy(); graficosInstanciados[id] = new Chart(document.getElementById(id), { type: 'bar', data: { labels, datasets: [{ data, backgroundColor: color, borderRadius: 4 }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => appendDias ? c.raw + ' dias' : c.raw } } }, scales: { x: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } }, y: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } } } } }); };
-
-    renderDoughnut('chart-status-geral', ['No Prazo', 'Atrasada', 'Concluída', 'Cancelada'], [cGeral.NoPrazo, cGeral.Atrasada, cGeral.Concluida, cGeral.Cancelada], ['#3b82f6', '#ef4444', '#10b981', '#475569']);
-    renderDoughnut('chart-tipo-exec', ['Direta', 'Indireta'], [cTipo.Direta, cTipo.Indireta], ['#3b82f6', '#8b5cf6']);
-    renderDoughnut('chart-eng', ['Exige', 'Não Exige'], [cEng.Sim, cEng.Nao], ['#f59e0b', '#334155']);
-    renderDoughnut('chart-rem', ['Remanejada', 'Original'], [cRem.Sim, cRem.Nao], ['#d946ef', '#334155']);
-
-    let sortSec = Object.keys(cSec).sort((a,b)=>cSec[b]-cSec[a]); renderBar('chart-q-sec', sortSec, sortSec.map(k=>cSec[k]), '#3b82f6');
-    let sortVSec = Object.keys(vSec).sort((a,b)=>vSec[b]-vSec[a]); renderBar('chart-v-sec', sortVSec, sortVSec.map(k=>vSec[k]), '#10b981', true);
-    let sortAut = Object.keys(cAut).sort((a,b)=>cAut[b]-cAut[a]); renderBar('chart-q-bancada', sortAut, sortAut.map(k=>cAut[k]), '#8b5cf6');
-    let sortVAut = Object.keys(vAut).sort((a,b)=>vAut[b]-vAut[a]); renderBar('chart-v-bancada', sortVAut, sortVAut.map(k=>vAut[k]), '#10b981', true);
-    let sortPri = Object.keys(cPri).sort((a,b)=>parseInt(a)-parseInt(b)); renderBar('chart-prioridades', sortPri, sortPri.map(k=>cPri[k]), '#f59e0b');
-    renderHBar('chart-enquadramento', Object.keys(cCont), Object.values(cCont), '#14b8a6');
-
-    let gargLabels = []; let gargData = [];
-    for(const [etapa, diasArr] of Object.entries(gargalos)) { if(!etapa.includes("CANCELADA")) { gargLabels.push(etapa.length > 25 ? etapa.substring(0,25)+'...' : etapa); gargData.push(Math.round(diasArr.reduce((a,b)=>a+b,0)/diasArr.length)); } }
-    renderHBar('chart-gargalos', gargLabels, gargData, '#ef4444', true);
-    renderDoughnut('chart-v-tipo', ['Direta', 'Indireta'], [vTipo.Direta, vTipo.Indireta], ['#3b82f6', '#8b5cf6']);
-
-    const listBen = document.getElementById('list-top-beneficiarios'); listBen.innerHTML = '';
-    let sortBen = Object.keys(topBen).sort((a,b)=>topBen[b]-topBen[a]).slice(0,5);
-    sortBen.forEach((b, i) => { listBen.innerHTML += `<li class="flex justify-between items-center bg-slate-900/50 p-2 rounded border border-slate-700 hover:bg-slate-800 transition"><div class="flex items-center gap-2"><span class="text-xs font-bold text-slate-500">${i+1}º</span><span class="text-xs text-slate-200 truncate w-32" title="${b}">${b}</span></div><span class="text-xs font-bold text-emerald-400">R$ ${topBen[b].toLocaleString('pt-BR')}</span></li>`; });
-
-    const listCrit = document.getElementById('list-criticas'); listCrit.innerHTML = '';
-    if(atrasadasList.length === 0) listCrit.innerHTML = '<li class="text-center text-xs text-emerald-400 mt-8">Nenhuma emenda atrasada!</li>';
-    else {
-        atrasadasList.sort((a,b)=>{ let da = a.historico_status && a.historico_status.length>0 ? new Date(a.historico_status[a.historico_status.length-1].data) : new Date(0); let db = b.historico_status && b.historico_status.length>0 ? new Date(b.historico_status[b.historico_status.length-1].data) : new Date(0); return da - db; }).slice(0,5).forEach(c => {
-            let dUlt = c.historico_status && c.historico_status.length>0 ? c.historico_status[c.historico_status.length-1].data : '';
-            let dParada = dUlt ? Math.floor((new Date() - new Date(dUlt))/(1000*60*60*24)) : '?';
-            listCrit.innerHTML += `<li class="bg-red-900/20 p-2 rounded border border-red-800/30 hover:bg-red-900/40 transition"><div class="flex justify-between items-center"><span class="text-xs font-bold text-slate-200">${c.numero_emenda}</span><span class="text-[9px] font-bold text-red-400 bg-red-900/50 px-1.5 py-0.5 rounded">${dParada} dias parada</span></div><p class="text-[10px] text-slate-400 mt-1 truncate" title="${c.historico_status ? c.historico_status[c.historico_status.length-1].status : ''}">${c.historico_status ? c.historico_status[c.historico_status.length-1].status : ''}</p></li>`;
-        });
-    }
-
-    if(graficosInstanciados['chart-evolucao']) graficosInstanciados['chart-evolucao'].destroy();
-    let keysEvo = Object.keys(evolucao).sort();
-    graficosInstanciados['chart-evolucao'] = new Chart(document.getElementById('chart-evolucao'), { type: 'line', data: { labels: keysEvo, datasets: [{ label: 'Movimentações', data: keysEvo.map(k=>evolucao[k]), borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.2)', borderWidth: 3, pointBackgroundColor: '#3b82f6', fill: true, tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8', stepSize: 1 } }, x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } } } } });
 }
 
-// ==========================================
-// LÓGICA DO MODAL DE CONFIGURAÇÃO DE ETAPAS
-// ==========================================
 let etapaConfigTipoAtual = 'Direta';
 const modalEtapas = document.getElementById('modal-etapas-config');
 const btnAbrirEtapas = document.getElementById('btn-abrir-config-etapas');
@@ -1208,6 +1184,7 @@ const tabDireta = document.getElementById('tab-direta');
 const tabIndireta = document.getElementById('tab-indireta');
 
 function renderizarTabelaEtapasConfig() {
+    if (!tbodyEtapas) return;
     tbodyEtapas.innerHTML = '';
     const lista = etapaConfigTipoAtual === 'Direta' ? ETAPAS_DIRETA : ETAPAS_INDIRETA;
     
@@ -1238,78 +1215,231 @@ function coletarDadosTabelaConfig() {
     });
 }
 
-btnAbrirEtapas.addEventListener('click', () => {
-    etapaConfigTipoAtual = 'Direta';
-    tabDireta.className = "px-4 py-2 font-bold text-sm text-blue-400 border-b-2 border-blue-400 focus:outline-none";
-    tabIndireta.className = "px-4 py-2 font-bold text-sm text-slate-400 border-b-2 border-transparent hover:text-slate-200 focus:outline-none transition";
-    renderizarTabelaEtapasConfig();
-    modalEtapas.classList.remove('hidden');
-});
+if (btnAbrirEtapas && modalEtapas) {
+    btnAbrirEtapas.addEventListener('click', () => {
+        etapaConfigTipoAtual = 'Direta';
+        if (tabDireta) tabDireta.className = "px-4 py-2 font-bold text-sm text-blue-400 border-b-2 border-blue-400 focus:outline-none";
+        if (tabIndireta) tabIndireta.className = "px-4 py-2 font-bold text-sm text-slate-400 border-b-2 border-transparent hover:text-slate-200 focus:outline-none transition";
+        renderizarTabelaEtapasConfig();
+        modalEtapas.classList.remove('hidden');
+    });
+}
 
 const fecharModalEtapas = () => {
-    modalEtapas.classList.add('hidden');
+    if (modalEtapas) modalEtapas.classList.add('hidden');
     carregarOpcoesStatus(selTipoExecucao ? selTipoExecucao.value : "Direta");
 };
 
-btnFecharEtapas.addEventListener('click', fecharModalEtapas);
-btnCancelarEtapas.addEventListener('click', fecharModalEtapas);
+if (btnFecharEtapas) btnFecharEtapas.addEventListener('click', fecharModalEtapas);
+if (btnCancelarEtapas) btnCancelarEtapas.addEventListener('click', fecharModalEtapas);
 
-tabDireta.addEventListener('click', () => {
-    coletarDadosTabelaConfig();
-    etapaConfigTipoAtual = 'Direta';
-    tabDireta.className = "px-4 py-2 font-bold text-sm text-blue-400 border-b-2 border-blue-400 focus:outline-none";
-    tabIndireta.className = "px-4 py-2 font-bold text-sm text-slate-400 border-b-2 border-transparent hover:text-slate-200 focus:outline-none transition";
-    renderizarTabelaEtapasConfig();
-});
+if (tabDireta) {
+    tabDireta.addEventListener('click', () => {
+        coletarDadosTabelaConfig();
+        etapaConfigTipoAtual = 'Direta';
+        tabDireta.className = "px-4 py-2 font-bold text-sm text-blue-400 border-b-2 border-blue-400 focus:outline-none";
+        if (tabIndireta) tabIndireta.className = "px-4 py-2 font-bold text-sm text-slate-400 border-b-2 border-transparent hover:text-slate-200 focus:outline-none transition";
+        renderizarTabelaEtapasConfig();
+    });
+}
 
-tabIndireta.addEventListener('click', () => {
-    coletarDadosTabelaConfig();
-    etapaConfigTipoAtual = 'Indireta';
-    tabIndireta.className = "px-4 py-2 font-bold text-sm text-blue-400 border-b-2 border-blue-400 focus:outline-none";
-    tabDireta.className = "px-4 py-2 font-bold text-sm text-slate-400 border-b-2 border-transparent hover:text-slate-200 focus:outline-none transition";
-    renderizarTabelaEtapasConfig();
-});
+if (tabIndireta) {
+    tabIndireta.addEventListener('click', () => {
+        coletarDadosTabelaConfig();
+        etapaConfigTipoAtual = 'Indireta';
+        tabIndireta.className = "px-4 py-2 font-bold text-sm text-blue-400 border-b-2 border-blue-400 focus:outline-none";
+        if (tabDireta) tabDireta.className = "px-4 py-2 font-bold text-sm text-slate-400 border-b-2 border-transparent hover:text-slate-200 focus:outline-none transition";
+        renderizarTabelaEtapasConfig();
+    });
+}
 
-btnSalvarEtapas.addEventListener('click', async () => {
-    coletarDadosTabelaConfig();
-    const btnOriginal = btnSalvarEtapas.innerHTML;
-    btnSalvarEtapas.innerHTML = 'Salvando...';
-    btnSalvarEtapas.disabled = true;
+if (btnSalvarEtapas) {
+    btnSalvarEtapas.addEventListener('click', async () => {
+        coletarDadosTabelaConfig();
+        const btnOriginal = btnSalvarEtapas.innerHTML;
+        btnSalvarEtapas.innerHTML = 'Salvando...';
+        btnSalvarEtapas.disabled = true;
 
-    try {
-        const configRef = doc(db, "configuracoes", "etapas");
-        await setDoc(configRef, {
-            direta: ETAPAS_DIRETA,
-            indireta: ETAPAS_INDIRETA,
-            data_ultima_alteracao: new Date().toISOString(),
-            usuario: auth.currentUser ? auth.currentUser.email : 'Administrador'
-        });
-        
-        showToast("Prazos e etapas atualizados com sucesso!", "success");
-        fecharModalEtapas();
-        
-        if(filtradosGlobais.length > 0) {
-            atualizarVelocimetro(filtradosGlobais);
-            renderizarTabela(filtradosGlobais);
+        try {
+            const configRef = doc(db, "configuracoes", "etapas");
+            await setDoc(configRef, {
+                direta: ETAPAS_DIRETA,
+                indireta: ETAPAS_INDIRETA,
+                data_ultima_alteracao: new Date().toISOString(),
+                usuario: auth.currentUser ? auth.currentUser.email : 'Administrador'
+            });
+            
+            showToast("Prazos e etapas atualizados com sucesso!", "success");
+            fecharModalEtapas();
+            
+            if(filtradosGlobais.length > 0) {
+                atualizarVelocimetro(filtradosGlobais);
+                renderizarTabela(filtradosGlobais);
+            }
+        } catch (e) {
+            console.error("Erro ao salvar etapas:", e);
+            showToast("Erro de conexão ao salvar as etapas.", "error");
+        } finally {
+            btnSalvarEtapas.innerHTML = btnOriginal;
+            btnSalvarEtapas.disabled = false;
         }
-    } catch (e) {
-        console.error("Erro ao salvar etapas:", e);
-        showToast("Erro de conexão ao salvar as etapas.", "error");
-    } finally {
-        btnSalvarEtapas.innerHTML = btnOriginal;
-        btnSalvarEtapas.disabled = false;
-    }
-});
+    });
+}
 
-// ==========================================
-// EVENTOS GERAIS E ATALHOS
-// ==========================================
+function formatarNomeUsuario(email) {
+    if (!email) return "Usuário";
+    const parteAntesArroba = email.split('@')[0];
+    const partes = parteAntesArroba.split(/[._-]/).filter(Boolean);
+    if (partes.length > 0) {
+        return partes.map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
+    }
+    return parteAntesArroba.charAt(0).toUpperCase() + parteAntesArroba.slice(1);
+}
+
+function verificarEExibirBoasVindas() {
+    if (welcomeModalJaExibidoNestaSessao) return;
+    const user = auth.currentUser;
+    if (!user || !user.email) return;
+
+    const modal = document.getElementById('welcome-modal');
+    const elNome = document.getElementById('welcome-nome-usuario');
+    const elListaEquipe = document.getElementById('welcome-lista-equipe');
+    const elListaUsuario = document.getElementById('welcome-lista-usuario');
+    const btnContinuar = document.getElementById('btn-welcome-continuar');
+    if (!modal || !elNome || !elListaEquipe || !elListaUsuario) return;
+
+    const emailAtual = user.email.toLowerCase();
+    const loginUser = emailAtual.split('@')[0];
+    const nomeFormatado = formatarNomeUsuario(user.email);
+    elNome.textContent = nomeFormatado;
+
+    let atividadesDoUsuario = [];
+    let atividadesGerais = [];
+
+    dadosEmendasGlobais.forEach(emenda => {
+        const proc = emenda.numero_processo || emenda.numero_emenda || "Emenda";
+        const ben = emenda.beneficiario || emenda.secretaria || "";
+
+        if (emenda.historico_status && Array.isArray(emenda.historico_status)) {
+            emenda.historico_status.forEach(et => {
+                const autorAcao = (et.usuario_original || et.usuario_checagem || et.usuario || "").toLowerCase();
+                const dataRaw = et.data_checagem || et.data_original || et.data || "";
+                const autorFormatado = et.usuario_original || et.usuario_checagem || (et.usuario ? et.usuario.split('@')[0] : "Sistema");
+                
+                const item = {
+                    processo: proc,
+                    beneficiario: ben,
+                    status: et.status || "Atualização",
+                    obs: et.observacao || "",
+                    data: dataRaw,
+                    autor: autorFormatado,
+                    ehDoUsuario: autorAcao.includes(loginUser) || autorAcao.includes(emailAtual)
+                };
+
+                if (item.ehDoUsuario) atividadesDoUsuario.push(item);
+                atividadesGerais.push(item);
+            });
+        }
+
+        if (emenda.versoes_remanejamento && Array.isArray(emenda.versoes_remanejamento)) {
+            emenda.versoes_remanejamento.forEach(v => {
+                const autorAcao = (v.usuario || "").toLowerCase();
+                const dataRaw = v.data_alteracao ? v.data_alteracao.split('T')[0] : "";
+                const autorFormatado = v.usuario ? v.usuario.split('@')[0] : "Administrador";
+                
+                const item = {
+                    processo: proc,
+                    beneficiario: ben,
+                    status: "🔄 Remanejamento de Estrutura",
+                    obs: `Para: ${v.novo?.beneficiario || 'Novo beneficiário'}`,
+                    data: dataRaw,
+                    autor: autorFormatado,
+                    ehDoUsuario: autorAcao.includes(loginUser) || autorAcao.includes(emailAtual)
+                };
+
+                if (item.ehDoUsuario) atividadesDoUsuario.push(item);
+                atividadesGerais.push(item);
+            });
+        }
+    });
+
+    const ordenarPorData = (a, b) => new Date(b.data || 0) - new Date(a.data || 0);
+    atividadesDoUsuario.sort(ordenarPorData);
+    atividadesGerais.sort(ordenarPorData);
+
+    const formatarDataBR = (dataStr) => {
+        if (!dataStr) return "-";
+        try {
+            const partes = dataStr.split('-');
+            if (partes.length === 3) return `${partes[2]}/${partes[1]}/${partes[0]}`;
+        } catch(e) {}
+        return dataStr;
+    };
+
+    // 1. Renderiza Últimas Movimentações da Equipe (Geral)
+    const equipeParaExibir = atividadesGerais.slice(0, 3);
+    elListaEquipe.innerHTML = '';
+    if (equipeParaExibir.length === 0) {
+        elListaEquipe.innerHTML = '<li class="text-slate-500 italic py-1.5">Nenhuma atividade recente registrada na equipe.</li>';
+    } else {
+        equipeParaExibir.forEach(act => {
+            elListaEquipe.innerHTML += `
+                <li class="bg-slate-800/80 p-2 rounded-lg border border-slate-700/70 hover:border-slate-600 transition">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="font-bold text-slate-200 text-xs truncate max-w-[240px]">${act.processo} <span class="font-normal text-slate-400 text-[11px]">(${act.beneficiario})</span></span>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] text-blue-300 bg-blue-900/40 border border-blue-800/50 px-1.5 py-0.5 rounded font-medium">👤 ${act.autor}</span>
+                            <span class="text-[10px] text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded font-mono border border-slate-700">${formatarDataBR(act.data)}</span>
+                        </div>
+                    </div>
+                    <div class="text-[11px] text-blue-400 font-medium truncate">${act.status}</div>
+                    ${act.obs ? `<div class="text-[10px] text-slate-500 italic truncate mt-0.5">"${act.obs}"</div>` : ''}
+                </li>
+            `;
+        });
+    }
+
+    // 2. Renderiza Últimas Movimentações do Usuário Logado (Pessoal)
+    const usuarioParaExibir = atividadesDoUsuario.slice(0, 3);
+    elListaUsuario.innerHTML = '';
+    if (usuarioParaExibir.length === 0) {
+        elListaUsuario.innerHTML = '<li class="text-slate-500 italic py-1.5">Você ainda não realizou alterações registradas nesta base.</li>';
+    } else {
+        usuarioParaExibir.forEach(act => {
+            elListaUsuario.innerHTML += `
+                <li class="bg-slate-800/80 p-2 rounded-lg border border-slate-700/70 hover:border-slate-600 transition">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="font-bold text-slate-200 text-xs truncate max-w-[240px]">${act.processo} <span class="font-normal text-slate-400 text-[11px]">(${act.beneficiario})</span></span>
+                        <span class="text-[10px] text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded font-mono border border-slate-700">${formatarDataBR(act.data)}</span>
+                    </div>
+                    <div class="text-[11px] text-emerald-400 font-medium truncate">${act.status}</div>
+                    ${act.obs ? `<div class="text-[10px] text-slate-500 italic truncate mt-0.5">"${act.obs}"</div>` : ''}
+                </li>
+            `;
+        });
+    }
+
+    modal.classList.remove('hidden');
+    welcomeModalJaExibidoNestaSessao = true;
+
+    const fecharWelcomeModal = () => {
+        modal.classList.add('hidden');
+    };
+
+    if (btnContinuar) btnContinuar.onclick = fecharWelcomeModal;
+    modal.onclick = (e) => {
+        if (e.target === modal) fecharWelcomeModal();
+    };
+}
+
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+        const modalWelcome = document.getElementById('welcome-modal');
         const modalEmend = document.getElementById('modal-emenda');
         const modalAviso = document.getElementById('confirm-modal');
         const modalConfig = document.getElementById('modal-etapas-config'); 
         
+        if (modalWelcome && !modalWelcome.classList.contains('hidden')) modalWelcome.classList.add('hidden');
         if (modalEmend && !modalEmend.classList.contains('hidden')) limparEFecharModal();
         if (modalAviso && !modalAviso.classList.contains('hidden')) modalAviso.classList.add('hidden');
         if (modalConfig && !modalConfig.classList.contains('hidden')) {
@@ -1394,7 +1524,8 @@ if(btnUnirEmendas) {
                 console.error(e);
                 showToast("Erro ao tentar unir emendas.", "error");
             } finally {
-                btnUnirEmendas.innerHTML = btnNormal; btnUnirEmendas.disabled = false;
+                btnUnirEmendas.innerHTML = btnNormal; 
+                btnUnirEmendas.disabled = false;
             }
         });
     });
@@ -1408,21 +1539,26 @@ if(btnDesunir) {
             if(!idEdicao) return;
             
             try {
-                btnDesunir.disabled = true; btnDesunir.textContent = "Separando...";
+                btnDesunir.disabled = true; 
+                btnDesunir.textContent = "Separando...";
                 await updateDoc(doc(db, "emendas", idEdicao), { grupo_id: null });
                 
                 const em = dadosEmendasGlobais.find(e => e.id === idEdicao);
                 if(em) em.grupo_id = null;
                 if(emendaOriginalSendoEditada) emendaOriginalSendoEditada.grupo_id = null;
                 
-                document.getElementById('banner-grupo').classList.add('hidden');
+                const bannerGrupo = document.getElementById('banner-grupo');
+                if(bannerGrupo) bannerGrupo.classList.add('hidden');
+                
                 localStorage.setItem(CACHE_KEY, JSON.stringify(dadosEmendasGlobais));
                 aplicarFiltrosEOrdenacao();
                 showToast("Emenda desvinculada do grupo com sucesso.", "success");
             } catch(e) {
-                console.error(e); showToast("Erro ao separar emenda.", "error");
+                console.error(e); 
+                showToast("Erro ao separar emenda.", "error");
             } finally {
-                btnDesunir.disabled = false; btnDesunir.innerHTML = `<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg> Desfazer União`;
+                btnDesunir.disabled = false; 
+                btnDesunir.innerHTML = `<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg> Desfazer União`;
             }
         });
     });

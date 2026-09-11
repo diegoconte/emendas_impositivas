@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRISMA • Matriz de Efetividade & Planejamento Regional (COREDE) - Módulo 5</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: #f8fafc; color: #0f172a; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800 flex flex-col antialiased">
+
+    <!-- BARRA OFICIAL GOVERNAMENTAL SUPERIOR -->
+    <div class="bg-[#0b2240] text-white text-[11px] font-medium border-b border-[#08182d]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1.5 flex flex-col sm:flex-row justify-between items-center gap-1">
+            <div class="flex items-center gap-2">
+                <span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
+                <span>PLANEJAMENTO ESTRATÉGICO REGIONAL • COREDE FRONTEIRA NOROESTE (2022-2030)</span>
+            </div>
+            <div class="flex items-center gap-3 text-slate-300 text-[10px]">
+                <span>Governança Baseada em Evidências</span>
+                <span>•</span>
+                <span>Plano Plurianual (PPA)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- NAVBAR INSTITUCIONAL PRISMA -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                
+                <div class="flex items-center gap-3.5">
+                    <div class="w-10 h-10 rounded-md bg-[#003399] flex items-center justify-center text-white shadow-xs">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-lg tracking-tight text-[#003399]">PRISMA</span>
+                            <span class="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-50 text-[#003399] border border-blue-200">
+                                Módulo 5 • Indicadores & COREDE
+                            </span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 font-normal">Avaliação de Efetividade Social e Planejamento Regional</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-1.5 sm:gap-2">
+                    <a href="index.html" class="text-xs font-semibold text-slate-600 hover:text-[#003399] px-3 py-2 rounded-md hover:bg-slate-100 transition">
+                        Transparência Ativa
+                    </a>
+                    <a href="legislativo.html" class="text-xs font-semibold text-slate-600 hover:text-[#003399] px-3 py-2 rounded-md hover:bg-slate-100 transition hidden sm:inline-block">
+                        Portal Legislativo
+                    </a>
+                    <a href="admin.html" class="flex items-center gap-1.5 text-xs font-semibold bg-[#003399] hover:bg-[#002266] text-white px-3.5 py-2 rounded-md transition shadow-xs">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        Coordenação Geral
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </nav>
+
+    <!-- CABEÇALHO ORIENTATIVO DO MÓDULO -->
+    <header class="bg-white border-b border-slate-200 py-6 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div class="max-w-3xl">
+                <nav class="flex items-center gap-1.5 text-xs text-slate-500 mb-1.5 font-medium">
+                    <a href="index.html" class="hover:underline text-slate-600">Início</a>
+                    <span>/</span>
+                    <span class="text-slate-800">Avaliação de Políticas Públicas</span>
+                    <span>/</span>
+                    <span class="text-[#003399] font-semibold">Matriz de Efetividade Social</span>
+                </nav>
+                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                    Matriz de Efetividade Social & Conexão Regional
+                </h1>
+                <p class="text-slate-600 mt-1.5 text-xs sm:text-sm leading-relaxed">
+                    Superação do gasto contábil isolado. O sistema audita o retorno social mensurável entre a 
+                    <strong class="text-slate-800 font-semibold">Linha de Base (situação inicial)</strong> e a 
+                    <strong class="text-emerald-800 font-semibold">Meta Alvo Atestada</strong>, articulando o recurso municipal aos 4 Eixos do COREDE Noroeste.
+                </p>
+            </div>
+
+            <div class="bg-slate-50 p-3 rounded-md border border-slate-300 flex items-center gap-3">
+                <div class="w-8 h-8 rounded bg-[#003399] text-white flex items-center justify-center font-bold text-xs">
+                    PPA
+                </div>
+                <div>
+                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Base da Pesquisa Aplicada</span>
+                    <span class="text-xs font-bold text-slate-900">Políticas Públicas & Governança Regional</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-grow space-y-8">
+
+        <!-- OS 4 EIXOS DO COREDE FRONTEIRA NOROESTE -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-xs flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Eixo 01 • COREDE</span>
+                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-blue-50 text-[#003399] border border-blue-200">3 Emendas</span>
+                    </div>
+                    <h3 class="text-xs font-bold text-slate-900 mt-1">Inovação & Indústria Metalmecânica</h3>
+                    <div class="mt-2">
+                        <span class="text-xl font-bold text-slate-900 font-mono">R$ 140.000,00</span>
+                    </div>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-2 border-t border-slate-100 pt-2">Meta: 80 jovens qualificados em solda e automação.</p>
+            </div>
+
+            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-xs flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Eixo 02 • COREDE</span>
+                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">8 Emendas</span>
+                    </div>
+                    <h3 class="text-xs font-bold text-slate-900 mt-1">Saúde, Inclusão & Bem-Estar</h3>
+                    <div class="mt-2">
+                        <span class="text-xl font-bold text-slate-900 font-mono">R$ 490.000,00</span>
+                    </div>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-2 border-t border-slate-100 pt-2">Meta: Redução de fila bucomaxilo e fonoaudiologia.</p>
+            </div>
+
+            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-xs flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Eixo 03 • COREDE</span>
+                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-blue-50 text-[#003399] border border-blue-200">5 Emendas</span>
+                    </div>
+                    <h3 class="text-xs font-bold text-slate-900 mt-1">Educação, Ciência & Juventude</h3>
+                    <div class="mt-2">
+                        <span class="text-xl font-bold text-slate-900 font-mono">R$ 215.000,00</span>
+                    </div>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-2 border-t border-slate-100 pt-2">Meta: Contraturno escolar e formação docente FAOR.</p>
+            </div>
+
+            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-xs flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Eixo 04 • COREDE</span>
+                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-300">2 Emendas</span>
+                    </div>
+                    <h3 class="text-xs font-bold text-slate-900 mt-1">Infraestrutura & Meio Ambiente</h3>
+                    <div class="mt-2">
+                        <span class="text-xl font-bold text-slate-900 font-mono">R$ 95.000,00</span>
+                    </div>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-2 border-t border-slate-100 pt-2">Meta: Coletivo rural e sustentabilidade hídrica.</p>
+            </div>
+
+        </section>
+
+        <!-- TABELA OFICIAL DE EFETIVIDADE SOCIAL -->
+        <section class="bg-white rounded-lg border border-slate-200 shadow-xs overflow-hidden">
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                <div>
+                    <h2 class="text-base font-bold text-slate-900">Auditoria Empírica de Metas Físicas e Efetividade Social</h2>
+                    <p class="text-xs text-slate-500">Comparação auditada entre a linha de base e a entrega concreta à sociedade.</p>
+                </div>
+                <button type="button" class="bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold py-1.5 px-3 rounded border border-slate-300 shadow-xs transition flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Exportar Tese / TCE (CSV)
+                </button>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase font-semibold text-[11px]">
+                        <tr>
+                            <th class="px-4 py-3">Emenda / Processo</th>
+                            <th class="px-4 py-3">Beneficiário</th>
+                            <th class="px-4 py-3">Linha de Base (Situação Inicial)</th>
+                            <th class="px-4 py-3">Meta Alvo Pactuada</th>
+                            <th class="px-4 py-3">Efetividade Homologada</th>
+                            <th class="px-4 py-3">Eixo Regional (COREDE)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-slate-700">
+                        <tr class="hover:bg-slate-50/80">
+                            <td class="px-4 py-3 font-mono font-bold text-slate-900">
+                                042/2026
+                                <span class="text-[10px] text-slate-500 block font-normal font-sans">Proc. Adm. 339102</span>
+                            </td>
+                            <td class="px-4 py-3 font-semibold text-slate-900">APAE Horizontina</td>
+                            <td class="px-4 py-3 text-slate-600">
+                                <span class="text-rose-700 font-semibold block">0 vagas disponíveis</span>
+                                25 crianças sem terapia sensorial
+                            </td>
+                            <td class="px-4 py-3 text-slate-900 font-semibold">
+                                25 crianças com 40h de terapia sensorial
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-16 bg-slate-200 rounded-full h-2">
+                                        <div class="bg-emerald-600 h-2 rounded-full" style="width: 100%"></div>
+                                    </div>
+                                    <span class="font-bold text-emerald-800">100%</span>
+                                </div>
+                                <span class="text-[10px] text-slate-500">Homologado pelo Fiscal</span>
+                            </td>
+                            <td class="px-4 py-3 font-medium text-[#003399]">Eixo 02: Saúde</td>
+                        </tr>
+
+                        <tr class="hover:bg-slate-50/80">
+                            <td class="px-4 py-3 font-mono font-bold text-slate-900">
+                                045/2026
+                                <span class="text-[10px] text-slate-500 block font-normal font-sans">Proc. Adm. 339145</span>
+                            </td>
+                            <td class="px-4 py-3 font-semibold text-slate-900">Assoc. Viver Bem</td>
+                            <td class="px-4 py-3 text-slate-600">
+                                <span class="text-rose-700 font-semibold block">0 vagas descentralizadas</span>
+                                Fila reprimida de jovens no Bairro Campina
+                            </td>
+                            <td class="px-4 py-3 text-slate-900 font-semibold">
+                                30 jovens atendidos em contraturno
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-16 bg-slate-200 rounded-full h-2">
+                                        <div class="bg-[#003399] h-2 rounded-full" style="width: 60%"></div>
+                                    </div>
+                                    <span class="font-bold text-[#003399]">60%</span>
+                                </div>
+                                <span class="text-[10px] text-slate-500">Execução no prazo</span>
+                            </td>
+                            <td class="px-4 py-3 font-medium text-[#003399]">Eixo 03: Educação</td>
+                        </tr>
+
+                        <tr class="hover:bg-slate-50/80">
+                            <td class="px-4 py-3 font-mono font-bold text-slate-900">
+                                012/2026
+                                <span class="text-[10px] text-slate-500 block font-normal font-sans">Proc. Adm. 338902</span>
+                            </td>
+                            <td class="px-4 py-3 font-semibold text-slate-900">ACEHOR / SENAI</td>
+                            <td class="px-4 py-3 text-slate-600">
+                                <span class="text-rose-700 font-semibold block">Carência Industrial</span>
+                                Falta de soldadores locais qualificados
+                            </td>
+                            <td class="px-4 py-3 text-slate-900 font-semibold">
+                                40 jovens certificados para a indústria
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-16 bg-slate-200 rounded-full h-2">
+                                        <div class="bg-emerald-600 h-2 rounded-full" style="width: 100%"></div>
+                                    </div>
+                                    <span class="font-bold text-emerald-800">100%</span>
+                                </div>
+                                <span class="text-[10px] text-slate-500">Certificados emitidos</span>
+                            </td>
+                            <td class="px-4 py-3 font-medium text-[#003399]">Eixo 01: Indústria</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- RODAPÉ INSTITUCIONAL PADRÃO GOV -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-xs text-slate-600 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div>
+                <span class="font-semibold text-slate-800">PRISMA • Plataforma de Rastreamento de Investimentos e Metas Abertas</span>
+                <p class="text-[11px] text-slate-500">Módulo Científico de Avaliação de Efetividade e Governança Pública Regional.</p>
+            </div>
+            <span class="text-[11px] font-mono text-slate-500">COREDE Fronteira Noroeste • Horizontina / RS</span>
+        </div>
+    </footer>
+
+</body>
+</html>

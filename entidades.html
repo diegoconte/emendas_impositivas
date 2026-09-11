@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRISMA • Banco de Projetos da Sociedade Civil - Módulo 3</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: #f8fafc; color: #0f172a; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800 flex flex-col antialiased">
+
+    <!-- BARRA OFICIAL GOVERNAMENTAL SUPERIOR -->
+    <div class="bg-[#0b2240] text-white text-[11px] font-medium border-b border-[#08182d]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1.5 flex flex-col sm:flex-row justify-between items-center gap-1">
+            <div class="flex items-center gap-2">
+                <span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
+                <span>MUNICÍPIO DE HORIZONTINA • ESTADO DO RIO GRANDE DO SUL</span>
+            </div>
+            <div class="flex items-center gap-3 text-slate-300 text-[10px]">
+                <span>Ambiente Seguro Governamental</span>
+                <span>•</span>
+                <span>MROSC (Lei Federal 13.019/2014)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- NAVBAR INSTITUCIONAL PRISMA -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                
+                <div class="flex items-center gap-3.5">
+                    <div class="w-10 h-10 rounded-md bg-[#003399] flex items-center justify-center text-white shadow-xs">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-lg tracking-tight text-[#003399]">PRISMA</span>
+                            <span class="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-50 text-[#003399] border border-blue-200">
+                                Módulo 3 • Sociedade Civil
+                            </span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 font-normal">Banco de Projetos e Propostas Comunitárias (MROSC)</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-1.5 sm:gap-2">
+                    <a href="index.html" class="text-xs font-semibold text-slate-600 hover:text-[#003399] px-3 py-2 rounded-md hover:bg-slate-100 transition">
+                        Transparência Ativa
+                    </a>
+                    <a href="legislativo.html" class="text-xs font-semibold text-slate-600 hover:text-[#003399] px-3 py-2 rounded-md hover:bg-slate-100 transition hidden md:inline-block">
+                        Portal Legislativo
+                    </a>
+                    <a href="gestao.html" class="text-xs font-semibold text-slate-600 hover:text-[#003399] px-3 py-2 rounded-md hover:bg-slate-100 transition hidden sm:inline-block">
+                        Comissões MROSC
+                    </a>
+                    <a href="admin.html" class="flex items-center gap-1.5 text-xs font-semibold bg-[#003399] hover:bg-[#002266] text-white px-3.5 py-2 rounded-md transition shadow-xs">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        Coordenação Geral
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </nav>
+
+    <!-- CABEÇALHO TÉCNICO E ORIENTATIVO -->
+    <header class="bg-white border-b border-slate-200 py-6 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div class="max-w-3xl">
+                <nav class="flex items-center gap-1.5 text-xs text-slate-500 mb-1.5 font-medium">
+                    <a href="index.html" class="hover:underline text-slate-600">Início</a>
+                    <span>/</span>
+                    <span class="text-slate-800">Organizações da Sociedade Civil</span>
+                    <span>/</span>
+                    <span class="text-[#003399] font-semibold">Banco Comunitário de Propostas</span>
+                </nav>
+                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                    Inscrição e Banco de Propostas Comunitárias
+                </h1>
+                <p class="text-slate-600 mt-1.5 text-xs sm:text-sm leading-relaxed">
+                    Instrumento formal de recepção de demandas de entidades privadas sem fins lucrativos, articulando necessidades públicas ao 
+                    <strong class="text-slate-800 font-semibold">Plano Plurianual (PPA)</strong> e às emendas parlamentares impositivas.
+                </p>
+            </div>
+
+            <div class="flex items-center gap-2.5 shrink-0">
+                <button onclick="document.getElementById('secao-formulario').scrollIntoView({behavior: 'smooth'})" class="inline-flex items-center gap-2 bg-[#003399] hover:bg-[#002266] text-white font-semibold text-xs py-2.5 px-4 rounded-md shadow-xs transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Cadastrar Proposta
+                </button>
+                <button onclick="document.getElementById('secao-banco').scrollIntoView({behavior: 'smooth'})" class="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs py-2.5 px-3.5 rounded-md border border-slate-300 shadow-xs transition">
+                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                    Consultar Banco
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-grow space-y-8">
+
+        <!-- PAINEL DE INDICADORES OFICIAIS -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-xs">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Propostas Cadastradas</span>
+                <div class="flex items-baseline gap-2 mt-1.5">
+                    <span class="text-2xl font-bold text-slate-900 font-mono">18</span>
+                    <span class="text-xs text-emerald-700 font-medium bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">+4 este mês</span>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-1">Total de planos submetidos por OSCs locais.</p>
+            </div>
+
+            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-xs">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Adoção Parlamentar</span>
+                <div class="flex items-baseline gap-2 mt-1.5">
+                    <span class="text-2xl font-bold text-[#003399] font-mono">7</span>
+                    <span class="text-xs text-[#003399] font-semibold bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200">38,8% conversão</span>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-1">Convertidas em emendas impositivas oficiais.</p>
+            </div>
+
+            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-xs">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Volume Total Solicitado</span>
+                <div class="flex items-baseline gap-2 mt-1.5">
+                    <span class="text-2xl font-bold text-slate-900 font-mono">R$ 542.000,00</span>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-1">Soma financeira das propostas ativas.</p>
+            </div>
+
+            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-xs">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Conformidade com COREDE</span>
+                <div class="flex items-baseline gap-2 mt-1.5">
+                    <span class="text-2xl font-bold text-emerald-700 font-mono">100%</span>
+                    <span class="text-xs text-emerald-700 font-medium">Vinculadas</span>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-1">Aderência aos eixos regionais de desenvolvimento.</p>
+            </div>
+
+        </section>
+
+        <!-- FORMULÁRIO INSTITUCIONAL DE CADASTRO -->
+        <section id="secao-formulario" class="bg-white rounded-lg border border-slate-200 shadow-xs overflow-hidden">
+            
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-7 h-7 rounded bg-[#003399] text-white flex items-center justify-center font-bold text-xs">1</span>
+                    <div>
+                        <h2 class="text-base font-bold text-slate-900">Formulário de Submissão de Proposta Técnica</h2>
+                        <p class="text-xs text-slate-500">Preenchimento obrigatório para habilitação no Banco Social Municipal (Lei 13.019/2014).</p>
+                    </div>
+                </div>
+                <span class="text-[11px] font-mono text-slate-600 bg-white px-2.5 py-1 rounded border border-slate-200 font-medium">
+                    Fase: Triagem Prévia
+                </span>
+            </div>
+
+            <form class="p-6 sm:p-8 space-y-6">
+                
+                <!-- IDENTIFICAÇÃO DA ENTIDADE -->
+                <div>
+                    <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3 pb-1 border-b border-slate-200 flex items-center justify-between">
+                        <span>1. Dados Cadastrais da Entidade Proponente</span>
+                        <span class="text-[11px] text-slate-500 font-normal lowercase">* campos obrigatórios</span>
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Razão Social da Entidade *</label>
+                            <input type="text" placeholder="Ex: Associação de Pais e Amigos dos Excepcionais - APAE" class="w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#003399] focus:border-[#003399]">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">CNPJ da Entidade *</label>
+                            <input type="text" placeholder="00.000.000/0001-00" class="w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-xs text-slate-900 placeholder-slate-400 font-mono focus:outline-none focus:ring-2 focus:ring-[#003399] focus:border-[#003399]">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Área Setorial Primária *</label>
+                            <select class="w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#003399] focus:border-[#003399]">
+                                <option value="">Selecione a área setorial...</option>
+                                <option value="Saúde">Saúde e Reabilitação Especializada</option>
+                                <option value="Educação">Educação Básica e Apoio Pedagógico</option>
+                                <option value="Assistência">Assistência Social e Direitos Humanos</option>
+                                <option value="Trabalho">Qualificação Profissional e Renda</option>
+                                <option value="Agricultura">Agricultura Familiar e Sustentabilidade</option>
+                                <option value="Cultura">Cultura, Patrimônio Histórico e Turismo</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Nome do Dirigente / Presidente *</label>
+                            <input type="text" placeholder="Nome completo conforme Ata de Posse" class="w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#003399] focus:border-[#003399]">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Contatos Institucionais (E-mail / Fone) *</label>
+                            <input type="text" placeholder="contato@entidade.org.br / (55) 3537-0000" class="w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#003399] focus:border-[#003399]">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DECLARAÇÕES DE CONFORMIDADE LEGAL -->
+                <div>
+                    <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-2 pb-1 border-b border-slate-200">
+                        2. Declarações Eletrônicas de Conformidade (Art. 39 da Lei Federal 13.019/2014)
+                    </h3>
+                    <p class="text-[11px] text-slate-600 mb-3">Requisitos impeditivos para formalização de parcerias com a Administração Pública.</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <label class="flex items-start gap-2.5 p-3 rounded-md border border-slate-200 bg-slate-50 hover:bg-white transition cursor-pointer">
+                            <input type="checkbox" checked class="mt-0.5 w-4 h-4 text-[#003399] rounded border-slate-300 focus:ring-[#003399]">
+                            <div class="text-[11px] leading-snug text-slate-700">
+                                <strong class="text-slate-900 block font-semibold mb-0.5">Sem Agentes Públicos</strong>
+                                Nenhum dirigente exerce mandato eletivo, cargo comissionado ou função gratificada no Município.
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-2.5 p-3 rounded-md border border-slate-200 bg-slate-50 hover:bg-white transition cursor-pointer">
+                            <input type="checkbox" checked class="mt-0.5 w-4 h-4 text-[#003399] rounded border-slate-300 focus:ring-[#003399]">
+                            <div class="text-[11px] leading-snug text-slate-700">
+                                <strong class="text-slate-900 block font-semibold mb-0.5">Adimplência Contábil</strong>
+                                Inexistência de prestação de contas reprovada, em atraso ou tomada de contas especial no TCE-RS.
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-2.5 p-3 rounded-md border border-slate-200 bg-slate-50 hover:bg-white transition cursor-pointer">
+                            <input type="checkbox" checked class="mt-0.5 w-4 h-4 text-[#003399] rounded border-slate-300 focus:ring-[#003399]">
+                            <div class="text-[11px] leading-snug text-slate-700">
+                                <strong class="text-slate-900 block font-semibold mb-0.5">Regularidade Fiscal</strong>
+                                Certidões negativas de débito municipal, estadual, federal e trabalhista válidas no dossiê.
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- CARACTERIZAÇÃO DO PROBLEMA PÚBLICO -->
+                <div>
+                    <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-2 pb-1 border-b border-slate-200 flex items-center justify-between">
+                        <span>3. Diagnóstico do Problema Público e Plano de Ação</span>
+                        <span class="text-[10px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 font-medium">
+                            Foco estrito em interesse público (não em compras isoladas)
+                        </span>
+                    </h3>
+
+                    <div class="space-y-3">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Título Resumido da Proposta *</label>
+                                <input type="text" placeholder="Ex: Ampliação do Atendimento Fonoaudiológico para Crianças Neuroatípicas" class="w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#003399]">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Valor Estimado do Plano (R$) *</label>
+                                <input type="text" placeholder="Ex: 45.000,00" class="w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-xs font-mono font-bold text-emerald-700 focus:outline-none focus:ring-2 focus:ring-[#003399]">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Problema Público Diagnosticado *</label>
+                            <textarea rows="2" placeholder="Descreva a carência, vulnerabilidade social ou demanda reprimida que justifica o apoio público municipal..." class="w-full bg-white border border-slate-300 rounded-md p-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#003399] leading-relaxed"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Atividades Previstas (Resumo do Plano de Trabalho) *</label>
+                            <textarea rows="2" placeholder="Especifique as ações, oficinas, atendimentos técnicos continuados ou intervenções que serão executadas..." class="w-full bg-white border border-slate-300 rounded-md p-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#003399] leading-relaxed"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MATRIZ DE EFETIVIDADE SOCIAL & COREDE -->
+                <div>
+                    <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-2 pb-1 border-b border-slate-200">
+                        4. Linha de Base, Meta Social Quantitativa & Alinhamento Estratégico
+                    </h3>
+                    <p class="text-[11px] text-slate-600 mb-3">Parâmetros de mensuração exigidos para auditoria final e comprovação do retorno social.</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-slate-50 p-3 rounded-md border border-slate-200">
+                            <label class="block text-xs font-bold text-slate-800 mb-0.5">Linha de Base (Situação Inicial Hoje) *</label>
+                            <span class="text-[10px] text-slate-500 block mb-1.5">Qual é a realidade antes do recurso público?</span>
+                            <input type="text" placeholder="Ex: 0 vagas públicas disponíveis / fila de espera com 35 pacientes" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 text-xs text-slate-800 focus:ring-1 focus:ring-[#003399] outline-none">
+                        </div>
+
+                        <div class="bg-slate-50 p-3 rounded-md border border-slate-200">
+                            <label class="block text-xs font-bold text-emerald-800 mb-0.5">Meta Quantitativa Alvo (Entrega Social) *</label>
+                            <span class="text-[10px] text-slate-500 block mb-1.5">Qual índice mensurável será auditado na prestação de contas?</span>
+                            <input type="text" placeholder="Ex: 15 crianças atendidas com 40 horas individuais de terapia" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 text-xs text-emerald-800 font-semibold focus:ring-1 focus:ring-[#003399] outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Eixo Regional (COREDE Fronteira Noroeste) *</label>
+                            <select class="w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-xs text-slate-800 focus:ring-2 focus:ring-[#003399]">
+                                <option value="">Selecione o eixo de desenvolvimento regional...</option>
+                                <option value="Eixo 01">Eixo 01: Inovação, Indústria Metalmecânica e Emprego</option>
+                                <option value="Eixo 02" selected>Eixo 02: Saúde, Inclusão Social e Qualidade de Vida Regional</option>
+                                <option value="Eixo 03">Eixo 03: Educação, Ciência, Tecnologia e Formação Docente</option>
+                                <option value="Eixo 04">Eixo 04: Infraestrutura, Sustentabilidade e Meio Ambiente</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Ação Correspondente no PPA Municipal *</label>
+                            <select class="w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-xs text-slate-800 focus:ring-2 focus:ring-[#003399]">
+                                <option value="">Selecione o programa municipal...</option>
+                                <option value="Programa 014" selected>Programa 014: Atenção Especializada e Saúde Mental</option>
+                                <option value="Programa 022">Programa 022: Desenvolvimento Social e Fortalecimento Comunitário</option>
+                                <option value="Programa 031">Programa 031: Educação Básica e Turno Integral</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ASSISTÊNCIA TÉCNICA E PARECER PREDITIVO -->
+                <div class="bg-blue-50 border border-blue-200 rounded-md p-4 space-y-2">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-[#003399] bg-white px-2 py-0.5 rounded border border-blue-200">
+                                Validação Prévia Normativa
+                            </span>
+                            <h4 class="text-xs font-bold text-slate-900 mt-1">Pré-Análise Automatizada de Admissibilidade</h4>
+                        </div>
+                        <button type="button" class="bg-white hover:bg-slate-100 text-[#003399] border border-blue-300 font-semibold text-xs px-3 py-1.5 rounded transition flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Verificar Viabilidade Técnica
+                        </button>
+                    </div>
+
+                    <div class="text-xs bg-white p-3 rounded border border-blue-100 space-y-1">
+                        <div class="flex justify-between items-center text-[11px]">
+                            <span class="font-semibold text-emerald-800">Conformidade Preliminar: Apta para Protocolo (95%)</span>
+                            <span class="font-mono text-slate-500">Enquadramento: 3.3.50.43 (Subvenções Sociais)</span>
+                        </div>
+                        <p class="text-slate-600 text-[11px] leading-relaxed">
+                            O objeto possui interesse público manifesto e está enquadrado adequadamente para formalização via Termo de Fomento (MROSC). Não há impedimento técnico evidente na descrição.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- SUBMISSÃO FINAL -->
+                <div class="pt-4 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-3">
+                    <span class="text-[11px] text-slate-500 text-center sm:text-left">
+                        Ao submeter, a proposta é registrada sob protocolo digital e disponibilizada para adoção parlamentar.
+                    </span>
+                    <button type="button" class="w-full sm:w-auto bg-[#003399] hover:bg-[#002266] text-white font-bold text-xs py-2.5 px-6 rounded-md shadow-xs transition flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        Protocolar Proposta no Banco Social
+                    </button>
+                </div>
+
+            </form>
+
+        </section>
+
+        <!-- BANCO PÚBLICO DE PROPOSTAS VIGENTES -->
+        <section id="secao-banco" class="space-y-4">
+            
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-2 pb-2 border-b border-slate-200">
+                <div>
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Consulta Pública</span>
+                    <h2 class="text-lg font-bold text-slate-900 tracking-tight">Propostas Submetidas para Indicação Parlamentar</h2>
+                </div>
+
+                <div class="flex gap-1.5">
+                    <button class="text-xs font-semibold px-2.5 py-1 rounded bg-[#003399] text-white">Todas (18)</button>
+                    <button class="text-xs font-semibold px-2.5 py-1 rounded bg-white text-slate-600 border border-slate-300 hover:bg-slate-50">Disponíveis (11)</button>
+                    <button class="text-xs font-semibold px-2.5 py-1 rounded bg-white text-slate-600 border border-slate-300 hover:bg-slate-50">Adotadas (7)</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                <!-- PROPOSTA 01 -->
+                <div class="bg-white rounded-lg border border-slate-200 p-5 flex flex-col justify-between shadow-xs hover:border-slate-300 transition">
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                Disponível para Adoção
+                            </span>
+                            <span class="text-xs font-mono font-semibold text-slate-500">#PROP-018</span>
+                        </div>
+
+                        <h3 class="text-sm font-bold text-slate-900 mb-1.5 leading-snug">
+                            Oficinas Socioeducativas em Contraturno Escolar
+                        </h3>
+                        <p class="text-xs text-slate-600 line-clamp-3 mb-3 leading-relaxed">
+                            Atendimento continuado de 30 jovens vulneráveis do Bairro Campina com apoio pedagógico e robótica básica semanal.
+                        </p>
+
+                        <div class="bg-slate-50 p-2.5 rounded border border-slate-100 text-[11px] space-y-1 mb-3">
+                            <div class="flex justify-between text-slate-600">
+                                <span>Entidade:</span>
+                                <span class="font-semibold text-slate-900 truncate max-w-[160px]">Assoc. Beneficente Viver Bem</span>
+                            </div>
+                            <div class="flex justify-between text-slate-600">
+                                <span>Meta Social:</span>
+                                <span class="font-semibold text-emerald-800">30 jovens formados</span>
+                            </div>
+                            <div class="flex justify-between text-slate-600">
+                                <span>COREDE:</span>
+                                <span class="text-[#003399]">Eixo 03: Educação</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-3 border-t border-slate-100">
+                        <div>
+                            <span class="text-[10px] text-slate-500 uppercase font-bold block">Valor Estimado</span>
+                            <span class="text-sm font-bold text-slate-900 font-mono">R$ 38.500,00</span>
+                        </div>
+                        <a href="legislativo.html" class="inline-flex items-center gap-1 text-xs font-semibold bg-slate-100 hover:bg-[#003399] hover:text-white text-slate-700 px-3 py-1.5 rounded transition">
+                            Adotar
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- PROPOSTA 02 -->
+                <div class="bg-white rounded-lg border border-blue-200 p-5 flex flex-col justify-between shadow-xs bg-blue-50/20">
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-50 text-[#003399] border border-blue-200">
+                                Emenda Vinculada
+                            </span>
+                            <span class="text-xs font-mono font-semibold text-slate-500">#PROP-014</span>
+                        </div>
+
+                        <h3 class="text-sm font-bold text-slate-900 mb-1.5 leading-snug">
+                            Equipamentos para Sala de Integração Sensorial
+                        </h3>
+                        <p class="text-xs text-slate-600 line-clamp-3 mb-3 leading-relaxed">
+                            Aquisição de insumos terapêuticos para reabilitação motora e cognitiva de 25 crianças do espectro autista.
+                        </p>
+
+                        <div class="bg-white p-2.5 rounded border border-blue-100 text-[11px] space-y-1 mb-3">
+                            <div class="flex justify-between text-slate-600">
+                                <span>Entidade:</span>
+                                <span class="font-semibold text-slate-900 truncate max-w-[160px]">APAE Horizontina</span>
+                            </div>
+                            <div class="flex justify-between text-slate-600">
+                                <span>Adotado por:</span>
+                                <span class="font-semibold text-[#003399]">Bancada Progressistas</span>
+                            </div>
+                            <div class="flex justify-between text-slate-600">
+                                <span>Processo:</span>
+                                <span class="font-mono text-slate-700">Emenda 042/2026</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-3 border-t border-slate-100">
+                        <div>
+                            <span class="text-[10px] text-slate-500 uppercase font-bold block">Valor Alocado</span>
+                            <span class="text-sm font-bold text-slate-900 font-mono">R$ 50.000,00</span>
+                        </div>
+                        <span class="text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                            Em Execução
+                        </span>
+                    </div>
+                </div>
+
+                <!-- PROPOSTA 03 -->
+                <div class="bg-white rounded-lg border border-slate-200 p-5 flex flex-col justify-between shadow-xs hover:border-slate-300 transition">
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                Disponível para Adoção
+                            </span>
+                            <span class="text-xs font-mono font-semibold text-slate-500">#PROP-012</span>
+                        </div>
+
+                        <h3 class="text-sm font-bold text-slate-900 mb-1.5 leading-snug">
+                            Qualificação Descentralizada de Solda e Mecânica
+                        </h3>
+                        <p class="text-xs text-slate-600 line-clamp-3 mb-3 leading-relaxed">
+                            Formação profissional rápida de 40 jovens para atender a demanda industrial reprimida do setor metalmecânico regional.
+                        </p>
+
+                        <div class="bg-slate-50 p-2.5 rounded border border-slate-100 text-[11px] space-y-1 mb-3">
+                            <div class="flex justify-between text-slate-600">
+                                <span>Entidade:</span>
+                                <span class="font-semibold text-slate-900 truncate max-w-[160px]">ACEHOR / CDL</span>
+                            </div>
+                            <div class="flex justify-between text-slate-600">
+                                <span>Meta Social:</span>
+                                <span class="font-semibold text-emerald-800">40 certificados</span>
+                            </div>
+                            <div class="flex justify-between text-slate-600">
+                                <span>COREDE:</span>
+                                <span class="text-[#003399]">Eixo 01: Indústria</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-3 border-t border-slate-100">
+                        <div>
+                            <span class="text-[10px] text-slate-500 uppercase font-bold block">Valor Estimado</span>
+                            <span class="text-sm font-bold text-slate-900 font-mono">R$ 60.000,00</span>
+                        </div>
+                        <a href="legislativo.html" class="inline-flex items-center gap-1 text-xs font-semibold bg-slate-100 hover:bg-[#003399] hover:text-white text-slate-700 px-3 py-1.5 rounded transition">
+                            Adotar
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- RODAPÉ INSTITUCIONAL PADRÃO GOV -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-xs text-slate-600 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div>
+                <span class="font-semibold text-slate-800">PRISMA • Plataforma de Rastreamento de Investimentos e Metas Abertas</span>
+                <p class="text-[11px] text-slate-500">Desenvolvido sob preceitos da Lei Federal 13.019/2014 e Lei Complementar 101/2000 (LRF).</p>
+            </div>
+            <span class="text-[11px] font-mono text-slate-500">Prefeitura Municipal de Horizontina / RS</span>
+        </div>
+    </footer>
+
+</body>
+</html>
