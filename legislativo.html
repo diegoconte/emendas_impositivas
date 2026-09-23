@@ -285,6 +285,33 @@
                             </button>
                         </div>
                     </div>
+
+                    <!-- CARD DE DENSIDADE DO INTERESSE PÚBLICO & VINCULAÇÃO COM O PPA (LC 210/2024) -->
+                    <div id="box-interesse-publico-diagnostico" class="hidden p-4 rounded-xl bg-[#0e141b] border border-emerald-800/50 text-xs space-y-2.5">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-[#1b2533] pb-2">
+                            <div class="flex items-center gap-2">
+                                <span class="text-base text-emerald-400">⚖️</span>
+                                <strong class="text-white text-xs">Exame de Mérito: Interesse Público & Conexão Setorial PPA</strong>
+                            </div>
+                            <span id="badge-densidade-publica" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-700">
+                                Densidade Alta
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px]">
+                            <div class="space-y-1">
+                                <span class="text-slate-400 font-mono block">1. Diagnóstico do Interesse Público:</span>
+                                <p id="txt-diagnostico-interesse-publico" class="text-slate-200 leading-relaxed"></p>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="text-slate-400 font-mono block">2. Vinculação com a Política Pública Setorial (PPA):</span>
+                                <p id="txt-vinculacao-ppa-diagnostico" class="text-emerald-300 font-medium leading-relaxed"></p>
+                            </div>
+                        </div>
+                        <div class="pt-1.5 border-t border-[#1b2533] flex items-center justify-between text-[10px] text-slate-400 font-mono">
+                            <span id="txt-amparo-lc210">Amparo: Art. 10, incisos I, VII e VIII da LC 210/2024</span>
+                            <span class="text-emerald-400 font-bold">Vedada Compra Isolada de Balcão</span>
+                        </div>
+                    </div>
                 </div>
             </div>
             <!-- GRID DE FORMULÁRIO E PAINEL DE ADMISSIBILIDADE PREDITIVA -->
@@ -422,8 +449,16 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-1">Ação / Programa do PPA Municipal *</label>
-                            <input type="text" id="inp-ppa-acao" placeholder="Ex: Ação 2042 - Programa 014 (Saúde e Bem-Estar)" class="w-full p-2.5 bg-[#0a0c0f] border border-[#1f2530] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-emerald-500">
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block text-xs font-semibold text-slate-300">Ação / Programa do PPA Municipal *</label>
+                                <span class="text-[10px] font-mono text-emerald-400" id="badge-ppa-disponivel">Catálogo Ativo</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <select id="sel-ppa-acao-catalogo" onchange="aoSelecionarAcaoPPACatalogo(this.value)" class="w-full p-2.5 bg-[#0a0c0f] border border-[#1f2530] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-emerald-500">
+                                    <option value="">Selecione a Ação do PPA Vinculada...</option>
+                                </select>
+                            </div>
+                            <input type="text" id="inp-ppa-acao" placeholder="Ou digite o código/nome da Ação e Programa do PPA..." class="w-full mt-2 p-2 bg-[#080a0d] border border-[#1f2530] rounded-lg text-[11px] text-slate-300 outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
                     </div>
 
@@ -496,6 +531,14 @@
                                 <div class="space-y-0.5">
                                     <strong class="text-slate-200 block text-[11px]" id="chk-tit-saude">Cota Constitucional de Saúde</strong>
                                     <p class="text-slate-400 text-[10px] leading-tight" id="chk-desc-saude">Art. 77, § 1º da Lei Orgânica (50% compulsório).</p>
+                                </div>
+                            </div>
+
+                            <div class="p-2.5 bg-[#0a0c0f] rounded-xl border border-[#1f2530] flex items-start gap-2.5">
+                                <span class="text-emerald-400 text-sm mt-0.5" id="chk-ico-interesse-publico">✓</span>
+                                <div class="space-y-0.5">
+                                    <strong class="text-slate-200 block text-[11px]" id="chk-tit-interesse-publico">Interesse Público & LC 210/2024</strong>
+                                    <p class="text-slate-400 text-[10px] leading-tight" id="chk-desc-interesse-publico">Finalidade coletiva e política setorial vinculada.</p>
                                 </div>
                             </div>
 
@@ -887,51 +930,51 @@
             popularSeletorGabinetes();
             atualizarMetricasDashboard();
             atualizarAssistenteRubrica();
+            popularSeletorAcoesPPA();
             executarAuditoriaPreditiva();
             renderizarTabelaCotasGeral();
         });
 
-        function trocarAba(abaId) {
-            const abas = ['proposicao', 'monitor', 'regras', 'loa'];
-            abas.forEach(aba => {
-                const elSec = document.getElementById(`aba-conteudo-${aba}`);
-                const elBtn = document.getElementById(`tab-btn-${aba}`);
-                if (elSec && elBtn) {
-                    if (aba === abaId) {
-                        elSec.classList.remove('hidden');
-                        elBtn.className = "px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-emerald-950/60 text-emerald-300 border border-emerald-700/60 shadow-sm";
-                    } else {
-                        elSec.classList.add('hidden');
-                        elBtn.className = "px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 text-slate-400 hover:text-white hover:bg-[#12151b]";
-                    }
+        // POPULA O SELETOR DE AÇÕES DO PPA A PARTIR DA BASE CENTRAL
+        function popularSeletorAcoesPPA() {
+            const selectPPA = document.getElementById('sel-ppa-acao-catalogo');
+            const badgePPA = document.getElementById('badge-ppa-disponivel');
+            if (!selectPPA) return;
+
+            const acaoAtual = (document.getElementById('inp-ppa-acao')?.value || '').trim();
+            const ppaList = baseCentral.ppa || [];
+
+            if (badgePPA) {
+                badgePPA.textContent = `${ppaList.length} Ações no PPA`;
+            }
+
+            let html = `<option value="">Selecione a Ação do PPA Vinculada (${ppaList.length} cadastradas)...</option>`;
+            ppaList.forEach(item => {
+                const rotulo = `Ação ${item.acao} (Prog. ${item.programa}) - ${item.acaoDesc}`;
+                html += `<option value="${rotulo}">${rotulo}</option>`;
+            });
+            selectPPA.innerHTML = html;
+
+            if (acaoAtual) {
+                selectPPA.value = acaoAtual;
+            }
+        }
+        window.popularSeletorAcoesPPA = popularSeletorAcoesPPA;
+
+        function aoSelecionarAcaoPPACatalogo(valor) {
+            const inputPPA = document.getElementById('inp-ppa-acao');
+            if (inputPPA) {
+                inputPPA.value = valor;
+                // Ajusta automaticamente o eixo COREDE caso encontre correspondência
+                const ppaItem = (baseCentral.ppa || []).find(p => valor.includes(p.acao));
+                if (ppaItem && ppaItem.corede) {
+                    const selCorede = document.getElementById('sel-eixo-corede');
+                    if (selCorede) selCorede.value = ppaItem.corede;
                 }
-            });
-            if (abaId === 'monitor') renderizarTabelaCotasGeral();
+                executarAuditoriaPreditiva();
+            }
         }
-        window.trocarAba = trocarAba;
-
-        // POPULAR SELETOR "VER COMO"
-        function popularSeletorGabinetes() {
-            const select = document.getElementById('sel-gabinete-parlamentar');
-            if (!select) return;
-            const idSelecionadoAntes = select.value || 'ADM';
-
-            let html = `<option value="ADM" class="bg-[#0a0c0f] text-white">⚙️ Visão Administrador Geral (Todos)</option>`;
-            (baseCentral.vereadores || []).forEach(v => {
-                const part = (baseCentral.partidos || []).find(p => p.id === v.partidoId) || { sigla: "S/P", icone: "👤" };
-                html += `<option value="${v.id}" class="bg-[#0a0c0f] text-slate-200">👁️ Ver como: Ver. ${v.nome} (${part.sigla})</option>`;
-            });
-            select.innerHTML = html;
-            select.value = idSelecionadoAntes;
-        }
-
-        // ALTERNAR MODO "VER COMO"
-        function alternarSessaoGabinete(idGabinete) {
-            const banner = document.getElementById('banner-modo-simulacao');
-            const lblNome = document.getElementById('banner-simulacao-nome');
-
-            if (idGabinete === 'ADM') {
-                vereadorSimuladoAtivo = null;
+        window.aoSelecionarAcaoPPACatalogo = aoSelecionarAcaoPPACatalogo;
                 if (banner) banner.classList.add('hidden');
             } else {
                 vereadorSimuladoAtivo = (baseCentral.vereadores || []).find(v => v.id === idGabinete) || null;
@@ -1133,39 +1176,76 @@
             let secretaria = "SMS";
             let enquadramento = "3.3.50.43 - Subvenções Sociais";
             let exigeProjetoEngenharia = false;
+            let acaoPPASugerida = "Ação 2042 - Programa 0010 (Gestão e Fortalecimento do SUS)";
+            let eixoCoredeSugerido = "Eixo 02: Saúde, Inclusão Social e Qualidade de Vida Regional";
+            let objetoFinal = texto;
+            let densidadeInteresse = "Alta";
+            let diagnosticoInteresse = "A proposição delineia atendimento contínuo e estruturado à coletividade.";
 
             if (lower.includes('apae')) {
                 beneficiario = "APAE Horizontina";
                 tipoExecucao = "Indireta";
                 secretaria = "SMS";
                 enquadramento = "4.4.50.42 - Auxílios";
+                acaoPPASugerida = "Ação 2042 - Programa 0010 (Apoio e Reabilitação Especializada)";
+                eixoCoredeSugerido = "Eixo 02: Saúde, Inclusão Social e Qualidade de Vida Regional";
+                objetoFinal = "Estruturação de ambiente multissensorial e aquisição de tecnologias assistivas para viabilizar atendimento clínico-terapêutico individualizado a crianças neuroatípicas.";
+                diagnosticoInteresse = "Atendimento público continuado focado em inclusão biopsicossocial de pessoas com deficiência intelectual e múltipla.";
             } else if (lower.includes('hospital') || lower.includes('oswaldo cruz')) {
                 beneficiario = "Hospital Beneficente Oswaldo Cruz";
                 tipoExecucao = "Indireta";
                 secretaria = "SMS";
                 enquadramento = "3.3.50.43 - Subvenções Sociais";
+                acaoPPASugerida = "Ação 1018 - Programa 0010 (Equipamentos de Média e Alta Complexidade)";
+                eixoCoredeSugerido = "Eixo 02: Saúde, Inclusão Social e Qualidade de Vida Regional";
+                objetoFinal = "Custeio de procedimentos hospitalares e aquisição de insumos médico-hospitalares para ampliação da retaguarda de urgência e emergência à população de Horizontina.";
+                diagnosticoInteresse = "Garantia de resolutividade nos serviços públicos de saúde e redução de filas de internação.";
             } else if (lower.includes('saúde') || lower.includes('medicamento') || lower.includes('farmácia')) {
                 beneficiario = "Secretaria Municipal de Saúde";
                 tipoExecucao = "Direta";
                 secretaria = "SMS";
                 enquadramento = "3.3.90.30 - Material de Consumo";
+                acaoPPASugerida = "Ação 2045 - Programa 0010 (Assistência Farmacêutica Básica e Remédios)";
+                eixoCoredeSugerido = "Eixo 02: Saúde, Inclusão Social e Qualidade de Vida Regional";
+                objetoFinal = "Abastecimento continuado da Farmácia Básica Municipal com medicamentos essenciais de distribuição 100% gratuita a usuários do SUS.";
+                diagnosticoInteresse = "Acesso universal a tratamentos farmacológicos da atenção primária à saúde.";
             } else if (lower.includes('asfalto') || lower.includes('pavimenta') || lower.includes('obra') || lower.includes('smilt')) {
                 beneficiario = "Secretaria Municipal de Infraestrutura (SMILT)";
                 tipoExecucao = "Direta";
                 secretaria = "SMILT";
                 enquadramento = "4.4.90.51 - Obras e Instalações";
                 exigeProjetoEngenharia = true;
+                acaoPPASugerida = "Ação 1035 - Programa 0030 (Pavimentação Asfáltica e Drenagem Urbana)";
+                eixoCoredeSugerido = "Eixo 04: Infraestrutura, Sustentabilidade e Meio Ambiente";
+                objetoFinal = "Execução de obras de pavimentação asfáltica, drenagem pluvial e sinalização viária com projeto executivo, memorial e ART homologados pela SMILT.";
+                diagnosticoInteresse = "Mobilidade urbana, saneamento e eliminação de poeira e barro para circulação comunitária.";
             } else if (lower.includes('escola') || lower.includes('educação') || lower.includes('smecjl')) {
                 beneficiario = "Secretaria de Educação e Cultura (SMECJL)";
                 tipoExecucao = "Direta";
                 secretaria = "SMECJL";
                 enquadramento = "3.3.90.30 - Material de Consumo";
+                acaoPPASugerida = "Ação 2055 - Programa 0020 (Implementação de Contraturno Escolar)";
+                eixoCoredeSugerido = "Eixo 03: Educação, Ciência, Tecnologia e Formação Docente";
+                objetoFinal = "Implementação de oficinas pedagógicas, reforço escolar e inclusão digital em turno integral para alunos da rede municipal.";
+                diagnosticoInteresse = "Combate à evasão escolar e elevação do IDEB municipal.";
             }
 
             // 3. Auditoria Preventiva sob o Art. 10 da Lei Complementar nº 210/2024
             let impedimentoLC210 = { detectado: false, inciso: "", motivo: "", recomendacaoAjuste: "", objetoSugerido: "" };
 
-            if (lower.includes('trator') && (lower.includes('hospital') || lower.includes('apae'))) {
+            // ALERTA DE COMPRA ISOLADA DE BENS DE BALCÃO
+            const ehCompraIsolada = (lower.includes('comprar ar') || lower.includes('ar-condicionado') || lower.includes('computador') || lower.includes('cadeira') || lower.includes('carro')) && !lower.includes('atendimento') && !lower.includes('capacitação') && !lower.includes('terapia');
+            if (ehCompraIsolada) {
+                impedimentoLC210 = {
+                    detectado: true,
+                    inciso: "Art. 10, Incisos VII e VIII da LC 210/2024 c/c Art. 2º, § 1º",
+                    motivo: "Vício de Balcão e Ausência de Interesse Público Estruturado: a proposição restringe-se à compra isolada de bens patrimoniais sem demonstrar a finalidade pública, o atendimento contínuo aos munícipes ou a compatibilidade com o programa setorial do órgão executor.",
+                    recomendacaoAjuste: "Reestruture o objeto vinculando o equipamento a um serviço público continuado (ex.: 'Estruturação de sala de informática com aquisição de 10 terminais para formação profissional de 60 jovens da comunidade').",
+                    objetoSugerido: "Modernização das instalações técnicas mediante aquisição de equipamentos para viabilizar a oferta contínua de oficinas e atendimento gratuito à comunidade."
+                };
+                densidadeInteresse = "Frágil";
+                diagnosticoInteresse = "Risco de veto por 'compra de balcão': o texto original não explicitou o serviço público que será entregue aos munícipes.";
+            } else if (lower.includes('trator') && (lower.includes('hospital') || lower.includes('apae'))) {
                 impedimentoLC210 = {
                     detectado: true,
                     inciso: "Art. 10, Inciso IX da LC 210/2024",
@@ -1173,6 +1253,7 @@
                     recomendacaoAjuste: "Reescreva a indicação destinando recursos a equipamentos de diagnóstico, custeio hospitalar ou fisioterapêuticos.",
                     objetoSugerido: "Aquisição de equipamentos de reabilitação física e sensorial para atendimento continuado aos usuários da entidade."
                 };
+                densidadeInteresse = "Incompatível";
             } else if ((lower.includes('asfalto') || lower.includes('pavimentação') || lower.includes('obra')) && !exigeProjetoEngenharia) {
                 impedimentoLC210 = {
                     detectado: true,
@@ -1189,6 +1270,7 @@
                     recomendacaoAjuste: "Direcione a emenda para material de consumo, medicamentos ou equipamentos permanentes.",
                     objetoSugerido: "Aquisição de insumos de saúde e medicamentos para abastecimento da rede de atenção básica municipal."
                 };
+                densidadeInteresse = "Vedado por Lei";
             }
 
             return {
@@ -1198,9 +1280,14 @@
                 secretaria: secretaria,
                 enquadramento: enquadramento,
                 exigeProjetoEngenharia: exigeProjetoEngenharia,
-                objeto: texto,
+                objeto: objetoFinal,
                 linhaBase: "Carência de atendimento diagnosticada no município",
                 metaAlvo: "Beneficiar os munícipes atendidos com eficiência e qualidade",
+                acaoPPASugerida: acaoPPASugerida,
+                eixoCoredeSugerido: eixoCoredeSugerido,
+                densidadeInteresse: densidadeInteresse,
+                diagnosticoInteresse: diagnosticoInteresse,
+                vinculacaoPPA: acaoPPASugerida,
                 impedimentoLC210: impedimentoLC210
             };
         }
@@ -1254,7 +1341,7 @@
 
             btn.disabled = true;
             iconeBtn.textContent = "⏳";
-            txtBtn.textContent = "Interpretando...";
+            txtBtn.textContent = "Examinando Mérito...";
             boxFeedback.classList.remove('hidden');
 
             iniciarCronometroIA();
@@ -1262,51 +1349,63 @@
 
             const apiKey = await obterApiKeySeguraFirestore();
 
-            atualizarProgressoIA(40, "Consultando Modelo...", "Cruzando texto com o catálogo de entidades de Horizontina e LC 210/2024...");
+            atualizarProgressoIA(40, "Consultando Modelo...", "Cruzando texto com o PPA, catálogo e Lei Complementar nº 210/2024...");
 
             const listaEntidadesTexto = (baseCentral.entidades || []).map(e => `- ${e.nome} (Tipo: ${e.tipo}, Sec: ${e.secretariaPadrao}, Rubrica: ${e.rubricaSugerida})`).join('\n');
+            const listaPPATexto = (baseCentral.ppa || []).map(p => `- Prog. ${p.programa} / Ação ${p.acao}: ${p.acaoDesc} (${p.corede})`).join('\n');
 
             const promptSistema = `
-Você é um consultor legislativo e orçamentário especialista na Lei Complementar nº 210/2024 (regime nacional de impedimentos técnicos e rastreabilidade), na Lei Federal nº 4.320/1964, na Lei Federal nº 13.019/2014 (MROSC) e no Art. 166 da CF/88.
+Você é um consultor legislativo e orçamentário de elite, especialista na Lei Complementar nº 210/2024 (regime nacional de impedimentos técnicos e governança orçamentária), na Lei Federal nº 4.320/1964, na Lei Federal nº 13.019/2014 (MROSC) e no Plano Plurianual (PPA).
 
-SUA MISSÃO PRINCIPAL:
-Avalie criticamente a intenção do vereador sob o crivo do Art. 10 da Lei Complementar nº 210/2024.
-SEJA EXTREMAMENTE CRÍTICO: é muito melhor recusar e apontar o impedimento técnico AGORA do que deixar o Executivo devolver a emenda após 120 dias de tramitação inútil.
+SEU CRITÉRIO CENTRAL DE AVALIAÇÃO:
+1. EXAME DE DENSIDADE DO INTERESSE PÚBLICO:
+   - Emendas parlamentares NÃO SÃO "cheques para compra de balcão".
+   - Se o vereador propor apenas "comprar um ar-condicionado", "comprar um carro" ou "adquirir cadeiras", recuse essa lógica de imediato! Bens materiais só são admitidos quando instrumentais para uma FINALIDADE PÚBLICA COLETIVA e ATENDIMENTO SOCIAL CONTINUADO.
+   - Você DEVE reescrever o "objeto" elevando-o à condição de política pública com nexo social evidente para a coletividade.
 
-HIPÓTESES DE IMPEDIMENTO DO ART. 10 DA LC 210/2024 A CHECAR RIGOROSAMENTE:
-1. Art. 10, IX: Ausência de pertinência temática entre o objeto proposto e a finalidade institucional da entidade beneficiária (ex: destinar trator agrícola para hospital, ou pavimentação asfáltica para APAE).
-2. Art. 10, III: Ausência de projeto de engenharia para obras, reformas prediais ou pavimentação (exige ART/memorial pela SMILT).
-3. Art. 10, VI e XXI: Não comprovação de suficiência de recursos para etapa útil com funcionalidade e imediato usufruto da sociedade.
-4. Art. 10, I, VII e VIII: Incompatibilidade do objeto com a política pública setorial da secretaria ou classificadores da despesa.
-5. Art. 10, XXIV: Despesa com pessoal ou encargos ordinários municipais (vedação expressa).
-6. Art. 2º, § 1º, I: Objeto com designação genérica.
+2. EXAME DO ARTIGO 10 DA LEI COMPLEMENTAR Nº 210/2024:
+   - Inciso I, VII e VIII: Incompatibilidade com as diretrizes da política pública setorial e atributos do programa do PPA do órgão executor.
+   - Inciso IX: Ausência de pertinência temática entre o objeto e a finalidade estatutária da entidade beneficiária.
+   - Inciso III: Ausência de projeto de engenharia homologado para intervenções físicas (exige SMILT).
+   - Inciso VI e XXI: Falta de suficiência orçamentária para etapa útil funcional com usufruto direto pela sociedade.
+   - Inciso XXIV: Alocação em despesas de pessoal e encargos correntes da administração (vedado pelo Art. 77 da L.O.).
+   - Art. 2º, § 1º, I: Designação genérica do objeto.
 
-Catálogo de Entidades de Horizontina cadastradas:
+3. VINCULAÇÃO SETORIAL COM O PPA MUNICIPAL:
+   Aponte a Ação e Programa do PPA municipal de Horizontina mais aderente.
+   Ações cadastradas no PPA de Horizontina:
+${listaPPATexto || '- Ação 2042: Apoio e Reabilitação Especializada (Saúde)\n- Ação 2045: Assistência Farmacêutica Básica (Saúde)\n- Ação 1035: Pavimentação Asfáltica e Drenagem Urbana (Infraestrutura)\n- Ação 2055: Contraturno Escolar e Oficinas Pedagógicas (Educação)\n- Ação 2085: Qualificação Metalmecânica e Industrial (Desenvolvimento)'}
+
+Catálogo de Entidades:
 ${listaEntidadesTexto}
 
-Retorne EXCLUSIVAMENTE um objeto JSON no formato:
+Retorne ESTRITAMENTE um objeto JSON no formato:
 {
   "valor": 150000,
   "beneficiario": "Nome da entidade ou secretaria",
   "tipoExecucao": "Indireta",
   "secretaria": "SMS",
   "enquadramento": "3.3.50.43 - Subvenções Sociais",
-  "objeto": "Descrição do objeto voltado ao interesse público e atendimento continuado",
+  "objeto": "Descrição do objeto voltado estritamente ao interesse público coletivo e atendimento continuado",
   "linhaBase": "Situação inicial ou carência diagnosticada",
   "metaAlvo": "Meta quantitativa auditável perante o TCE-RS",
+  "acaoPPASugerida": "Ação 2042 - Programa 0010 (Gestão do SUS)",
+  "eixoCoredeSugerido": "Eixo 02: Saúde, Inclusão Social e Qualidade de Vida Regional",
+  "densidadeInteresse": "Alta",
+  "diagnosticoInteresse": "Explicação concisa sobre por que esta proposta atende legitimamente ao interesse público e não a uma mera compra de balcão",
+  "vinculacaoPPA": "Explicação concisa sobre como o objeto se harmoniza com as metas do PPA municipal",
   "exigeProjetoEngenharia": false,
   "impedimentoLC210": {
     "detectado": false,
     "inciso": "Art. 10, Inciso ... da LC 210/2024",
-    "motivo": "Explicação técnica crítica",
-    "recomendacaoAjuste": "Como o vereador deve reescrever o objetivo agora"
+    "motivo": "Explicação técnica crítica com base na LC 210/2024",
+    "recomendacaoAjuste": "Como o vereador deve reescrever a indicação agora para garantir aprovação"
   }
 }
 `.trim();
 
             let dadosExtraidos = null;
             if (apiKey) {
-                // MODELOS GRATUITOS OFICIAIS ATUALIZADOS DO OPENROUTER (Evita 404)
                 const modelosTentar = [
                     "openrouter/free",
                     "nvidia/nemotron-3-ultra-550b-a55b:free",
@@ -1314,14 +1413,13 @@ Retorne EXCLUSIVAMENTE um objeto JSON no formato:
                     "meta-llama/llama-3.1-8b-instruct:free"
                 ];
 
-                // Garante que o HTTP-Referer seja uma URL válida mesmo se rodar via file:///
                 const refererValido = (window.location.protocol.startsWith('http')) 
                     ? window.location.origin 
                     : "https://prisma-horizontina.rs.gov.br";
 
                 for (let i = 0; i < modelosTentar.length; i++) {
                     const modelId = modelosTentar[i];
-                    atualizarProgressoIA(55 + (i * 12), `Consultando IA (${i+1}/${modelosTentar.length})`, `Testando modelo: ${modelId}...`);
+                    atualizarProgressoIA(55 + (i * 12), `Examinando Mérito (${i+1}/${modelosTentar.length})`, `Analisando com modelo: ${modelId}...`);
 
                     try {
                         abortControllerIA = new AbortController();
@@ -1342,7 +1440,7 @@ Retorne EXCLUSIVAMENTE um objeto JSON no formato:
                                 model: modelId,
                                 messages: [
                                     { role: "system", content: promptSistema },
-                                    { role: "user", content: `Analise este texto do parlamentar e retorne apenas o JSON:\n"${texto}"` }
+                                    { role: "user", content: `Analise criticamente este texto do parlamentar e retorne o JSON estruturado:\n"${texto}"` }
                                 ],
                                 temperature: 0.1
                             })
@@ -1357,13 +1455,10 @@ Retorne EXCLUSIVAMENTE um objeto JSON no formato:
                             if (matchJson) {
                                 dadosExtraidos = JSON.parse(matchJson[0]);
                                 if (dadosExtraidos && dadosExtraidos.valor) {
-                                    atualizarProgressoIA(90, "Decodificando Resposta...", `Modelo ${modelId} respondeu com sucesso!`);
+                                    atualizarProgressoIA(90, "Decodificando Resposta...", `Modelo ${modelId} homologou a análise de mérito!`);
                                     break;
                                 }
                             }
-                        } else {
-                            const errText = await resp.text();
-                            console.warn(`OpenRouter respondeu ${resp.status} para ${modelId}:`, errText);
                         }
                     } catch (e) {
                         console.warn(`Tentativa com ${modelId} abortada/falhou:`, e.name === 'AbortError' ? 'Timeout excedido' : e.message);
@@ -1373,18 +1468,36 @@ Retorne EXCLUSIVAMENTE um objeto JSON no formato:
 
             // CONTINGÊNCIA LOCAL RESILIENTE E INSTANTÂNEA
             if (!dadosExtraidos) {
-                atualizarProgressoIA(85, "Acionando Motor Local...", "OpenRouter demorou ou indisponível; aplicando auditoria heurística imediata...");
+                atualizarProgressoIA(85, "Acionando Motor Local...", "OpenRouter indisponível; aplicando auditoria heurística de interesse público...");
                 dadosExtraidos = executarParserHeuristicoLocal(texto);
             }
 
             pararCronometroIA();
-            atualizarProgressoIA(100, "Concluído!", `Identificado: ${dadosExtraidos.beneficiario} • R$ ${Number(dadosExtraidos.valor || 0).toLocaleString('pt-BR')} • ${dadosExtraidos.enquadramento}`);
+            atualizarProgressoIA(100, "Concluído!", `Examinado: ${dadosExtraidos.beneficiario} • R$ ${Number(dadosExtraidos.valor || 0).toLocaleString('pt-BR')} • Vinculado ao PPA`);
 
             aplicarDadosExtraidosNoFormulario(dadosExtraidos);
 
             btn.disabled = false;
             iconeBtn.textContent = "✨";
             txtBtn.textContent = "Interpretar Texto & Preencher";
+
+            // EXIBE O DIAGNÓSTICO DETALHADO DE INTERESSE PÚBLICO & VINCULAÇÃO COM O PPA
+            const boxInteresse = document.getElementById('box-interesse-publico-diagnostico');
+            if (boxInteresse) {
+                const elBadgeDensidade = document.getElementById('badge-densidade-publica');
+                const elTxtInteresse = document.getElementById('txt-diagnostico-interesse-publico');
+                const elTxtPPA = document.getElementById('txt-vinculacao-ppa-diagnostico');
+
+                if (elBadgeDensidade) {
+                    elBadgeDensidade.textContent = `Interesse Público: ${dadosExtraidos.densidadeInteresse || 'Alta'}`;
+                    elBadgeDensidade.className = dadosExtraidos.densidadeInteresse === 'Frágil' || dadosExtraidos.densidadeInteresse === 'Incompatível' 
+                        ? 'text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-700'
+                        : 'text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-700';
+                }
+                if (elTxtInteresse) elTxtInteresse.textContent = dadosExtraidos.diagnosticoInteresse || "Finalidade social pública claramente discriminada com benefício direto aos munícipes.";
+                if (elTxtPPA) elTxtPPA.textContent = dadosExtraidos.vinculacaoPPA || dadosExtraidos.acaoPPASugerida || "Compatível com as ações setoriais do PPA municipal.";
+                boxInteresse.classList.remove('hidden');
+            }
 
             // EXIBE O FILTRO CRÍTICO DA LC 210/2024 QUANDO HOUVER IMPEDIMENTO
             const boxLC210 = document.getElementById('box-impedimento-lc210');
@@ -1394,10 +1507,10 @@ Retorne EXCLUSIVAMENTE um objeto JSON no formato:
                 document.getElementById('txt-lc210-ajuste').innerHTML = dadosExtraidos.impedimentoLC210.recomendacaoAjuste;
                 window.sugestaoObjetoAjustadoLC210 = dadosExtraidos.impedimentoLC210.objetoSugerido || dadosExtraidos.objeto;
                 boxLC210.classList.remove('hidden');
-                mostrarToast("⚠️ Atenção: A IA detectou impedimento da Lei Complementar nº 210/2024. Veja a recomendação de ajuste.", "erro");
+                mostrarToast("⚠️ Bloqueio Preventivo LC 210/2024: Verifique o motivo antes do protocolo!", "erro");
             } else {
                 boxLC210.classList.add('hidden');
-                mostrarToast("Formulário preenchido com sucesso e sem impedimentos da LC 210!");
+                mostrarToast("Proposição compatibilizada com o PPA e Lei Complementar nº 210/2024!");
             }
 
             executarAuditoriaPreditiva();
@@ -1414,6 +1527,21 @@ Retorne EXCLUSIVAMENTE um objeto JSON no formato:
             if (d.objeto) document.getElementById('inp-objeto').value = d.objeto;
             if (d.linhaBase) document.getElementById('inp-linha-base').value = d.linhaBase;
             if (d.metaAlvo) document.getElementById('inp-meta-alvo').value = d.metaAlvo;
+
+            // Vinculação do PPA e COREDE sugeridos pela IA
+            if (d.acaoPPASugerida) {
+                const inpPPA = document.getElementById('inp-ppa-acao');
+                const selPPA = document.getElementById('sel-ppa-acao-catalogo');
+                if (inpPPA) inpPPA.value = d.acaoPPASugerida;
+                if (selPPA) {
+                    const matchOpt = Array.from(selPPA.options).find(o => o.value.includes(d.acaoPPASugerida) || d.acaoPPASugerida.includes(o.value));
+                    if (matchOpt) selPPA.value = matchOpt.value;
+                }
+            }
+            if (d.eixoCoredeSugerido) {
+                const selCorede = document.getElementById('sel-eixo-corede');
+                if (selCorede) selCorede.value = d.eixoCoredeSugerido;
+            }
 
             atualizarAssistenteRubrica();
         }
@@ -1460,6 +1588,7 @@ Retorne EXCLUSIVAMENTE um objeto JSON no formato:
             const objeto = (document.getElementById('inp-objeto').value || '').trim();
             const linhaBase = (document.getElementById('inp-linha-base').value || '').trim();
             const metaAlvo = (document.getElementById('inp-meta-alvo').value || '').trim();
+            const ppaAcao = (document.getElementById('inp-ppa-acao')?.value || '').trim();
 
             let score = 10.0;
             let impedimentoFatal = false;
@@ -1563,7 +1692,50 @@ Retorne EXCLUSIVAMENTE um objeto JSON no formato:
                 elDescSaude.textContent = "Indicação não vinculada a Ações e Serviços Públicos de Saúde.";
             }
 
-            // 5. METAS FÍSICAS E LINHA DE BASE
+            // 5. EXAME DE INTERESSE PÚBLICO E VINCULAÇÃO COM O PPA (LC 210/2024, ART. 10, VII E VIII)
+            const elIcoInteresse = document.getElementById('chk-ico-interesse-publico');
+            const elTitInteresse = document.getElementById('chk-tit-interesse-publico');
+            const elDescInteresse = document.getElementById('chk-desc-interesse-publico');
+            const lowerObj = objeto.toLowerCase();
+
+            const ehMeraCompra = (lowerObj.includes('comprar') || lowerObj.includes('aquisição') || lowerObj.includes('adquirir')) && 
+                                 (lowerObj.includes('ar condicionado') || lowerObj.includes('computador') || lowerObj.includes('veículo') || lowerObj.includes('carro')) &&
+                                 !lowerObj.includes('atendimento') && !lowerObj.includes('serviço') && !lowerObj.includes('famílias') && !lowerObj.includes('oficinas');
+
+            if (!objeto || objeto.length < 15) {
+                score -= 2.0;
+                if (elIcoInteresse) {
+                    elIcoInteresse.textContent = "⚠️";
+                    elIcoInteresse.className = "text-amber-400 text-sm mt-0.5";
+                    elTitInteresse.textContent = "Objeto Incompleto ou Genérico";
+                    elDescInteresse.textContent = "Art. 2º, § 1º da LC 210/2024 veda designação genérica de objeto sem nexo social.";
+                }
+            } else if (ehMeraCompra) {
+                score -= 3.0;
+                if (elIcoInteresse) {
+                    elIcoInteresse.textContent = "❌";
+                    elIcoInteresse.className = "text-red-400 text-sm mt-0.5";
+                    elTitInteresse.textContent = "Vício de Balcão (LC 210/2024, Art. 10, VII)";
+                    elDescInteresse.textContent = "A compra isolada de bens sem comprovação de serviço comunitário gera devolução pelo Executivo.";
+                }
+            } else if (!ppaAcao || ppaAcao.length < 4) {
+                score -= 1.5;
+                if (elIcoInteresse) {
+                    elIcoInteresse.textContent = "⚠️";
+                    elIcoInteresse.className = "text-amber-400 text-sm mt-0.5";
+                    elTitInteresse.textContent = "Sem Vínculo com o PPA";
+                    elDescInteresse.textContent = "Art. 10, I da LC 210/2024 exige conformidade com os programas setoriais do PPA.";
+                }
+            } else {
+                if (elIcoInteresse) {
+                    elIcoInteresse.textContent = "✓";
+                    elIcoInteresse.className = "text-emerald-400 text-sm mt-0.5";
+                    elTitInteresse.textContent = "Interesse Público & PPA Conformes";
+                    elDescInteresse.textContent = "Finalidade coletiva atestada e harmonizada com a política pública setorial.";
+                }
+            }
+
+            // 6. METAS FÍSICAS E LINHA DE BASE
             const elIcoMetas = document.getElementById('chk-ico-metas');
             const elTitMetas = document.getElementById('chk-tit-metas');
             const elDescMetas = document.getElementById('chk-desc-metas');
