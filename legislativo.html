@@ -56,6 +56,49 @@
             #modal-minuta { display: block !important; position: static !important; background: transparent !important; }
             #corpo-minuta-a4 { box-shadow: none !important; border: none !important; padding: 0 !important; }
         }
+
+        /* ESTADOS DINÂMICOS DE PREENCHIMENTO OBRIGATÓRIO (ALTO CONTRASTE) */
+        .campo-pendente {
+            background-color: #171309 !important;
+            border-color: #f59e0b !important;
+            color: #fef3c7 !important;
+            box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.25) !important;
+        }
+        .campo-pendente::placeholder {
+            color: #d97706 !important;
+            opacity: 0.85 !important;
+        }
+
+        .campo-preenchido {
+            background-color: #061912 !important;
+            border-color: #10b981 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.25) !important;
+        }
+
+        .campo-erro {
+            background-color: #210a0a !important;
+            border-color: #ef4444 !important;
+            color: #fecaca !important;
+            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.5) !important;
+            animation: pulse-erro 1.4s infinite ease-in-out;
+        }
+
+        @keyframes pulse-erro {
+            0%, 100% { box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.4); }
+            50% { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.8); }
+        }
+
+        .badge-campo-pendente {
+            background-color: rgba(245, 158, 11, 0.18);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.5);
+        }
+        .badge-campo-preenchido {
+            background-color: rgba(16, 185, 129, 0.18);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.5);
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between antialiased selection:bg-emerald-900 selection:text-emerald-200">
@@ -319,6 +362,27 @@
 
                 <!-- COLUNA 1 & 2: FORMULÁRIO COMPLETO -->
                 <div class="lg:col-span-2 bg-[#12151b] border border-[#1f2530] rounded-2xl p-6 space-y-5 shadow-sm">
+                    
+                    <!-- BARRA DE STATUS DE PREENCHIMENTO OBRIGATÓRIO -->
+                    <div class="bg-[#0b0e13] border border-[#222936] p-3.5 rounded-xl space-y-2">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1.5 text-xs">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" id="dot-progresso-obrigatorios"></span>
+                                <strong class="text-white font-bold" id="lbl-progresso-obrigatorios">Campos Obrigatórios: 0 de 9 preenchidos</strong>
+                            </div>
+                            <span id="badge-porcentagem-obrigatorios" class="text-[11px] font-mono font-bold px-2 py-0.5 rounded badge-campo-pendente">
+                                0% Concluído
+                            </span>
+                        </div>
+                        <div class="w-full bg-[#181c24] h-2 rounded-full overflow-hidden border border-[#262f3e]">
+                            <div id="barra-progresso-obrigatorios" class="h-full bg-gradient-to-r from-amber-500 to-emerald-400 transition-all duration-300 rounded-full" style="width: 0%"></div>
+                        </div>
+                        <div class="flex justify-between items-center text-[10px] text-slate-400 font-mono">
+                            <span>Legenda: <b class="text-amber-400">Âmbar = Pendente</b> | <b class="text-emerald-400">Verde = Preenchido</b></span>
+                            <span id="txt-pendencias-resumo" class="text-amber-300 font-semibold">9 campo(s) restante(s)</span>
+                        </div>
+                    </div>
+
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-3 border-b border-[#1f2530]">
                         <h3 class="text-sm font-bold text-white flex items-center gap-2">
                             <i class="fa-solid fa-file-pen text-emerald-400"></i> Dados da Indicação Parlamentar
@@ -329,8 +393,11 @@
                     <!-- LINHA 1: NÚMERO, PRIORIDADE E VALOR -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-1">Número da Proposição *</label>
-                            <input type="text" id="inp-num-emenda" placeholder="Ex: 001/2026" class="w-full p-2.5 bg-[#0a0c0f] border border-[#1f2530] rounded-xl text-xs text-white font-mono outline-none focus:ring-1 focus:ring-emerald-500">
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-xs font-semibold text-slate-200">Número da Proposição *</label>
+                                <span id="badge-status-num-emenda" class="badge-campo-pendente text-[9px] px-1.5 py-0.2 rounded font-mono font-bold">Pendente ⚠️</span>
+                            </div>
+                            <input type="text" id="inp-num-emenda" oninput="atualizarEstadoCamposObrigatorios(); executarAuditoriaPreditiva();" placeholder="Ex: 001/2026" class="w-full p-2.5 rounded-xl text-xs font-mono outline-none transition campo-pendente">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-300 mb-1">Ordem de Prioridade</label>
@@ -343,25 +410,34 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-1">Valor da Indicação (R$) *</label>
-                            <input type="number" step="1000" id="inp-valor" oninput="executarAuditoriaPreditiva()" placeholder="150000.00" class="w-full p-2.5 bg-[#0a0c0f] border border-[#1f2530] rounded-xl text-xs text-emerald-400 font-bold font-mono outline-none focus:ring-1 focus:ring-emerald-500">
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-xs font-semibold text-slate-200">Valor da Indicação (R$) *</label>
+                                <span id="badge-status-valor" class="badge-campo-pendente text-[9px] px-1.5 py-0.2 rounded font-mono font-bold">Pendente ⚠️</span>
+                            </div>
+                            <input type="number" step="1000" id="inp-valor" oninput="atualizarEstadoCamposObrigatorios(); executarAuditoriaPreditiva();" placeholder="Ex: 150000.00" class="w-full p-2.5 rounded-xl text-xs font-bold font-mono outline-none transition campo-pendente">
                         </div>
                     </div>
 
                     <!-- LINHA 2: BENEFICIÁRIO (COM CATÁLOGO) E TIPO DE EXECUÇÃO -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div class="sm:col-span-2">
-                            <label class="block text-xs font-semibold text-slate-300 mb-1">Beneficiário (Entidade ou Secretaria) *</label>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-xs font-semibold text-slate-200">Beneficiário (Entidade ou Secretaria) *</label>
+                                <span id="badge-status-beneficiario" class="badge-campo-pendente text-[9px] px-1.5 py-0.2 rounded font-mono font-bold">Pendente ⚠️</span>
+                            </div>
                             <div class="flex gap-2">
-                                <input type="text" id="inp-beneficiario" oninput="executarAuditoriaPreditiva()" placeholder="Ex: APAE Horizontina ou Secretaria de Obras" class="w-full p-2.5 bg-[#0a0c0f] border border-[#1f2530] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-emerald-500">
+                                <input type="text" id="inp-beneficiario" oninput="atualizarEstadoCamposObrigatorios(); executarAuditoriaPreditiva();" placeholder="Ex: APAE Horizontina ou Secretaria de Obras" class="w-full p-2.5 rounded-xl text-xs outline-none transition campo-pendente">
                                 <button type="button" onclick="abrirModalCatalogoEntidades()" class="px-3.5 py-2.5 bg-[#181c24] hover:bg-[#202530] text-emerald-300 text-xs font-bold rounded-xl border border-emerald-900/60 transition flex items-center gap-1.5 shrink-0 shadow-sm" title="Consultar Catálogo de Entidades de Horizontina">
                                     <i class="fa-solid fa-book-bookmark"></i> Catálogo
                                 </button>
                             </div>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-1">Tipo de Execução *</label>
-                            <select id="sel-tipo-execucao" onchange="executarAuditoriaPreditiva()" class="w-full p-2.5 bg-[#0a0c0f] border border-[#1f2530] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-emerald-500">
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-xs font-semibold text-slate-200">Tipo de Execução *</label>
+                                <span id="badge-status-tipo-execucao" class="badge-campo-preenchido text-[9px] px-1.5 py-0.2 rounded font-mono font-bold">Preenchido ✓</span>
+                            </div>
+                            <select id="sel-tipo-execucao" onchange="atualizarEstadoCamposObrigatorios(); executarAuditoriaPreditiva();" class="w-full p-2.5 rounded-xl text-xs outline-none transition campo-preenchido">
                                 <option value="Indireta">🤝 Indireta (OSC / Terceiro Setor)</option>
                                 <option value="Direta">🏛️ Direta (Prefeitura Municipal)</option>
                             </select>
@@ -371,8 +447,11 @@
                     <!-- LINHA 3: SECRETARIA E ENQUADRAMENTO CONTÁBIL -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-1">Secretaria Gestora Padrão *</label>
-                            <select id="sel-secretaria" onchange="executarAuditoriaPreditiva()" class="w-full p-2.5 bg-[#0a0c0f] border border-[#1f2530] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-emerald-500">
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-xs font-semibold text-slate-200">Secretaria Gestora Padrão *</label>
+                                <span id="badge-status-secretaria" class="badge-campo-preenchido text-[9px] px-1.5 py-0.2 rounded font-mono font-bold">Preenchido ✓</span>
+                            </div>
+                            <select id="sel-secretaria" onchange="atualizarEstadoCamposObrigatorios(); executarAuditoriaPreditiva();" class="w-full p-2.5 rounded-xl text-xs outline-none transition campo-preenchido">
                                 <option value="SMS">SMS - Secretaria Municipal de Saúde (Cota Constitucional)</option>
                                 <option value="SMECJL">SMECJL - Educação, Cultura, Juventude e Lazer</option>
                                 <option value="SMDSH">SMDSH - Desenvolvimento Social e Habitação</option>
@@ -385,12 +464,15 @@
                         </div>
                         <div>
                             <div class="flex justify-between items-center mb-1">
-                                <label class="block text-xs font-semibold text-slate-300">Enquadramento da Despesa (Lei 4.320/64) *</label>
+                                <div class="flex items-center gap-1.5">
+                                    <label class="text-xs font-semibold text-slate-200">Enquadramento Contábil *</label>
+                                    <span id="badge-status-enquadramento" class="badge-campo-preenchido text-[9px] px-1.5 py-0.2 rounded font-mono font-bold">Preenchido ✓</span>
+                                </div>
                                 <button type="button" onclick="abrirModalGuiaContabil()" class="text-[11px] text-emerald-400 hover:underline flex items-center gap-1 font-mono">
-                                    <i class="fa-solid fa-circle-question"></i> Guia Didático
+                                    <i class="fa-solid fa-circle-question"></i> Guia
                                 </button>
                             </div>
-                            <select id="sel-enquadramento" onchange="atualizarAssistenteRubrica(); executarAuditoriaPreditiva();" class="w-full p-2.5 bg-[#0a0c0f] border border-[#1f2530] rounded-xl text-xs text-white font-mono outline-none focus:ring-1 focus:ring-emerald-500">
+                            <select id="sel-enquadramento" onchange="atualizarAssistenteRubrica(); atualizarEstadoCamposObrigatorios(); executarAuditoriaPreditiva();" class="w-full p-2.5 rounded-xl text-xs font-mono outline-none transition campo-preenchido">
                                 <option value="3.3.50.43 - Subvenções Sociais">3.3.50.43 - Subvenções Sociais (Custeio Saúde/Educ/Assistência)</option>
                                 <option value="3.3.50.41 - Contribuições Correntes">3.3.50.41 - Contribuições Correntes (Custeio Outras Áreas/Cultura)</option>
                                 <option value="4.4.50.42 - Auxílios">4.4.50.42 - Auxílios (Investimento de Capital / Bens OSC)</option>
@@ -419,21 +501,30 @@
 
                     <!-- OBJETO FOCADO EM INTERESSE PÚBLICO -->
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">
-                            Objeto e Finalidade Pública da Proposição *
-                        </label>
-                        <textarea id="inp-objeto" rows="3" oninput="executarAuditoriaPreditiva()" placeholder="Descreva o atendimento continuado e a melhoria que será entregue à população (evite compras soltas de bens que gerem bloqueio pelo Art. 10 da LC 210/2024)..." class="w-full p-3 bg-[#0a0c0f] border border-[#1f2530] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-emerald-500 leading-relaxed"></textarea>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-xs font-semibold text-slate-200">
+                                Objeto e Finalidade Pública da Proposição *
+                            </label>
+                            <span id="badge-status-objeto" class="badge-campo-pendente text-[9px] px-1.5 py-0.2 rounded font-mono font-bold">Pendente ⚠️</span>
+                        </div>
+                        <textarea id="inp-objeto" rows="3" oninput="atualizarEstadoCamposObrigatorios(); executarAuditoriaPreditiva();" placeholder="Descreva o atendimento continuado e a melhoria que será entregue à população (evite compras soltas de bens que gerem bloqueio pelo Art. 10 da LC 210/2024)..." class="w-full p-3 rounded-xl text-xs outline-none leading-relaxed transition campo-pendente"></textarea>
                     </div>
 
                     <!-- LINHA DE BASE E META QUANTITATIVA AUDITÁVEL -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-1">Linha de Base (Situação Inicial / Carência) *</label>
-                            <input type="text" id="inp-linha-base" oninput="executarAuditoriaPreditiva()" placeholder="Ex: 25 crianças autistas na fila sem terapia sensorial" class="w-full p-2.5 bg-[#0a0c0f] border border-[#1f2530] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-emerald-500">
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-xs font-semibold text-slate-200">Linha de Base (Situação Inicial / Carência) *</label>
+                                <span id="badge-status-linha-base" class="badge-campo-pendente text-[9px] px-1.5 py-0.2 rounded font-mono font-bold">Pendente ⚠️</span>
+                            </div>
+                            <input type="text" id="inp-linha-base" oninput="atualizarEstadoCamposObrigatorios(); executarAuditoriaPreditiva();" placeholder="Ex: 25 crianças autistas na fila sem terapia sensorial" class="w-full p-2.5 rounded-xl text-xs outline-none transition campo-pendente">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-1">Meta Alvo Auditável perante o TCE-RS *</label>
-                            <input type="text" id="inp-meta-alvo" oninput="executarAuditoriaPreditiva()" placeholder="Ex: 1.000 horas individuais de estimulação sensorial" class="w-full p-2.5 bg-[#0a0c0f] border border-[#1f2530] rounded-xl text-xs text-emerald-400 font-semibold outline-none focus:ring-1 focus:ring-emerald-500">
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-xs font-semibold text-slate-200">Meta Alvo Auditável perante o TCE-RS *</label>
+                                <span id="badge-status-meta-alvo" class="badge-campo-pendente text-[9px] px-1.5 py-0.2 rounded font-mono font-bold">Pendente ⚠️</span>
+                            </div>
+                            <input type="text" id="inp-meta-alvo" oninput="atualizarEstadoCamposObrigatorios(); executarAuditoriaPreditiva();" placeholder="Ex: 1.000 horas individuais de estimulação sensorial" class="w-full p-2.5 rounded-xl text-xs font-semibold outline-none transition campo-pendente">
                         </div>
                     </div>
 
@@ -450,7 +541,10 @@
                         </div>
                         <div>
                             <div class="flex justify-between items-center mb-1">
-                                <label class="block text-xs font-semibold text-slate-300">Ação / Programa do PPA Municipal *</label>
+                                <div class="flex items-center gap-1.5">
+                                    <label class="text-xs font-semibold text-slate-200">Ação / Programa do PPA Municipal *</label>
+                                    <span id="badge-status-ppa" class="badge-campo-pendente text-[9px] px-1.5 py-0.2 rounded font-mono font-bold">Pendente ⚠️</span>
+                                </div>
                                 <span class="text-[10px] font-mono text-emerald-400" id="badge-ppa-disponivel">Catálogo Ativo</span>
                             </div>
                             <div class="flex gap-2">
@@ -458,7 +552,7 @@
                                     <option value="">Selecione a Ação do PPA Vinculada...</option>
                                 </select>
                             </div>
-                            <input type="text" id="inp-ppa-acao" placeholder="Ou digite o código/nome da Ação e Programa do PPA..." class="w-full mt-2 p-2 bg-[#080a0d] border border-[#1f2530] rounded-lg text-[11px] text-slate-300 outline-none focus:ring-1 focus:ring-emerald-500">
+                            <input type="text" id="inp-ppa-acao" oninput="atualizarEstadoCamposObrigatorios(); executarAuditoriaPreditiva();" placeholder="Ou digite o código/nome da Ação e Programa do PPA..." class="w-full mt-2 p-2 rounded-lg text-[11px] outline-none transition campo-pendente">
                         </div>
                     </div>
 
@@ -910,14 +1004,56 @@
             return JSON.parse(JSON.stringify(BASE_PADRAO_HORIZONTINA));
         }
 
+        async function sincronizarBaseComFirestore() {
+            try {
+                if (typeof db !== 'undefined' && db.collection) {
+                    const docSnap = await db.collection("configuracoes").doc("base_cadastros").get();
+                    if (docSnap.exists) {
+                        const dadosNuvem = docSnap.data();
+                        if (dadosNuvem && Array.isArray(dadosNuvem.vereadores) && dadosNuvem.vereadores.length > 0) {
+                            baseCentral = dadosNuvem;
+                            localStorage.setItem(STORAGE_KEY_CADASTROS, JSON.stringify(dadosNuvem));
+                            popularSeletorGabinetes();
+                            atualizarMetricasDashboard();
+                            popularSeletorAcoesPPA();
+                            renderizarTabelaCotasGeral();
+                            console.log("☁️ [Legislativo] Base sincronizada com o Firestore com sucesso!");
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn("[Legislativo] Firestore em modo local/cache:", e.message);
+            }
+        }
+
         // SINCRONIA EM TEMPO REAL ENTRE ABAS E JANELAS
         window.addEventListener('storage', (e) => {
             if (e.key === STORAGE_KEY_CADASTROS) {
                 baseCentral = carregarBaseCentral();
                 popularSeletorGabinetes();
                 atualizarMetricasDashboard();
+                popularSeletorAcoesPPA();
                 renderizarTabelaCotasGeral();
             }
+        });
+        window.addEventListener('focus', () => {
+            baseCentral = carregarBaseCentral();
+            popularSeletorGabinetes();
+            atualizarMetricasDashboard();
+            popularSeletorAcoesPPA();
+            renderizarTabelaCotasGeral();
+            sincronizarBaseComFirestore();
+        });
+
+        // INICIALIZAÇÃO DA PÁGINA
+        window.addEventListener('DOMContentLoaded', () => {
+            popularSeletorGabinetes();
+            atualizarMetricasDashboard();
+            atualizarAssistenteRubrica();
+            popularSeletorAcoesPPA();
+            executarAuditoriaPreditiva();
+            renderizarTabelaCotasGeral();
+            sincronizarBaseComFirestore();
         });
         window.addEventListener('focus', () => {
             baseCentral = carregarBaseCentral();
@@ -931,9 +1067,92 @@
             atualizarMetricasDashboard();
             atualizarAssistenteRubrica();
             popularSeletorAcoesPPA();
+            atualizarEstadoCamposObrigatorios();
             executarAuditoriaPreditiva();
             renderizarTabelaCotasGeral();
+            sincronizarBaseComFirestore();
         });
+
+        // CONTROLE VISUAL DE CAMPOS OBRIGATÓRIOS (CONTRASTE E FEEDBACK IMEDIATO)
+        function atualizarEstadoCamposObrigatorios() {
+            const camposObrigatorios = [
+                { id: 'inp-num-emenda', badgeId: 'badge-status-num-emenda', minLen: 2, nome: 'Número da Proposição' },
+                { id: 'inp-valor', badgeId: 'badge-status-valor', isNum: true, minVal: 1, nome: 'Valor da Indicação' },
+                { id: 'inp-beneficiario', badgeId: 'badge-status-beneficiario', minLen: 3, nome: 'Beneficiário' },
+                { id: 'sel-tipo-execucao', badgeId: 'badge-status-tipo-execucao', minLen: 2, nome: 'Tipo de Execução' },
+                { id: 'sel-secretaria', badgeId: 'badge-status-secretaria', minLen: 2, nome: 'Secretaria Gestora' },
+                { id: 'sel-enquadramento', badgeId: 'badge-status-enquadramento', minLen: 2, nome: 'Enquadramento Contábil' },
+                { id: 'inp-objeto', badgeId: 'badge-status-objeto', minLen: 12, nome: 'Objeto de Interesse Público' },
+                { id: 'inp-linha-base', badgeId: 'badge-status-linha-base', minLen: 5, nome: 'Linha de Base' },
+                { id: 'inp-meta-alvo', badgeId: 'badge-status-meta-alvo', minLen: 5, nome: 'Meta Alvo' },
+                { id: 'inp-ppa-acao', badgeId: 'badge-status-ppa', minLen: 4, nome: 'Ação do PPA' }
+            ];
+
+            let totalPreenchidos = 0;
+            const totalCampos = camposObrigatorios.length;
+            const pendenciasNomes = [];
+
+            camposObrigatorios.forEach(item => {
+                const el = document.getElementById(item.id);
+                const badge = document.getElementById(item.badgeId);
+                if (!el) return;
+
+                let preenchido = false;
+                if (item.isNum) {
+                    const num = parseFloat(el.value || 0);
+                    preenchido = !isNaN(num) && num >= (item.minVal || 1);
+                } else {
+                    const val = (el.value || '').trim();
+                    preenchido = val.length >= (item.minLen || 1);
+                }
+
+                if (preenchido) {
+                    totalPreenchidos++;
+                    el.classList.remove('campo-pendente', 'campo-erro');
+                    el.classList.add('campo-preenchido');
+                    if (badge) {
+                        badge.className = "badge-campo-preenchido text-[9px] px-1.5 py-0.2 rounded font-mono font-bold";
+                        badge.textContent = "Preenchido ✓";
+                    }
+                } else {
+                    pendenciasNomes.push(item.nome);
+                    el.classList.remove('campo-preenchido', 'campo-erro');
+                    el.classList.add('campo-pendente');
+                    if (badge) {
+                        badge.className = "badge-campo-pendente text-[9px] px-1.5 py-0.2 rounded font-mono font-bold";
+                        badge.textContent = "Pendente ⚠️";
+                    }
+                }
+            });
+
+            // Atualiza barra de progresso no topo
+            const pct = Math.round((totalPreenchidos / totalCampos) * 100);
+            const elBarra = document.getElementById('barra-progresso-obrigatorios');
+            const elLbl = document.getElementById('lbl-progresso-obrigatorios');
+            const elBadgePct = document.getElementById('badge-porcentagem-obrigatorios');
+            const elResumo = document.getElementById('txt-pendencias-resumo');
+            const elDot = document.getElementById('dot-progresso-obrigatorios');
+
+            if (elBarra) elBarra.style.width = `${pct}%`;
+            if (elLbl) elLbl.textContent = `Campos Obrigatórios: ${totalPreenchidos} de ${totalCampos} preenchidos`;
+            if (elBadgePct) {
+                elBadgePct.textContent = `${pct}% Concluído`;
+                elBadgePct.className = pct === 100 
+                    ? "text-[11px] font-mono font-bold px-2.5 py-0.5 rounded badge-campo-preenchido" 
+                    : "text-[11px] font-mono font-bold px-2.5 py-0.5 rounded badge-campo-pendente";
+            }
+            if (elDot) {
+                elDot.className = pct === 100 ? "w-2.5 h-2.5 rounded-full bg-emerald-400" : "w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse";
+            }
+            if (elResumo) {
+                const faltam = totalCampos - totalPreenchidos;
+                elResumo.textContent = faltam === 0 ? "Tudo pronto para gerar a Minuta Oficial! ✓" : `${faltam} campo(s) pendente(s)`;
+                elResumo.className = faltam === 0 ? "text-emerald-400 font-bold" : "text-amber-400 font-semibold";
+            }
+
+            return { totalPreenchidos, totalCampos, pendenciasNomes, completo: totalPreenchidos === totalCampos };
+        }
+        window.atualizarEstadoCamposObrigatorios = atualizarEstadoCamposObrigatorios;
 
         // POPULA O SELETOR DE AÇÕES DO PPA A PARTIR DA BASE CENTRAL
         function popularSeletorAcoesPPA() {
@@ -971,6 +1190,7 @@
                     const selCorede = document.getElementById('sel-eixo-corede');
                     if (selCorede) selCorede.value = ppaItem.corede;
                 }
+                atualizarEstadoCamposObrigatorios();
                 executarAuditoriaPreditiva();
             }
         }
@@ -1598,6 +1818,7 @@ Retorne ESTRITAMENTE um objeto JSON no formato:
             }
 
             atualizarAssistenteRubrica();
+            atualizarEstadoCamposObrigatorios();
         }
 
         function aplicarSugestaoObjetoLC210() {
@@ -1855,12 +2076,15 @@ Retorne ESTRITAMENTE um objeto JSON no formato:
             document.getElementById('inp-objeto').value = '';
             document.getElementById('inp-linha-base').value = '';
             document.getElementById('inp-meta-alvo').value = '';
+            document.getElementById('inp-ppa-acao').value = '';
+            document.getElementById('sel-ppa-acao-catalogo').value = '';
             document.getElementById('inp-texto-corrido-ia').value = '';
             document.getElementById('chk-projeto-engenharia').checked = false;
             document.getElementById('box-impedimento-lc210').classList.add('hidden');
             document.getElementById('box-feedback-ia').classList.add('hidden');
 
             atualizarAssistenteRubrica();
+            atualizarEstadoCamposObrigatorios();
             executarAuditoriaPreditiva();
             mostrarToast("Formulário reiniciado com sucesso.");
         }
@@ -1993,6 +2217,7 @@ Retorne ESTRITAMENTE um objeto JSON no formato:
 
             atualizarAssistenteRubrica();
             fecharModalCatalogoEntidades();
+            atualizarEstadoCamposObrigatorios();
             executarAuditoriaPreditiva();
             mostrarToast(`Entidade "${nome}" vinculada com sucesso!`);
         }
@@ -2011,14 +2236,43 @@ Retorne ESTRITAMENTE um objeto JSON no formato:
 
         // MODAL MINUTA OFICIAL & EXPORTAÇÃO
         function abrirModalMinutaOficial() {
+            const estadoForm = atualizarEstadoCamposObrigatorios();
+            
+            if (!estadoForm.completo) {
+                // Destaca em vermelho pulsante os campos pendentes
+                const camposMap = {
+                    'Número da Proposição': 'inp-num-emenda',
+                    'Valor da Indicação': 'inp-valor',
+                    'Beneficiário': 'inp-beneficiario',
+                    'Objeto de Interesse Público': 'inp-objeto',
+                    'Linha de Base': 'inp-linha-base',
+                    'Meta Alvo': 'inp-meta-alvo',
+                    'Ação do PPA': 'inp-ppa-acao'
+                };
+
+                estadoForm.pendenciasNomes.forEach(nome => {
+                    const idCampo = camposMap[nome];
+                    if (idCampo) {
+                        const el = document.getElementById(idCampo);
+                        if (el) {
+                            el.classList.remove('campo-pendente');
+                            el.classList.add('campo-erro');
+                        }
+                    }
+                });
+
+                const listaFaltam = estadoForm.pendenciasNomes.slice(0, 4).join(', ');
+                mostrarToast(`⚠️ Preencha os campos obrigatórios antes de gerar a minuta: ${listaFaltam}...`, "erro");
+                
+                // Rola suavemente até o primeiro campo com pendência
+                const primeiroPendente = document.querySelector('.campo-erro, .campo-pendente');
+                if (primeiroPendente) primeiroPendente.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
             const valor = parseFloat(document.getElementById('inp-valor').value || 0);
             const beneficiario = document.getElementById('inp-beneficiario').value.trim();
             const objeto = document.getElementById('inp-objeto').value.trim();
-
-            if (valor <= 0 || !beneficiario || !objeto) {
-                mostrarToast("Preencha ao menos o Valor, Beneficiário e Objeto antes de gerar a minuta.", "erro");
-                return;
-            }
 
             const numEmenda = document.getElementById('inp-num-emenda').value.trim() || '___/2026';
             const prioridade = document.getElementById('sel-prioridade').value;

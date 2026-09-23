@@ -6,6 +6,9 @@
     <title>PRISMA • Painel de Cadastros & Parâmetros Estruturais</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase App & Firestore Compat SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -99,6 +102,9 @@
                 </div>
 
                 <div class="flex items-center gap-2">
+                    <span id="badge-status-cloud" class="hidden sm:inline-flex items-center gap-1 text-[11px] font-mono px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Nuvem Conectada
+                    </span>
                     <a href="legislativo.html" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[#17181a] hover:bg-[#28292a] text-[#8ab4f8] border border-blue-800/40 transition flex items-center gap-1.5 shadow-sm">
                         <span>⚖️</span>
                         <span class="hidden sm:inline">Portal do Legislativo</span>
@@ -458,22 +464,32 @@
         <!-- ABA 4: SINCRONIA & BACKUP JSON                                            -->
         <!-- ========================================================================= -->
         <div id="aba-conteudo-sincronia" class="hidden space-y-4">
-            <div class="bg-[#1e1f20] border border-[#333537] rounded-2xl p-6 space-y-4">
-                <div class="flex items-center gap-3">
-                    <span class="text-2xl">🔄</span>
-                    <div>
-                        <h3 class="text-sm font-bold text-white">Sincronia Local & Exportação de Base de Dados</h3>
-                        <p class="text-xs text-[#9aa0a6]">Exporte todo o catálogo para arquivo JSON estruturado ou restaure a base padrão oficial do Município.</p>
+            <div class="bg-[#1e1f20] border border-[#333537] rounded-2xl p-6 space-y-5">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-[#333537]">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">☁️</span>
+                        <div>
+                            <h3 class="text-sm font-bold text-white">Sincronização em Nuvem (Firebase Firestore) & Backup</h3>
+                            <p class="text-xs text-[#9aa0a6]">Todos os cadastros são persistidos na coleção <code class="text-blue-300 font-mono">configuracoes/base_cadastros</code> no banco de dados.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="sincronizarComFirestoreManual()" class="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm border border-emerald-500/40">
+                            <span>🔄</span> Enviar Agora para a Nuvem
+                        </button>
+                        <button type="button" onclick="baixarDoFirestoreManual()" class="px-3.5 py-2 bg-blue-700 hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm border border-blue-500/40">
+                            <span>📥</span> Puxar da Nuvem
+                        </button>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
                     <button type="button" onclick="exportarBaseJSON()" class="p-4 bg-[#17181a] hover:bg-[#28292a] border border-[#333537] rounded-xl text-left transition flex flex-col justify-between space-y-2">
                         <div class="flex items-center gap-2">
                             <span class="text-xl">💾</span>
                             <strong class="text-xs text-white">Exportar Base JSON</strong>
                         </div>
-                        <p class="text-[11px] text-[#9aa0a6]">Gera backup completo de todos os registros (entidades, vereadores, partidos, PPA e dotações).</p>
+                        <p class="text-[11px] text-[#9aa0a6]">Gera backup completo de todos os registros em arquivo local.</p>
                     </button>
 
                     <label class="p-4 bg-[#17181a] hover:bg-[#28292a] border border-[#333537] rounded-xl text-left transition flex flex-col justify-between space-y-2 cursor-pointer">
@@ -481,7 +497,7 @@
                             <span class="text-xl">📥</span>
                             <strong class="text-xs text-white">Importar Arquivo JSON</strong>
                         </div>
-                        <p class="text-[11px] text-[#9aa0a6]">Carrega dados de um arquivo `.json` previamente exportado.</p>
+                        <p class="text-[11px] text-[#9aa0a6]">Carrega dados de um arquivo .json e envia direto para a nuvem.</p>
                         <input type="file" id="inp-arquivo-json" accept=".json" onchange="importarBaseJSON(event)" class="hidden">
                     </label>
 
@@ -490,7 +506,7 @@
                             <span class="text-xl">⚡</span>
                             <strong class="text-xs text-amber-300">Restaurar Padrão Oficial</strong>
                         </div>
-                        <p class="text-[11px] text-slate-400">Recarrega o elenco base de entidades, vereadores e cotas originais de Horizontina/RS.</p>
+                        <p class="text-[11px] text-slate-400">Recarrega o elenco base oficial de Horizontina e grava no Firestore.</p>
                     </button>
                 </div>
             </div>
@@ -774,6 +790,21 @@
     <!-- JAVASCRIPT: ARQUITETURA DE DADOS E SINCRONIZAÇÃO                          -->
     <!-- ========================================================================= -->
     <script>
+        // INICIALIZAÇÃO DO FIREBASE (Projeto Oficial emendas-b63d1)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAdHnH9Q6c6GqE8mlhBxcNdcEB6n3G7QvU",
+            authDomain: "emendas-b63d1.firebaseapp.com",
+            projectId: "emendas-b63d1",
+            storageBucket: "emendas-b63d1.firebasestorage.app",
+            messagingSenderId: "819384266831",
+            appId: "1:819384266831:web:d94187838a57bbe0f67a3a"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+
         const STORAGE_KEY_CADASTROS = "prisma_cadastros_base_v2";
 
         // BASE OFICIAL DE HORIZONTINA (SEM DADOS FICTÍCIOS DE EMENDAS OU PROJETOS)
@@ -819,29 +850,98 @@
             } catch (e) {
                 console.warn("Falha ao ler cadastros salvos, usando padrão limpo:", e);
             }
-            salvarBaseCadastros(BASE_PADRAO_HORIZONTINA);
             return JSON.parse(JSON.stringify(BASE_PADRAO_HORIZONTINA));
         }
 
-        function salvarBaseCadastros(dados) {
+        async function salvarBaseCadastros(dados, salvarNuvem = true) {
             try {
                 localStorage.setItem(STORAGE_KEY_CADASTROS, JSON.stringify(dados));
                 baseCadastros = dados;
                 atualizarContadoresAbas();
-                // Notifica outras janelas abertas
                 window.dispatchEvent(new Event('storage'));
+
+                if (salvarNuvem && typeof db !== 'undefined' && db.collection) {
+                    await db.collection("configuracoes").doc("base_cadastros").set({
+                        ...dados,
+                        ultimaAtualizacao: new Date().toISOString()
+                    }, { merge: true });
+                    console.log("☁️ [Firestore] Base sincronizada com sucesso!");
+                }
             } catch (e) {
                 console.error("Erro ao salvar cadastros:", e);
             }
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
+        async function sincronizarComFirestoreManual() {
+            try {
+                mostrarToast("Enviando base para o Firestore...", "sucesso");
+                await salvarBaseCadastros(baseCadastros, true);
+                mostrarToast("Base gravada com sucesso no Firestore!", "sucesso");
+            } catch (err) {
+                console.error(err);
+                mostrarToast("Erro ao conectar com Firestore.", "erro");
+            }
+        }
+        window.sincronizarComFirestoreManual = sincronizarComFirestoreManual;
+
+        async function baixarDoFirestoreManual() {
+            try {
+                mostrarToast("Buscando base do Firestore...", "sucesso");
+                const docSnap = await db.collection("configuracoes").doc("base_cadastros").get();
+                if (docSnap.exists) {
+                    const dadosNuvem = docSnap.data();
+                    if (dadosNuvem && dadosNuvem.vereadores) {
+                        baseCadastros = dadosNuvem;
+                        localStorage.setItem(STORAGE_KEY_CADASTROS, JSON.stringify(dadosNuvem));
+                        atualizarContadoresAbas();
+                        renderizarTabelaEntidades();
+                        renderizarPartidosEVereadores();
+                        renderizarTabelaPPA();
+                        renderizarTabelaDotacoes();
+                        carregarParametrosRCLSalvos();
+                        window.dispatchEvent(new Event('storage'));
+                        mostrarToast("Base atualizada diretamente da nuvem!", "sucesso");
+                        return;
+                    }
+                }
+                mostrarToast("Nenhum dado encontrado no Firestore.", "erro");
+            } catch (err) {
+                console.error(err);
+                mostrarToast("Falha ao baixar dados da nuvem.", "erro");
+            }
+        }
+        window.baixarDoFirestoreManual = baixarDoFirestoreManual;
+
+        window.addEventListener('DOMContentLoaded', async () => {
             atualizarContadoresAbas();
             renderizarTabelaEntidades();
             renderizarPartidosEVereadores();
             renderizarTabelaPPA();
             renderizarTabelaDotacoes();
             carregarParametrosRCLSalvos();
+
+            // Sincroniza inicialmente com o Firestore se disponível
+            try {
+                if (typeof db !== 'undefined' && db.collection) {
+                    const docSnap = await db.collection("configuracoes").doc("base_cadastros").get();
+                    if (docSnap.exists) {
+                        const dadosNuvem = docSnap.data();
+                        if (dadosNuvem && Array.isArray(dadosNuvem.vereadores) && dadosNuvem.vereadores.length > 0) {
+                            baseCadastros = dadosNuvem;
+                            localStorage.setItem(STORAGE_KEY_CADASTROS, JSON.stringify(dadosNuvem));
+                            atualizarContadoresAbas();
+                            renderizarTabelaEntidades();
+                            renderizarPartidosEVereadores();
+                            renderizarTabelaPPA();
+                            renderizarTabelaDotacoes();
+                            carregarParametrosRCLSalvos();
+                            console.log("☁️ Base carregada do Firestore com sucesso.");
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn("Conexão inicial com Firestore offline/indisponível:", err);
+            }
         });
 
         // =========================================================================
