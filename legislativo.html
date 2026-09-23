@@ -1419,7 +1419,7 @@
             const btnPular = document.getElementById('btn-pular-para-local');
             if (btnPular) btnPular.classList.add('hidden');
         }
-        // MOTOR HEURÍSTICO LOCAL DETERMINÍSTICO (RESPOSTA EM 0.05 SEGUNDOS)
+        // MOTOR HEURÍSTICO LOCAL DETERMINÍSTICO (AUDITORIA RIGOROSA LC 210/2024)
         function executarParserHeuristicoLocal(texto) {
             const lower = texto.toLowerCase();
 
@@ -1442,21 +1442,77 @@
                     valor = parseFloat(matchCifrao[1].replace(/\./g, '').replace(',', '.'));
                 }
             }
-            if (!valor || valor <= 0) valor = 100000;
+            if (!valor || valor <= 0) valor = 25000;
 
-            // 2. Beneficiário & Secretaria
-            let beneficiario = "Entidade a Definir";
-            let tipoExecucao = "Indireta";
-            let secretaria = "SMS";
-            let enquadramento = "3.3.50.43 - Subvenções Sociais";
+            // 2. Detecção de Áreas Específicas
+            const ehSaudeReal = lower.includes('saúde') || lower.includes('saude') || lower.includes('hospital') || lower.includes('médic') || lower.includes('medicamento') || lower.includes('remédio') || lower.includes('farmácia') || lower.includes('terapia') || lower.includes('asps') || lower.includes('posto de saúde') || lower.includes('ubs');
+            const ehObraOuFisica = lower.includes('passeio') || lower.includes('calçada') || lower.includes('calcada') || lower.includes('paviment') || lower.includes('asfalto') || lower.includes('obra') || lower.includes('constru') || lower.includes('reforma') || lower.includes('drenagem') || lower.includes('muro') || lower.includes('quadra');
+            const ehClubeOuPrivado = lower.includes('clube') || lower.includes('futebol') || lower.includes('agremiação') || lower.includes('particular') || lower.includes('estádio') || lower.includes('sede social') || lower.includes('campo de futebol');
+            const ehEducacao = lower.includes('escola') || lower.includes('educação') || lower.includes('ensino') || lower.includes('creche') || lower.includes('aluno');
+            const ehApae = lower.includes('apae');
+
+            let beneficiario = "Entidade / Órgão a Especificar";
+            let tipoExecucao = "Direta";
+            let secretaria = "GABINETE";
+            let enquadramento = "3.3.90.39 - Outros Serviços Terceiros PJ";
             let exigeProjetoEngenharia = false;
-            let acaoPPASugerida = "Ação 2042 - Programa 0010 (Gestão e Fortalecimento do SUS)";
-            let eixoCoredeSugerido = "Eixo 02: Saúde, Inclusão Social e Qualidade de Vida Regional";
+            let acaoPPASugerida = "Ação a Vincular no PPA Setorial";
+            let eixoCoredeSugerido = "Eixo 04: Infraestrutura, Sustentabilidade e Meio Ambiente";
             let objetoFinal = texto;
             let densidadeInteresse = "Alta";
             let diagnosticoInteresse = "A proposição delineia atendimento contínuo e estruturado à coletividade.";
 
-            if (lower.includes('apae')) {
+            // 3. Auditoria Preventiva sob a Lei Complementar nº 210/2024 e Art. 37 da CF
+            let impedimentoLC210 = { detectado: false, inciso: "", motivo: "", recomendacaoAjuste: "", objetoSugerido: "" };
+
+            // CENÁRIO CRÍTICO: PASSEIO / OBRA EM CLUBE DE FUTEBOL OU ÁREA PRIVADA
+            if (ehClubeOuPrivado && ehObraOuFisica) {
+                secretaria = "SMILT";
+                tipoExecucao = "Direta";
+                enquadramento = "4.4.90.51 - Obras e Instalações";
+                exigeProjetoEngenharia = true;
+                eixoCoredeSugerido = "Eixo 04: Infraestrutura, Sustentabilidade e Meio Ambiente";
+                acaoPPASugerida = "Ação 1035 - Programa 0030 (Pavimentação e Qualificação Urbana)";
+                densidadeInteresse = "Incompatível / Vedada";
+                diagnosticoInteresse = "Vício de Finalidade e Falta de Interesse Público Universal: Recursos públicos não podem ser aplicados em área de clube de futebol privado ou de acesso restrito a sócios (Art. 37 da CF/88 e Art. 3.4.1 do Decreto Municipal nº 5.730/2025). Obras em áreas públicas exigem domínio público e universalidade de uso.";
+                
+                impedimentoLC210 = {
+                    detectado: true,
+                    inciso: "Art. 10, Incisos III, VI, VII e XXIII da LC 210/2024",
+                    motivo: "1) Risco de violação do Art. 37 da CF (despesa pública em entidade/clube privado sem acesso universal); 2) Ausência de projeto de engenharia, memorial descritivo e ART de responsável técnico homologados pela SMILT (Inciso III); 3) Incerteza orçamentária se o montante de R$ " + valor.toLocaleString('pt-BR') + " é suficiente para conclusão de etapa útil com funcionalidade plena imediata à sociedade (Incisos VI e XXI); 4) Objeto genérico sem detalhamento métrico ou nexo social coletivo comprovado.",
+                    recomendacaoAjuste: "Se o local for área pública municipal adjacente, comprove a titularidade pública, especifique a metragem exata (m² de calçada), anexe o projeto com ART do engenheiro da SMILT e justifique o trânsito livre de todos os pedestres da comunidade.",
+                    objetoSugerido: "Execução de passeio público em via pública municipal adjacente ao complexo esportivo, com acessibilidade universal, projeto técnico e memorial homologados pela SMILT."
+                };
+            } else if (ehClubeOuPrivado && !ehSaudeReal) {
+                secretaria = "SMECJL";
+                tipoExecucao = "Indireta";
+                enquadramento = "3.3.50.41 - Contribuições Correntes";
+                densidadeInteresse = "Frágil / Restrita";
+                diagnosticoInteresse = "Risco de atendimento restrito a associados do clube. Exige-se comprovação de oficinas esportivas comunitárias abertas e 100% gratuitas a munícipes vulneráveis.";
+                impedimentoLC210 = {
+                    detectado: true,
+                    inciso: "Art. 10, Inciso VII da LC 210/2024 c/c Art. 3.4.1 Decreto 5.730/25",
+                    motivo: "Vedada a destinação de emendas parlamentares para clubes particulares ou agremiações sem plano de trabalho com atendimento gratuito e universal.",
+                    recomendacaoAjuste: "Estruture uma escolinha de iniciação esportiva com vagas 100% abertas a crianças da rede municipal.",
+                    objetoSugerido: "Implementação de escolinha esportiva comunitária gratuita para 50 crianças e jovens da rede pública."
+                };
+            } else if (ehObraOuFisica) {
+                secretaria = "SMILT";
+                tipoExecucao = "Direta";
+                enquadramento = "4.4.90.51 - Obras e Instalações";
+                exigeProjetoEngenharia = true;
+                eixoCoredeSugerido = "Eixo 04: Infraestrutura, Sustentabilidade e Meio Ambiente";
+                acaoPPASugerida = "Ação 1035 - Programa 0030 (Pavimentação e Qualificação de Vias)";
+                densidadeInteresse = "Regular com Exigência Técnica";
+                diagnosticoInteresse = "Intervenção física em via pública que exige projeto e suficiência orçamentária.";
+                impedimentoLC210 = {
+                    detectado: true,
+                    inciso: "Art. 10, Incisos III e VI da LC 210/2024",
+                    motivo: "Toda intervenção física (passeio/pavimentação) exige projeto de engenharia, memorial e ART homologados pela SMILT, além da comprovação de que o valor é suficiente para uma etapa útil funcional.",
+                    recomendacaoAjuste: "Anexe a planilha orçamentária e a ART do engenheiro civil responsável na SMILT.",
+                    objetoSugerido: "Execução de passeio público e calçamento com projeto e ART homologados pela SMILT."
+                };
+            } else if (ehApae) {
                 beneficiario = "APAE Horizontina";
                 tipoExecucao = "Indireta";
                 secretaria = "SMS";
@@ -1465,35 +1521,16 @@
                 eixoCoredeSugerido = "Eixo 02: Saúde, Inclusão Social e Qualidade de Vida Regional";
                 objetoFinal = "Estruturação de ambiente multissensorial e aquisição de tecnologias assistivas para viabilizar atendimento clínico-terapêutico individualizado a crianças neuroatípicas.";
                 diagnosticoInteresse = "Atendimento público continuado focado em inclusão biopsicossocial de pessoas com deficiência intelectual e múltipla.";
-            } else if (lower.includes('hospital') || lower.includes('oswaldo cruz')) {
-                beneficiario = "Hospital Beneficente Oswaldo Cruz";
-                tipoExecucao = "Indireta";
-                secretaria = "SMS";
-                enquadramento = "3.3.50.43 - Subvenções Sociais";
-                acaoPPASugerida = "Ação 1018 - Programa 0010 (Equipamentos de Média e Alta Complexidade)";
-                eixoCoredeSugerido = "Eixo 02: Saúde, Inclusão Social e Qualidade de Vida Regional";
-                objetoFinal = "Custeio de procedimentos hospitalares e aquisição de insumos médico-hospitalares para ampliação da retaguarda de urgência e emergência à população de Horizontina.";
-                diagnosticoInteresse = "Garantia de resolutividade nos serviços públicos de saúde e redução de filas de internação.";
-            } else if (lower.includes('saúde') || lower.includes('medicamento') || lower.includes('farmácia')) {
-                beneficiario = "Secretaria Municipal de Saúde";
+            } else if (ehSaudeReal) {
+                beneficiario = "Secretaria Municipal de Saúde (SMS)";
                 tipoExecucao = "Direta";
                 secretaria = "SMS";
                 enquadramento = "3.3.90.30 - Material de Consumo";
                 acaoPPASugerida = "Ação 2045 - Programa 0010 (Assistência Farmacêutica Básica e Remédios)";
                 eixoCoredeSugerido = "Eixo 02: Saúde, Inclusão Social e Qualidade de Vida Regional";
                 objetoFinal = "Abastecimento continuado da Farmácia Básica Municipal com medicamentos essenciais de distribuição 100% gratuita a usuários do SUS.";
-                diagnosticoInteresse = "Acesso universal a tratamentos farmacológicos da atenção primária à saúde.";
-            } else if (lower.includes('asfalto') || lower.includes('pavimenta') || lower.includes('obra') || lower.includes('smilt')) {
-                beneficiario = "Secretaria Municipal de Infraestrutura (SMILT)";
-                tipoExecucao = "Direta";
-                secretaria = "SMILT";
-                enquadramento = "4.4.90.51 - Obras e Instalações";
-                exigeProjetoEngenharia = true;
-                acaoPPASugerida = "Ação 1035 - Programa 0030 (Pavimentação Asfáltica e Drenagem Urbana)";
-                eixoCoredeSugerido = "Eixo 04: Infraestrutura, Sustentabilidade e Meio Ambiente";
-                objetoFinal = "Execução de obras de pavimentação asfáltica, drenagem pluvial e sinalização viária com projeto executivo, memorial e ART homologados pela SMILT.";
-                diagnosticoInteresse = "Mobilidade urbana, saneamento e eliminação de poeira e barro para circulação comunitária.";
-            } else if (lower.includes('escola') || lower.includes('educação') || lower.includes('smecjl')) {
+                diagnosticoInteresse = "Acesso universal a tratamentos farmacológicos da atenção primária à saúde (ASPS).";
+            } else if (ehEducacao) {
                 beneficiario = "Secretaria de Educação e Cultura (SMECJL)";
                 tipoExecucao = "Direta";
                 secretaria = "SMECJL";
@@ -1504,49 +1541,6 @@
                 diagnosticoInteresse = "Combate à evasão escolar e elevação do IDEB municipal.";
             }
 
-            // 3. Auditoria Preventiva sob o Art. 10 da Lei Complementar nº 210/2024
-            let impedimentoLC210 = { detectado: false, inciso: "", motivo: "", recomendacaoAjuste: "", objetoSugerido: "" };
-
-            // ALERTA DE COMPRA ISOLADA DE BENS DE BALCÃO
-            const ehCompraIsolada = (lower.includes('comprar ar') || lower.includes('ar-condicionado') || lower.includes('computador') || lower.includes('cadeira') || lower.includes('carro')) && !lower.includes('atendimento') && !lower.includes('capacitação') && !lower.includes('terapia');
-            if (ehCompraIsolada) {
-                impedimentoLC210 = {
-                    detectado: true,
-                    inciso: "Art. 10, Incisos VII e VIII da LC 210/2024 c/c Art. 2º, § 1º",
-                    motivo: "Vício de Balcão e Ausência de Interesse Público Estruturado: a proposição restringe-se à compra isolada de bens patrimoniais sem demonstrar a finalidade pública, o atendimento contínuo aos munícipes ou a compatibilidade com o programa setorial do órgão executor.",
-                    recomendacaoAjuste: "Reestruture o objeto vinculando o equipamento a um serviço público continuado (ex.: 'Estruturação de sala de informática com aquisição de 10 terminais para formação profissional de 60 jovens da comunidade').",
-                    objetoSugerido: "Modernização das instalações técnicas mediante aquisição de equipamentos para viabilizar a oferta contínua de oficinas e atendimento gratuito à comunidade."
-                };
-                densidadeInteresse = "Frágil";
-                diagnosticoInteresse = "Risco de veto por 'compra de balcão': o texto original não explicitou o serviço público que será entregue aos munícipes.";
-            } else if (lower.includes('trator') && (lower.includes('hospital') || lower.includes('apae'))) {
-                impedimentoLC210 = {
-                    detectado: true,
-                    inciso: "Art. 10, Inciso IX da LC 210/2024",
-                    motivo: "Ausência de pertinência temática entre o objeto proposto (maquinário agrícola) e a finalidade institucional estatutária da entidade beneficiária de saúde.",
-                    recomendacaoAjuste: "Reescreva a indicação destinando recursos a equipamentos de diagnóstico, custeio hospitalar ou fisioterapêuticos.",
-                    objetoSugerido: "Aquisição de equipamentos de reabilitação física e sensorial para atendimento continuado aos usuários da entidade."
-                };
-                densidadeInteresse = "Incompatível";
-            } else if ((lower.includes('asfalto') || lower.includes('pavimentação') || lower.includes('obra')) && !exigeProjetoEngenharia) {
-                impedimentoLC210 = {
-                    detectado: true,
-                    inciso: "Art. 10, Inciso III da LC 210/2024",
-                    motivo: "Ausência de projeto de engenharia aprovado pelo órgão setorial competente (SMILT). Toda intervenção física necessita de memorial descritivo, ART e orçamento prévio.",
-                    recomendacaoAjuste: "Assinale a obrigatoriedade de projeto de engenharia prévio e anexe o memorial técnico elaborado pela SMILT.",
-                    objetoSugerido: "Execução de obras de pavimentação asfáltica e drenagem pluvial com projeto executivo e memorial homologados pela SMILT."
-                };
-            } else if (lower.includes('salário') || lower.includes('folha') || lower.includes('pessoal da prefeitura')) {
-                impedimentoLC210 = {
-                    detectado: true,
-                    inciso: "Art. 10, Inciso XXIV da LC 210/2024 & Art. 77, § 2º da L.O.",
-                    motivo: "Vedação expressa de custear despesas com pessoal ou encargos ordinários do Poder Executivo mediante emendas parlamentares.",
-                    recomendacaoAjuste: "Direcione a emenda para material de consumo, medicamentos ou equipamentos permanentes.",
-                    objetoSugerido: "Aquisição de insumos de saúde e medicamentos para abastecimento da rede de atenção básica municipal."
-                };
-                densidadeInteresse = "Vedado por Lei";
-            }
-
             return {
                 valor: valor,
                 beneficiario: beneficiario,
@@ -1555,8 +1549,8 @@
                 enquadramento: enquadramento,
                 exigeProjetoEngenharia: exigeProjetoEngenharia,
                 objeto: objetoFinal,
-                linhaBase: "Carência de atendimento diagnosticada no município",
-                metaAlvo: "Beneficiar os munícipes atendidos com eficiência e qualidade",
+                linhaBase: ehObraOuFisica ? "Falta de calçada acessível no trecho identificado" : "Carência comunitária diagnosticada",
+                metaAlvo: ehObraOuFisica ? "Execução de trecho funcional com rampa de acessibilidade" : "Munícipes beneficiados com gratuidade",
                 acaoPPASugerida: acaoPPASugerida,
                 eixoCoredeSugerido: eixoCoredeSugerido,
                 densidadeInteresse: densidadeInteresse,
@@ -1571,12 +1565,12 @@
                 try { abortControllerIA.abort(); } catch (e) {}
             }
             pararCronometroIA();
-            atualizarProgressoIA(90, "Processando com Motor Local...", "Aplicando regras da LC 210/2024 e catálogo de Horizontina...");
+            atualizarProgressoIA(90, "Processando com Motor Local...", "Aplicando crivo estrito da LC 210/2024 e PPA...");
 
             const dadosLocais = executarParserHeuristicoLocal(textoAtualEmProcessamento);
             aplicarDadosExtraidosNoFormulario(dadosLocais);
 
-            atualizarProgressoIA(100, "Concluído via Motor Local", `Identificado: ${dadosLocais.beneficiario} • R$ ${Number(dadosLocais.valor || 0).toLocaleString('pt-BR')} • ${dadosLocais.enquadramento}`);
+            atualizarProgressoIA(100, "Concluído via Auditoria Local", `Analisado: ${dadosLocais.secretaria} • R$ ${Number(dadosLocais.valor || 0).toLocaleString('pt-BR')} • ${dadosLocais.enquadramento}`);
 
             const boxLC210 = document.getElementById('box-impedimento-lc210');
             if (dadosLocais.impedimentoLC210 && dadosLocais.impedimentoLC210.detectado) {
@@ -1589,6 +1583,23 @@
                 boxLC210.classList.add('hidden');
             }
 
+            const boxInteresse = document.getElementById('box-interesse-publico-diagnostico');
+            if (boxInteresse) {
+                const elBadgeDensidade = document.getElementById('badge-densidade-publica');
+                const elTxtInteresse = document.getElementById('txt-diagnostico-interesse-publico');
+                const elTxtPPA = document.getElementById('txt-vinculacao-ppa-diagnostico');
+
+                if (elBadgeDensidade) {
+                    elBadgeDensidade.textContent = `Interesse Público: ${dadosLocais.densidadeInteresse || 'Em Análise'}`;
+                    elBadgeDensidade.className = dadosLocais.densidadeInteresse.includes('Incompatível') || dadosLocais.densidadeInteresse.includes('Frágil') || dadosLocais.densidadeInteresse.includes('Vedada')
+                        ? 'text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-red-950 text-red-300 border border-red-700'
+                        : 'text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-700';
+                }
+                if (elTxtInteresse) elTxtInteresse.textContent = dadosLocais.diagnosticoInteresse;
+                if (elTxtPPA) elTxtPPA.textContent = dadosLocais.vinculacaoPPA || dadosLocais.acaoPPASugerida;
+                boxInteresse.classList.remove('hidden');
+            }
+
             const btn = document.getElementById('btn-extrair-ia');
             const txtBtn = document.getElementById('btn-extrair-ia-texto');
             const iconeBtn = document.getElementById('btn-extrair-ia-icone');
@@ -1597,9 +1608,10 @@
             txtBtn.textContent = "Interpretar Texto & Preencher";
 
             executarAuditoriaPreditiva();
-            mostrarToast("Processado instantaneamente pelo Motor Local Preditivo!");
+            mostrarToast("Auditoria de mérito e impedimentos técnicos aplicada!");
         }
         window.abortarEAcionarLocalInstantaneo = abortarEAcionarLocalInstantaneo;
+
         async function executarExtracaoIA() {
             const texto = document.getElementById('inp-texto-corrido-ia').value.trim();
             if (!texto) {
@@ -1629,51 +1641,58 @@
             const listaPPATexto = (baseCentral.ppa || []).map(p => `- Prog. ${p.programa} / Ação ${p.acao}: ${p.acaoDesc} (${p.corede})`).join('\n');
 
             const promptSistema = `
-Você é um consultor legislativo e orçamentário de elite, especialista na Lei Complementar nº 210/2024 (regime nacional de impedimentos técnicos e governança orçamentária), na Lei Federal nº 4.320/1964, na Lei Federal nº 13.019/2014 (MROSC) e no Plano Plurianual (PPA).
+Você é o Auditor Chefe de Controle e Admissibilidade Parlamentar da Câmara Municipal e Prefeitura de Horizontina/RS.
+Sua missão é aplicar com RIGOR EXTREMO a LEI COMPLEMENTAR Nº 210/2024, a LEI FEDERAL Nº 4.320/1964, a LEI FEDERAL Nº 13.019/2014 (MROSC) e a LEI ORGÂNICA MUNICIPAL.
 
-SEU CRITÉRIO CENTRAL DE AVALIAÇÃO:
-1. EXAME DE DENSIDADE DO INTERESSE PÚBLICO:
-   - Emendas parlamentares NÃO SÃO "cheques para compra de balcão".
-   - Se o vereador propor apenas "comprar um ar-condicionado", "comprar um carro" ou "adquirir cadeiras", recuse essa lógica de imediato! Bens materiais só são admitidos quando instrumentais para uma FINALIDADE PÚBLICA COLETIVA e ATENDIMENTO SOCIAL CONTINUADO.
-   - Você DEVE reescrever o "objeto" elevando-o à condição de política pública com nexo social evidente para a coletividade.
+ATENÇÃO CRÍTICA ÀS DIRETRIZES DE AUDITORIA:
+1. TRAVA DA COTA DE SAÚDE (Art. 77 L.O.):
+   - NUNCA classifique como Saúde (SMS) algo que seja esporte, lazer, pavimentação, calçamento, passeio ou clube!
+   - Saúde (SMS / ASPS) é EXCLUSIVAMENTE para medicamentos, insumos hospitalares, procedimentos do SUS, consultas e atendimento clínico/terapêutico especializado.
+   - Obras em calçadas/passeios pertencem à SMILT (Infraestrutura) ou SMECJL (Lazer). Se o texto falar de futebol, passeio ou praça, a secretaria NÃO É SMS!
 
-2. EXAME DO ARTIGO 10 DA LEI COMPLEMENTAR Nº 210/2024:
-   - Inciso I, VII e VIII: Incompatibilidade com as diretrizes da política pública setorial e atributos do programa do PPA do órgão executor.
-   - Inciso IX: Ausência de pertinência temática entre o objeto e a finalidade estatutária da entidade beneficiária.
-   - Inciso III: Ausência de projeto de engenharia homologado para intervenções físicas (exige SMILT).
-   - Inciso VI e XXI: Falta de suficiência orçamentária para etapa útil funcional com usufruto direto pela sociedade.
-   - Inciso XXIV: Alocação em despesas de pessoal e encargos correntes da administração (vedado pelo Art. 77 da L.O.).
-   - Art. 2º, § 1º, I: Designação genérica do objeto.
+2. TRAVA DE ENTIDADES PRIVADAS / CLUBES DE FUTEBOL (Art. 37 CF & Art. 3.4.1 Dec. 5.730/25):
+   - Se o texto indicar recursos para "clube de futebol", "clube social", "área particular" ou entidade recreativa fechada: RECUSE IMEDIATAMENTE!
+   - O dinheiro público não pode beneficiar patrimônio particular nem área restrita a associados/sócios (violação da impessoalidade e moralidade).
+   - Indique "Densidade de Interesse Público: Incompatível / Vedada".
 
-3. VINCULAÇÃO SETORIAL COM O PPA MUNICIPAL:
-   Aponte a Ação e Programa do PPA municipal de Horizontina mais aderente.
-   Ações cadastradas no PPA de Horizontina:
-${listaPPATexto || '- Ação 2042: Apoio e Reabilitação Especializada (Saúde)\n- Ação 2045: Assistência Farmacêutica Básica (Saúde)\n- Ação 1035: Pavimentação Asfáltica e Drenagem Urbana (Infraestrutura)\n- Ação 2055: Contraturno Escolar e Oficinas Pedagógicas (Educação)\n- Ação 2085: Qualificação Metalmecânica e Industrial (Desenvolvimento)'}
+3. TRAVA DE ENGENHARIA E OBRAS - PASSEIOS / CALÇADAS (Art. 10, Incisos III, VI e XXI da LC 210/2024):
+   - "Passeio", calçada, reforma, drenagem ou pavimentação É DESPESA DE CAPITAL: "4.4.90.51 - Obras e Instalações" (Direta Prefeitura).
+   - "exigeProjetoEngenharia" DEVE SER TRUE!
+   - Exige projeto prévio, memorial descritivo, ART do engenheiro civil da SMILT.
+   - Analise se o valor informado (ex: 25 mil) é suficiente para entregar uma etapa funcional útil e segura. Emita o impedimento se o autor não indicou projeto nem memorial.
+
+4. OBJETO GENÉRICO OU SEM DADOS (Art. 2º, § 1º e Art. 10, XXV da LC 210/2024):
+   - O autor escreveu algo vago como "fazer um passeio em clube de futebol"? RECUSE de pronto!
+   - O autor DEVE especificar a localização pública exata, metragem, beneficiários públicos e projeto técnico.
+
+Ações cadastradas no PPA de Horizontina:
+${listaPPATexto || '- Ação 1035: Pavimentação Asfáltica e Drenagem Urbana (Infraestrutura/SMILT)\n- Ação 2042: Apoio e Reabilitação Especializada (Saúde/SMS)\n- Ação 2055: Contraturno Escolar e Oficinas Pedagógicas (Educação/SMECJL)'}
 
 Catálogo de Entidades:
 ${listaEntidadesTexto}
 
 Retorne ESTRITAMENTE um objeto JSON no formato:
 {
-  "valor": 150000,
-  "beneficiario": "Nome da entidade ou secretaria",
-  "tipoExecucao": "Indireta",
-  "secretaria": "SMS",
-  "enquadramento": "3.3.50.43 - Subvenções Sociais",
-  "objeto": "Descrição do objeto voltado estritamente ao interesse público coletivo e atendimento continuado",
-  "linhaBase": "Situação inicial ou carência diagnosticada",
-  "metaAlvo": "Meta quantitativa auditável perante o TCE-RS",
-  "acaoPPASugerida": "Ação 2042 - Programa 0010 (Gestão do SUS)",
-  "eixoCoredeSugerido": "Eixo 02: Saúde, Inclusão Social e Qualidade de Vida Regional",
-  "densidadeInteresse": "Alta",
-  "diagnosticoInteresse": "Explicação concisa sobre por que esta proposta atende legitimamente ao interesse público e não a uma mera compra de balcão",
-  "vinculacaoPPA": "Explicação concisa sobre como o objeto se harmoniza com as metas do PPA municipal",
-  "exigeProjetoEngenharia": false,
+  "valor": 25000,
+  "beneficiario": "Nome do órgão executor ou entidade pública",
+  "tipoExecucao": "Direta",
+  "secretaria": "SMILT",
+  "enquadramento": "4.4.90.51 - Obras e Instalações",
+  "objeto": "Descrição corrigida e voltada ao interesse público coletivo",
+  "linhaBase": "Situação inicial da carência",
+  "metaAlvo": "Meta quantitativa auditável",
+  "acaoPPASugerida": "Ação 1035 - Programa 0030 (Infraestrutura Urbana)",
+  "eixoCoredeSugerido": "Eixo 04: Infraestrutura, Sustentabilidade e Meio Ambiente",
+  "densidadeInteresse": "Incompatível / Vedada (ou Alta, se legítima)",
+  "diagnosticoInteresse": "Explicação detalhada sobre por que este texto não tem interesse público claro ou se fere a vedação de clubes particulares",
+  "vinculacaoPPA": "Explicação da conexão com o PPA",
+  "exigeProjetoEngenharia": true,
   "impedimentoLC210": {
-    "detectado": false,
-    "inciso": "Art. 10, Inciso ... da LC 210/2024",
-    "motivo": "Explicação técnica crítica com base na LC 210/2024",
-    "recomendacaoAjuste": "Como o vereador deve reescrever a indicação agora para garantir aprovação"
+    "detectado": true,
+    "inciso": "Art. 10, Incisos III, VI e VII da LC 210/2024",
+    "motivo": "Explicação fundamentada de recusa (clube privado, falta de projeto de engenharia, valor insuficiente para etapa útil funcional)",
+    "recomendacaoAjuste": "Como o vereador deve reformular a indicação (projeto técnico da SMILT, área 100% pública)",
+    "objetoSugerido": "Execução de passeio público em via pública com acessibilidade universal e ART da SMILT"
   }
 }
 `.trim();
@@ -1693,7 +1712,7 @@ Retorne ESTRITAMENTE um objeto JSON no formato:
 
                 for (let i = 0; i < modelosTentar.length; i++) {
                     const modelId = modelosTentar[i];
-                    atualizarProgressoIA(55 + (i * 12), `Examinando Mérito (${i+1}/${modelosTentar.length})`, `Analisando com modelo: ${modelId}...`);
+                    atualizarProgressoIA(55 + (i * 12), `Examinando Mérito (${i+1}/${modelosTentar.length})`, `Analisando sob a LC 210/2024 com modelo: ${modelId}...`);
 
                     try {
                         abortControllerIA = new AbortController();
@@ -1714,7 +1733,7 @@ Retorne ESTRITAMENTE um objeto JSON no formato:
                                 model: modelId,
                                 messages: [
                                     { role: "system", content: promptSistema },
-                                    { role: "user", content: `Analise criticamente este texto do parlamentar e retorne o JSON estruturado:\n"${texto}"` }
+                                    { role: "user", content: `Analise criticamente com base na LC 210/2024 e PPA esta proposição:\n"${texto}"` }
                                 ],
                                 temperature: 0.1
                             })
@@ -1729,25 +1748,25 @@ Retorne ESTRITAMENTE um objeto JSON no formato:
                             if (matchJson) {
                                 dadosExtraidos = JSON.parse(matchJson[0]);
                                 if (dadosExtraidos && dadosExtraidos.valor) {
-                                    atualizarProgressoIA(90, "Decodificando Resposta...", `Modelo ${modelId} homologou a análise de mérito!`);
+                                    atualizarProgressoIA(90, "Decodificando Resposta...", `Modelo ${modelId} concluiu auditoria de mérito!`);
                                     break;
                                 }
                             }
                         }
                     } catch (e) {
-                        console.warn(`Tentativa com ${modelId} abortada/falhou:`, e.name === 'AbortError' ? 'Timeout excedido' : e.message);
+                        console.warn(`Tentativa com ${modelId} falhou:`, e.message);
                     }
                 }
             }
 
             // CONTINGÊNCIA LOCAL RESILIENTE E INSTANTÂNEA
             if (!dadosExtraidos) {
-                atualizarProgressoIA(85, "Acionando Motor Local...", "OpenRouter indisponível; aplicando auditoria heurística de interesse público...");
+                atualizarProgressoIA(85, "Acionando Motor Local...", "Aplicando auditoria heurística com crivo da LC 210/2024...");
                 dadosExtraidos = executarParserHeuristicoLocal(texto);
             }
 
             pararCronometroIA();
-            atualizarProgressoIA(100, "Concluído!", `Examinado: ${dadosExtraidos.beneficiario} • R$ ${Number(dadosExtraidos.valor || 0).toLocaleString('pt-BR')} • Vinculado ao PPA`);
+            atualizarProgressoIA(100, "Concluído!", `Resultado: ${dadosExtraidos.secretaria} • R$ ${Number(dadosExtraidos.valor || 0).toLocaleString('pt-BR')} • Crivo LC 210/2024 Aplicado`);
 
             aplicarDadosExtraidosNoFormulario(dadosExtraidos);
 
@@ -1762,14 +1781,19 @@ Retorne ESTRITAMENTE um objeto JSON no formato:
                 const elTxtInteresse = document.getElementById('txt-diagnostico-interesse-publico');
                 const elTxtPPA = document.getElementById('txt-vinculacao-ppa-diagnostico');
 
+                const ehInvalido = String(dadosExtraidos.densidadeInteresse).toLowerCase().includes('incompatível') || 
+                                   String(dadosExtraidos.densidadeInteresse).toLowerCase().includes('frágil') || 
+                                   String(dadosExtraidos.densidadeInteresse).toLowerCase().includes('vedada') || 
+                                   String(dadosExtraidos.densidadeInteresse).toLowerCase().includes('insuficiente');
+
                 if (elBadgeDensidade) {
-                    elBadgeDensidade.textContent = `Interesse Público: ${dadosExtraidos.densidadeInteresse || 'Alta'}`;
-                    elBadgeDensidade.className = dadosExtraidos.densidadeInteresse === 'Frágil' || dadosExtraidos.densidadeInteresse === 'Incompatível' 
-                        ? 'text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-700'
+                    elBadgeDensidade.textContent = `Interesse Público: ${dadosExtraidos.densidadeInteresse || 'Em Análise'}`;
+                    elBadgeDensidade.className = ehInvalido 
+                        ? 'text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-red-950 text-red-300 border border-red-700'
                         : 'text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-700';
                 }
-                if (elTxtInteresse) elTxtInteresse.textContent = dadosExtraidos.diagnosticoInteresse || "Finalidade social pública claramente discriminada com benefício direto aos munícipes.";
-                if (elTxtPPA) elTxtPPA.textContent = dadosExtraidos.vinculacaoPPA || dadosExtraidos.acaoPPASugerida || "Compatível com as ações setoriais do PPA municipal.";
+                if (elTxtInteresse) elTxtInteresse.textContent = dadosExtraidos.diagnosticoInteresse || "Finalidade social pública submetida a exame.";
+                if (elTxtPPA) elTxtPPA.textContent = dadosExtraidos.vinculacaoPPA || dadosExtraidos.acaoPPASugerida || "Compatibilização com o PPA setorial.";
                 boxInteresse.classList.remove('hidden');
             }
 
@@ -1781,7 +1805,7 @@ Retorne ESTRITAMENTE um objeto JSON no formato:
                 document.getElementById('txt-lc210-ajuste').innerHTML = dadosExtraidos.impedimentoLC210.recomendacaoAjuste;
                 window.sugestaoObjetoAjustadoLC210 = dadosExtraidos.impedimentoLC210.objetoSugerido || dadosExtraidos.objeto;
                 boxLC210.classList.remove('hidden');
-                mostrarToast("⚠️ Bloqueio Preventivo LC 210/2024: Verifique o motivo antes do protocolo!", "erro");
+                mostrarToast("⚠️ Bloqueio Preventivo LC 210/2024: Verifique as causas do impedimento!", "erro");
             } else {
                 boxLC210.classList.add('hidden');
                 mostrarToast("Proposição compatibilizada com o PPA e Lei Complementar nº 210/2024!");
@@ -1867,6 +1891,7 @@ Retorne ESTRITAMENTE um objeto JSON no formato:
 
             let score = 10.0;
             let impedimentoFatal = false;
+            const lowerObj = objeto.toLowerCase();
 
             // 1. CHECAGEM DE COTA E SALDO
             const elIcoCota = document.getElementById('chk-ico-cota');
@@ -1936,13 +1961,21 @@ Retorne ESTRITAMENTE um objeto JSON no formato:
             const elIcoEng = document.getElementById('chk-ico-engenharia');
             const elTitEng = document.getElementById('chk-tit-engenharia');
             const elDescEng = document.getElementById('chk-desc-engenharia');
+            const ehPasseioOuObra = lowerObj.includes('passeio') || lowerObj.includes('calçada') || lowerObj.includes('paviment') || lowerObj.includes('asfalto') || lowerObj.includes('obra') || lowerObj.includes('constru') || lowerObj.includes('reforma');
 
-            if (rubrica.includes('4.4.90.51') && !exigeEngenharia) {
-                score -= 2.5;
+            if ((rubrica.includes('4.4.90.51') || ehPasseioOuObra) && !exigeEngenharia) {
+                score -= 3.0;
+                impedimentoFatal = true;
+                elIcoEng.textContent = "❌";
+                elIcoEng.className = "text-red-400 text-sm mt-0.5";
+                elTitEng.textContent = "Impedimento: Trava de Engenharia (Art. 10, III)";
+                elDescEng.textContent = "Passeios, calçadas e intervenções físicas exigem assinalar projeto, memorial e ART de responsável técnico homologados pela SMILT.";
+            } else if (exigeEngenharia && valor < 50000 && (lowerObj.includes('pavimenta') || lowerObj.includes('asfalto'))) {
+                score -= 2.0;
                 elIcoEng.textContent = "⚠️";
                 elIcoEng.className = "text-amber-400 text-sm mt-0.5";
-                elTitEng.textContent = "Alerta: Trava de Engenharia";
-                elDescEng.textContent = "Despesas com Obras e Instalações exigem assinalar o projeto e ART prévios da SMILT.";
+                elTitEng.textContent = "Atenção: Etapa Útil Funcional (Art. 10, VI)";
+                elDescEng.textContent = "Verifique se o valor é suficiente para concluir etapa útil funcional com usufruto pela sociedade.";
             } else {
                 elIcoEng.textContent = "✓";
                 elIcoEng.className = "text-emerald-400 text-sm mt-0.5";
@@ -1955,7 +1988,16 @@ Retorne ESTRITAMENTE um objeto JSON no formato:
             const elTitSaude = document.getElementById('chk-tit-saude');
             const elDescSaude = document.getElementById('chk-desc-saude');
 
-            if (secretaria === 'SMS') {
+            const ehGenuinaSaude = secretaria === 'SMS' && (lowerObj.includes('saúde') || lowerObj.includes('saude') || lowerObj.includes('hospital') || lowerObj.includes('medicamento') || lowerObj.includes('remédio') || lowerObj.includes('farmácia') || lowerObj.includes('terapia') || lowerObj.includes('atendimento') || lowerObj.includes('exame') || lowerObj.includes('cirurgia') || lowerObj.includes('asps'));
+
+            if (secretaria === 'SMS' && !ehGenuinaSaude) {
+                score -= 4.0;
+                impedimentoFatal = true;
+                elIcoSaude.textContent = "❌";
+                elIcoSaude.className = "text-red-400 text-sm mt-0.5";
+                elTitSaude.textContent = "Erro Grave: Objeto não é de Saúde (ASPS)";
+                elDescSaude.textContent = "O objeto proposto não se qualifica como Ações e Serviços Públicos de Saúde (ASPS) conforme LC 141/2012 e não pode ser indicado na SMS nem computar na cota de 50%.";
+            } else if (secretaria === 'SMS' && ehGenuinaSaude) {
                 elIcoSaude.textContent = "✓";
                 elIcoSaude.className = "text-emerald-400 text-sm mt-0.5";
                 elTitSaude.textContent = "Cota de Saúde Positiva (ASPS)";
@@ -1967,26 +2009,35 @@ Retorne ESTRITAMENTE um objeto JSON no formato:
                 elDescSaude.textContent = "Indicação não vinculada a Ações e Serviços Públicos de Saúde.";
             }
 
-            // 5. EXAME DE INTERESSE PÚBLICO E VINCULAÇÃO COM O PPA (LC 210/2024, ART. 10, VII E VIII)
+            // 5. EXAME DE INTERESSE PÚBLICO E VINCULAÇÃO COM O PPA (LC 210/2024, ART. 10, VII E VIII & ART. 37 CF)
             const elIcoInteresse = document.getElementById('chk-ico-interesse-publico');
             const elTitInteresse = document.getElementById('chk-tit-interesse-publico');
             const elDescInteresse = document.getElementById('chk-desc-interesse-publico');
-            const lowerObj = objeto.toLowerCase();
 
+            const ehClubeOuPrivado = lowerObj.includes('clube') || lowerObj.includes('futebol') || lowerObj.includes('agremiação') || lowerObj.includes('particular') || lowerObj.includes('sede social');
             const ehMeraCompra = (lowerObj.includes('comprar') || lowerObj.includes('aquisição') || lowerObj.includes('adquirir')) && 
                                  (lowerObj.includes('ar condicionado') || lowerObj.includes('computador') || lowerObj.includes('veículo') || lowerObj.includes('carro')) &&
                                  !lowerObj.includes('atendimento') && !lowerObj.includes('serviço') && !lowerObj.includes('famílias') && !lowerObj.includes('oficinas');
 
-            if (!objeto || objeto.length < 15) {
-                score -= 2.0;
+            if (ehClubeOuPrivado) {
+                score -= 5.0;
+                impedimentoFatal = true;
+                if (elIcoInteresse) {
+                    elIcoInteresse.textContent = "❌";
+                    elIcoInteresse.className = "text-red-400 text-sm mt-0.5";
+                    elTitInteresse.textContent = "Vedação: Área Privada / Clube (Art. 37 CF & LC 210)";
+                    elDescInteresse.textContent = "Proibido destinar recursos públicos para áreas de clubes ou entidades particulares sem universalidade pública e gratuidade comprovadas.";
+                }
+            } else if (!objeto || objeto.length < 15) {
+                score -= 3.0;
                 if (elIcoInteresse) {
                     elIcoInteresse.textContent = "⚠️";
                     elIcoInteresse.className = "text-amber-400 text-sm mt-0.5";
                     elTitInteresse.textContent = "Objeto Incompleto ou Genérico";
-                    elDescInteresse.textContent = "Art. 2º, § 1º da LC 210/2024 veda designação genérica de objeto sem nexo social.";
+                    elDescInteresse.textContent = "Art. 2º, § 1º e Art. 10, XXV da LC 210/2024 vedam designação genérica de objeto sem nexo social.";
                 }
             } else if (ehMeraCompra) {
-                score -= 3.0;
+                score -= 3.5;
                 if (elIcoInteresse) {
                     elIcoInteresse.textContent = "❌";
                     elIcoInteresse.className = "text-red-400 text-sm mt-0.5";
@@ -1994,7 +2045,7 @@ Retorne ESTRITAMENTE um objeto JSON no formato:
                     elDescInteresse.textContent = "A compra isolada de bens sem comprovação de serviço comunitário gera devolução pelo Executivo.";
                 }
             } else if (!ppaAcao || ppaAcao.length < 4) {
-                score -= 1.5;
+                score -= 2.0;
                 if (elIcoInteresse) {
                     elIcoInteresse.textContent = "⚠️";
                     elIcoInteresse.className = "text-amber-400 text-sm mt-0.5";
@@ -2041,7 +2092,7 @@ Retorne ESTRITAMENTE um objeto JSON no formato:
             if (elScoreNum) elScoreNum.textContent = score.toFixed(1);
 
             if (elBadgeStatus) {
-                if (impedimentoFatal || score < 7.0) {
+                if (impedimentoFatal || score < 6.5) {
                     elBadgeStatus.textContent = "Impedimento Técnico Detectado";
                     elBadgeStatus.className = "inline-block text-[11px] font-bold px-3 py-1 rounded-full bg-red-950/80 text-red-300 border border-red-800 font-mono";
                     if (elScoreNum) elScoreNum.className = "text-4xl font-black text-red-400 font-mono";
