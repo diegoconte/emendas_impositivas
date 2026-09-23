@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRISMA • Base Cadastral de Entidades, PPA e Dotações</title>
+    <title>PRISMA • Painel de Cadastros & Parâmetros Estruturais</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script>
@@ -44,19 +44,37 @@
     <!-- TOAST DE NOTIFICAÇÕES -->
     <div id="toast-container" class="fixed bottom-5 right-5 z-[99] flex flex-col gap-2 pointer-events-none"></div>
 
+    <!-- MODAL DE CONFIRMAÇÃO GENÉRICO -->
+    <div id="modal-confirmacao" class="hidden fixed inset-0 bg-black/80 z-[90] flex items-center justify-center backdrop-blur-sm p-4">
+        <div class="bg-[#1e1f20] border border-[#333537] rounded-2xl p-6 max-w-sm w-full space-y-4 shadow-2xl">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-950/60 border border-amber-800/50 flex items-center justify-center text-xl text-amber-400">
+                    ⚠️
+                </div>
+                <div>
+                    <h4 class="text-sm font-bold text-white" id="confirm-titulo">Atenção</h4>
+                    <p class="text-[11px] text-[#9aa0a6]" id="confirm-subtitulo">Confirmação de Ação</p>
+                </div>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed" id="confirm-mensagem">Deseja realmente prosseguir com esta operação?</p>
+            <div class="flex justify-end gap-2 pt-2 border-t border-[#333537]">
+                <button type="button" id="confirm-btn-cancelar" class="px-3.5 py-1.5 rounded-xl bg-[#28292a] hover:bg-[#333537] text-xs font-semibold text-slate-300 transition">Cancelar</button>
+                <button type="button" id="confirm-btn-confirmar" class="px-4 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-xs font-bold text-white shadow transition">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- BARRA GOVERNAMENTAL SUPERIOR -->
     <div class="bg-[#0b1726] text-white text-[11px] font-medium border-b border-[#1b2d42]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1.5 flex flex-col sm:flex-row justify-between items-center gap-1">
             <div class="flex items-center gap-2">
                 <span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
-                <span>MUNICÍPIO DE HORIZONTINA / RS • BASE PARAMÉTRICA CENTRAL</span>
+                <span>MUNICÍPIO DE HORIZONTINA / RS • BASE PARAMÉTRICA CENTRAL PRISMA</span>
             </div>
             <div class="flex items-center gap-3 text-slate-300 text-[10px] font-mono">
-                <span>Catálogo de Entidades (MROSC)</span>
+                <span>Gestão Estruturada de Dados</span>
                 <span>•</span>
-                <span>Plano Plurianual (PPA)</span>
-                <span>•</span>
-                <span>Lei 4.320/64</span>
+                <span>Decreto Municipal nº 5.730/2025</span>
             </div>
         </div>
     </div>
@@ -73,17 +91,17 @@
                         <div class="flex items-center gap-2">
                             <span class="font-extrabold text-base tracking-tight text-white">PRISMA</span>
                             <span class="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-950/60 text-[#8ab4f8] border border-blue-800/50">
-                                Base de Cadastros
+                                Módulo de Cadastros
                             </span>
                         </div>
-                        <p class="text-[11px] text-[#9aa0a6]">Central de Entidades, Ações do PPA e Classificações Orçamentárias</p>
+                        <p class="text-[11px] text-[#9aa0a6]">Entidades (OSCs), Vereadores, Partidos, PPA e Classificação Contábil</p>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <a href="legislativo.html" class="flex items-center gap-1.5 text-xs font-semibold bg-[#17181a] hover:bg-[#28292a] text-[#8ab4f8] border border-[#333537] px-3.5 py-1.5 rounded-lg transition">
+                    <a href="legislativo.html" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[#17181a] hover:bg-[#28292a] text-[#8ab4f8] border border-blue-800/40 transition flex items-center gap-1.5 shadow-sm">
                         <span>⚖️</span>
-                        <span>Portal do Legislativo</span>
+                        <span class="hidden sm:inline">Portal do Legislativo</span>
                     </a>
                     <a href="admin.html" class="flex items-center gap-1.5 text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-1.5 rounded-lg transition shadow-xs border border-blue-400/30">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
@@ -99,6 +117,9 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex overflow-x-auto gap-2 py-2">
             <button type="button" onclick="alternarAbaCadastro('entidades')" id="tab-btn-entidades" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-blue-600/20 text-[#8ab4f8] border border-blue-500/40">
                 <span>🤝</span> Entidades & Órgãos (<span id="cont-aba-entidades">0</span>)
+            </button>
+            <button type="button" onclick="alternarAbaCadastro('parlamentares')" id="tab-btn-parlamentares" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 text-[#9aa0a6] hover:text-white hover:bg-[#28292a]">
+                <span>🏛️</span> Vereadores (<span id="cont-aba-parlamentares">0</span>) & Bancadas (<span id="cont-aba-bancadas">0</span>)
             </button>
             <button type="button" onclick="alternarAbaCadastro('ppa')" id="tab-btn-ppa" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 text-[#9aa0a6] hover:text-white hover:bg-[#28292a]">
                 <span>📊</span> Programas & Ações PPA (<span id="cont-aba-ppa">0</span>)
@@ -119,53 +140,49 @@
         <!-- ABA 1: ENTIDADES E ÓRGÃOS                                                 -->
         <!-- ========================================================================= -->
         <div id="aba-conteudo-entidades" class="space-y-4">
-            
             <div class="bg-[#1e1f20] border border-[#333537] rounded-2xl p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                 <div>
                     <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                        <span>🤝</span> Catálogo Oficial de Entidades Beneficiárias e Secretarias
+                        <span>🤝</span> Catálogo Geral de Entidades da Sociedade Civil (OSCs) e Órgãos Municipais
                     </h3>
                     <p class="text-xs text-[#9aa0a6] mt-0.5">
-                        Alimenta as caixas de seleção, busca dinâmica e a IA de proposição do Portal do Legislativo (`legislativo.html`).
+                        Base alimentada nos termos do Marco Regulatório (Lei 13.019/14) e da Lei Orçamentária Anual.
                     </p>
                 </div>
-                <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                    <button type="button" onclick="abrirModalNovaEntidade()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-1.5 border border-blue-400/40">
-                        <span>➕</span> Cadastrar Nova Entidade
-                    </button>
-                    <button type="button" onclick="restaurarPadroesEntidades()" class="px-3 py-2 bg-[#28292a] hover:bg-[#333537] text-slate-300 text-xs rounded-xl border border-[#333537] transition" title="Restaurar lista padrão de Horizontina">
-                        ↺ Restaurar Padrões
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <button type="button" onclick="abrirModalNovaEntidade()" class="w-full sm:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-1.5 border border-blue-400/40">
+                        <span>➕</span> Cadastrar Entidade / Órgão
                     </button>
                 </div>
             </div>
 
-            <!-- FILTRO DE BUSCA DE ENTIDADES -->
-            <div class="bg-[#1e1f20] border border-[#333537] rounded-2xl p-4 flex flex-col sm:flex-row gap-3 items-center justify-between">
-                <div class="w-full sm:w-1/2 relative">
-                    <input type="text" id="filtro-busca-entidades" oninput="renderizarTabelaEntidades()" placeholder="Filtrar por nome, CNPJ, área ou secretaria..." class="w-full pl-9 pr-3 py-2 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white placeholder-slate-500 outline-none focus:ring-1 focus:ring-[#8ab4f8]">
-                    <span class="absolute left-3 top-2.5 text-xs text-slate-500">🔍</span>
+            <!-- FILTRO E BUSCA -->
+            <div class="flex flex-col sm:flex-row gap-3 items-center justify-between bg-[#1e1f20] p-4 rounded-xl border border-[#333537]">
+                <div class="relative w-full sm:w-96">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 text-xs">🔍</span>
+                    <input type="text" id="filtro-busca-entidade" oninput="renderizarTabelaEntidades()" placeholder="Buscar por nome, CNPJ, área..." class="w-full pl-9 pr-3 py-2 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white placeholder-slate-500 outline-none focus:ring-1 focus:ring-[#8ab4f8]">
                 </div>
                 <div class="flex items-center gap-2 w-full sm:w-auto">
-                    <select id="filtro-tipo-exec-entidade" onchange="renderizarTabelaEntidades()" class="bg-[#17181a] border border-[#333537] rounded-xl px-3 py-2 text-xs text-white outline-none focus:ring-1 focus:ring-[#8ab4f8]">
-                        <option value="">Todos os Tipos</option>
-                        <option value="Indireta">🤝 Indireta (OSC / Terceiro Setor)</option>
-                        <option value="Direta">🏛️ Direta (Secretaria Municipal)</option>
+                    <select id="filtro-tipo-entidade" onchange="renderizarTabelaEntidades()" class="w-full sm:w-auto p-2 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-[#8ab4f8]">
+                        <option value="">Todos os Tipos de Execução</option>
+                        <option value="Indireta">🤝 Somente Terceiro Setor (OSC)</option>
+                        <option value="Direta">🏛️ Somente Órgãos Diretos da Prefeitura</option>
                     </select>
                 </div>
             </div>
 
-            <!-- LISTAGEM EM TABELA / CARDS -->
+            <!-- TABELA DE ENTIDADES -->
             <div class="bg-[#1e1f20] border border-[#333537] rounded-2xl overflow-hidden shadow-sm">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs border-collapse">
                         <thead class="bg-[#17181a] border-b border-[#333537] text-slate-400 font-mono text-[11px]">
                             <tr>
-                                <th class="p-3.5">Identificação / Razão Social</th>
-                                <th class="p-3.5">Tipo & Área de Atuação</th>
-                                <th class="p-3.5">Secretaria Padrão</th>
-                                <th class="p-3.5">Rubrica Sugerida (Lei 4.320)</th>
-                                <th class="p-3.5 text-center">Status</th>
-                                <th class="p-3.5 text-right">Ações</th>
+                                <th class="p-3">Entidade / Razão Social</th>
+                                <th class="p-3">CNPJ / Identificação</th>
+                                <th class="p-3">Tipo Execução</th>
+                                <th class="p-3">Secretaria Padrão</th>
+                                <th class="p-3">Classificação Sugerida</th>
+                                <th class="p-3 text-right">Ações</th>
                             </tr>
                         </thead>
                         <tbody id="tbody-entidades" class="divide-y divide-[#333537] text-slate-300">
@@ -174,87 +191,267 @@
                     </table>
                 </div>
             </div>
+        </div>
 
+        <!-- ========================================================================= -->
+        <!-- ABA 1.5: VEREADORES, BANCADAS & PARTIDOS                                   -->
+        <!-- ========================================================================= -->
+        <div id="aba-conteudo-parlamentares" class="hidden space-y-6">
+            <div class="bg-[#1e1f20] border border-[#333537] rounded-2xl p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div>
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <span>🏛️</span> Gestão de Vereadores, Bancadas Partidárias e Cotas da Lei Orgânica
+                    </h3>
+                    <p class="text-xs text-[#9aa0a6] mt-0.5">
+                        Parametrização das emendas individuais (2% RCL) e coletivas de bancada (1% RCL), conforme as Emendas à Lei Orgânica nº 4/2022 e nº 5/2023.
+                    </p>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                    <button type="button" onclick="abrirModalNovaBancada()" class="px-3.5 py-2 bg-[#28292a] hover:bg-[#333537] text-amber-300 font-bold text-xs rounded-xl border border-amber-800/40 shadow-sm transition flex items-center gap-1.5">
+                        <span>➕</span> Nova Bancada
+                    </button>
+                    <button type="button" onclick="abrirModalNovoVereador()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-1.5 border border-blue-400/40">
+                        <span>➕</span> Cadastrar Vereador
+                    </button>
+                </div>
+            </div>
+
+            <!-- PAINEL DE PARAMETRIZAÇÃO DA LEI ORGÂNICA (RCL & CÁLCULO DE COTAS) -->
+            <div class="bg-gradient-to-r from-blue-950/40 via-[#1e1f20] to-indigo-950/40 border border-blue-800/50 rounded-2xl p-5 shadow-sm space-y-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-3 border-b border-[#333537]">
+                    <div class="flex items-center gap-2.5">
+                        <span class="text-xl">⚖️</span>
+                        <div>
+                            <h4 class="text-sm font-bold text-white">Calculadora Orçamentária da Lei Orgânica (Emenda nº 5/2023)</h4>
+                            <p class="text-[11px] text-[#9aa0a6]">Art. 77: 2% da RCL para Emendas Individuais (mín. 50% Saúde) e 1% da RCL para Emendas de Bancada.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 font-mono text-[10px]">
+                        <span class="px-2.5 py-1 rounded-md bg-blue-900/40 text-blue-300 border border-blue-700/50 font-bold" id="badge-total-vereadores-calc">
+                            9 Vereadores
+                        </span>
+                        <span class="px-2.5 py-1 rounded-md bg-purple-900/40 text-purple-300 border border-purple-700/50 font-bold" id="badge-total-bancadas-calc">
+                            4 Bancadas
+                        </span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">
+                            Receita Corrente Líquida (RCL) do Exercício Anterior (R$) *
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-xs text-emerald-400 font-bold">R$</span>
+                            <input type="number" step="1000" id="param-rcl-exercicio" oninput="recalcularPreviaCotasLeiOrganica()" placeholder="54000000.00" class="w-full pl-9 pr-3 py-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-emerald-400 font-bold font-mono outline-none focus:ring-1 focus:ring-emerald-500">
+                        </div>
+                        <span class="text-[10px] text-slate-500 block mt-1">Informe a RCL realizada no exercício anterior ao do encaminhamento do projeto da LOA.</span>
+                    </div>
+
+                    <div class="bg-[#17181a] p-3 rounded-xl border border-[#333537] text-xs font-mono">
+                        <span class="text-[10px] text-slate-400 block font-sans">Total Emendas (3% RCL)</span>
+                        <strong id="prev-total-rcl" class="text-white text-sm block">R$ 0,00</strong>
+                        <span class="text-[10px] text-slate-500 block">Individuais + Bancadas</span>
+                    </div>
+
+                    <button type="button" onclick="aplicarCotasCalculadasLeiOrganica()" class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-1.5 border border-emerald-400/40">
+                        <span>⚡</span> Calcular & Aplicar Cotas
+                    </button>
+                </div>
+
+                <!-- QUADRO DE DETALHAMENTO DA DIVISÃO LEGAL -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs font-mono pt-1">
+                    <div class="p-3 bg-[#17181a] rounded-xl border border-[#2d3033] space-y-1">
+                        <div class="flex justify-between items-center text-[10px] text-slate-400 font-sans">
+                            <span>Individuais (2% RCL)</span>
+                            <span class="text-blue-300 font-bold">§ 1º</span>
+                        </div>
+                        <strong id="prev-total-individuais" class="text-white text-sm block">R$ 0,00</strong>
+                        <span class="text-[10px] text-slate-500 block">Montante global dos vereadores</span>
+                    </div>
+
+                    <div class="p-3 bg-[#17181a] rounded-xl border border-[#2d3033] space-y-1">
+                        <div class="flex justify-between items-center text-[10px] text-slate-400 font-sans">
+                            <span>Saúde ASPS (Mín. 50%)</span>
+                            <span class="text-emerald-300 font-bold">1% da RCL</span>
+                        </div>
+                        <strong id="prev-total-saude" class="text-emerald-400 text-sm block">R$ 0,00</strong>
+                        <span class="text-[10px] text-emerald-500/80 block">Vedado pessoal/encargos (§ 2º)</span>
+                    </div>
+
+                    <div class="p-3 bg-[#17181a] rounded-xl border border-[#2d3033] space-y-1">
+                        <div class="flex justify-between items-center text-[10px] text-slate-400 font-sans">
+                            <span>Cota por Vereador</span>
+                            <span class="text-purple-300 font-bold" id="label-num-vereadores">9 ativos</span>
+                        </div>
+                        <strong id="prev-cota-unit-vereador" class="text-purple-300 text-sm block">R$ 0,00</strong>
+                        <span class="text-[10px] text-slate-500 block" id="prev-saude-unit-vereador">50% Saúde: R$ 0,00</span>
+                    </div>
+
+                    <div class="p-3 bg-[#17181a] rounded-xl border border-[#2d3033] space-y-1">
+                        <div class="flex justify-between items-center text-[10px] text-slate-400 font-sans">
+                            <span>Bancadas (1% RCL)</span>
+                            <span class="text-amber-300 font-bold" id="label-num-bancadas">4 bancadas</span>
+                        </div>
+                        <strong id="prev-total-bancadas" class="text-amber-300 text-sm block">R$ 0,00</strong>
+                        <span class="text-[10px] text-slate-500 block">Rateio proporcional por bancada</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABELA DEDICADA DE BANCADAS PARTIDÁRIAS (1% DA RCL) -->
+            <div class="bg-[#1e1f20] border border-[#333537] rounded-2xl overflow-hidden shadow-sm space-y-3 p-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-2 border-b border-[#333537]">
+                    <div>
+                        <strong class="text-xs text-white uppercase font-mono flex items-center gap-2">
+                            <span>🏛️</span> Bancadas Partidárias Constituídas na Câmara (Cota Coletiva de 1% da RCL)
+                        </strong>
+                        <p class="text-[11px] text-[#9aa0a6] mt-0.5">
+                            Cota distribuída por bancada parlamentar conforme o Art. 77, § 10 da Lei Orgânica Municipal.
+                        </p>
+                    </div>
+                    <span class="text-[11px] text-amber-300 font-mono">Total de Bancadas: <b id="total-bancadas-cont" class="text-white">0</b></span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse font-mono">
+                        <thead class="bg-[#17181a] border-b border-[#333537] text-slate-400 text-[11px]">
+                            <tr>
+                                <th class="p-3">Bancada / Partido</th>
+                                <th class="p-3">Vereadores Integrantes</th>
+                                <th class="p-3">Representatividade</th>
+                                <th class="p-3">Cota Fixada (1% RCL)</th>
+                                <th class="p-3">Emendas Indicadas</th>
+                                <th class="p-3">Saldo Disponível</th>
+                                <th class="p-3 text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-bancadas" class="divide-y divide-[#333537] text-slate-300">
+                            <!-- Preenchido dinamicamente via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- QUADRO DE PARTIDOS & BANCADAS (VISUAL RESUMIDO EM CARDS) -->
+            <div class="space-y-3">
+                <span class="text-xs font-bold text-slate-300 uppercase tracking-wider block font-mono">
+                    Visão Rápida dos Partidos Registrados
+                </span>
+                <div id="grid-partidos-cadastrados" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 text-xs">
+                    <!-- Preenchido dinamicamente via JS -->
+                </div>
+            </div>
+
+            <!-- LISTAGEM DE VEREADORES COM VÍNCULO PARTIDÁRIO -->
+            <div class="bg-[#1e1f20] border border-[#333537] rounded-2xl overflow-hidden shadow-sm space-y-3 p-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-2 border-b border-[#333537]">
+                    <div>
+                        <strong class="text-xs text-white uppercase font-mono flex items-center gap-2">
+                            <span>👤</span> Parlamentares & Cotas Individuais (2% da RCL)
+                        </strong>
+                        <p class="text-[11px] text-[#9aa0a6] mt-0.5">
+                            Cota dividida equitativamente entre os 9 vereadores (Art. 77, § 1º da L.O.), com mínimo de 50% em Saúde.
+                        </p>
+                    </div>
+                    <span class="text-[11px] text-slate-400 font-mono">Total de Parlamentares: <b id="total-vereadores-cont" class="text-white">0</b></span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse font-mono">
+                        <thead class="bg-[#17181a] border-b border-[#333537] text-slate-400 text-[11px]">
+                            <tr>
+                                <th class="p-3">Vereador(a) / Mandato</th>
+                                <th class="p-3">Partido & Bancada</th>
+                                <th class="p-3">Cota Fixada</th>
+                                <th class="p-3">Emendas</th>
+                                <th class="p-3">Saldo Livre</th>
+                                <th class="p-3">Cota Saúde (%)</th>
+                                <th class="p-3 text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-vereadores" class="divide-y divide-[#333537] text-slate-300">
+                            <!-- Preenchido dinamicamente via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
         <!-- ========================================================================= -->
         <!-- ABA 2: PROGRAMAS & AÇÕES DO PPA                                           -->
         <!-- ========================================================================= -->
         <div id="aba-conteudo-ppa" class="hidden space-y-4">
-            
             <div class="bg-[#1e1f20] border border-[#333537] rounded-2xl p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                 <div>
                     <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                        <span>📊</span> Programas e Ações Governamentais do PPA
+                        <span>📊</span> Programas e Ações do Plano Plurianual (PPA Municipal)
                     </h3>
                     <p class="text-xs text-[#9aa0a6] mt-0.5">
-                        Codificação oficial do Plano Plurianual do Município de Horizontina para vincular as indicações parlamentares.
+                        Alinha as emendas parlamentares com as metas quadrienais do Município e Eixos do COREDE.
                     </p>
                 </div>
-                <button type="button" onclick="abrirModalNovaAcaoPPA()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-1.5 border border-blue-400/40">
-                    <span>➕</span> Adicionar Ação PPA
+                <button type="button" onclick="abrirModalNovoPPA()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-1.5 border border-blue-400/40">
+                    <span>➕</span> Cadastrar Programa/Ação
                 </button>
             </div>
 
             <div class="bg-[#1e1f20] border border-[#333537] rounded-2xl overflow-hidden shadow-sm">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs border-collapse font-mono">
-                        <thead class="bg-[#17181a] border-b border-[#333537] text-slate-400 text-[11px]">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead class="bg-[#17181a] border-b border-[#333537] text-slate-400 font-mono text-[11px]">
                             <tr>
-                                <th class="p-3.5">Programa</th>
-                                <th class="p-3.5">Ação Orçamentária</th>
-                                <th class="p-3.5">Secretaria Executora</th>
-                                <th class="p-3.5">Eixo Regional COREDE</th>
-                                <th class="p-3.5 text-right">Ações</th>
+                                <th class="p-3">Código / Programa</th>
+                                <th class="p-3">Código / Ação</th>
+                                <th class="p-3">Descrição da Ação</th>
+                                <th class="p-3">Eixo Regional (COREDE)</th>
+                                <th class="p-3 text-right">Ações</th>
                             </tr>
                         </thead>
                         <tbody id="tbody-ppa" class="divide-y divide-[#333537] text-slate-300">
-                            <!-- Preenchido via JS -->
+                            <!-- Preenchido dinamicamente via JS -->
                         </tbody>
                     </table>
                 </div>
             </div>
-
         </div>
 
         <!-- ========================================================================= -->
-        <!-- ABA 3: DOTAÇÕES & FICHAS                                                  -->
+        <!-- ABA 3: DOTAÇÕES & FICHAS ORÇAMENTÁRIAS                                    -->
         <!-- ========================================================================= -->
         <div id="aba-conteudo-dotacoes" class="hidden space-y-4">
-            
             <div class="bg-[#1e1f20] border border-[#333537] rounded-2xl p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                 <div>
                     <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                        <span>📑</span> Fichas e Dotações da LOA
+                        <span>📑</span> Fichas Orçamentárias & Elementos de Despesa da LOA
                     </h3>
                     <p class="text-xs text-[#9aa0a6] mt-0.5">
-                        Espelho das fichas orçamentárias abertas na contabilidade municipal para emissão de empenhos.
+                        Fichas oficiais pré-parametrizadas para dotação direta no Atende.Net.
                     </p>
                 </div>
                 <button type="button" onclick="abrirModalNovaDotacao()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-1.5 border border-blue-400/40">
-                    <span>➕</span> Adicionar Dotação
+                    <span>➕</span> Cadastrar Dotação / Ficha
                 </button>
             </div>
 
             <div class="bg-[#1e1f20] border border-[#333537] rounded-2xl overflow-hidden shadow-sm">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs border-collapse font-mono">
-                        <thead class="bg-[#17181a] border-b border-[#333537] text-slate-400 text-[11px]">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead class="bg-[#17181a] border-b border-[#333537] text-slate-400 font-mono text-[11px]">
                             <tr>
-                                <th class="p-3.5">Ficha / Dotação</th>
-                                <th class="p-3.5">Ação Vinculada</th>
-                                <th class="p-3.5">Elemento Econômico</th>
-                                <th class="p-3.5">Fonte Recurso</th>
-                                <th class="p-3.5 text-right">Ações</th>
+                                <th class="p-3">Nº da Ficha</th>
+                                <th class="p-3">Ação Vinculada</th>
+                                <th class="p-3">Elemento de Despesa (Lei 4.320/64)</th>
+                                <th class="p-3">Fonte de Recurso</th>
+                                <th class="p-3 text-right">Ações</th>
                             </tr>
                         </thead>
                         <tbody id="tbody-dotacoes" class="divide-y divide-[#333537] text-slate-300">
-                            <!-- Preenchido via JS -->
+                            <!-- Preenchido dinamicamente via JS -->
                         </tbody>
                     </table>
                 </div>
             </div>
-
         </div>
 
         <!-- ========================================================================= -->
@@ -262,23 +459,38 @@
         <!-- ========================================================================= -->
         <div id="aba-conteudo-sincronia" class="hidden space-y-4">
             <div class="bg-[#1e1f20] border border-[#333537] rounded-2xl p-6 space-y-4">
-                <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                    <span>🔄</span> Backup Local e Intercâmbio de Dados (JSON)
-                </h3>
-                <p class="text-xs text-slate-400 leading-relaxed">
-                    Você pode exportar a base cadastral inteira para um arquivo JSON seguro ou importar novos lotes de cadastros. Os dados são mantidos sincronizados no armazenamento local do navegador e compatíveis entre todos os módulos PRISMA.
-                </p>
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">🔄</span>
+                    <div>
+                        <h3 class="text-sm font-bold text-white">Sincronia Local & Exportação de Base de Dados</h3>
+                        <p class="text-xs text-[#9aa0a6]">Exporte todo o catálogo para arquivo JSON estruturado ou restaure a base padrão oficial do Município.</p>
+                    </div>
+                </div>
 
-                <div class="flex flex-wrap gap-3 pt-2">
-                    <button type="button" onclick="exportarBackupCadastrosJSON()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-2">
-                        <span>💾</span> Exportar Base Completa (.json)
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                    <button type="button" onclick="exportarBaseJSON()" class="p-4 bg-[#17181a] hover:bg-[#28292a] border border-[#333537] rounded-xl text-left transition flex flex-col justify-between space-y-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xl">💾</span>
+                            <strong class="text-xs text-white">Exportar Base JSON</strong>
+                        </div>
+                        <p class="text-[11px] text-[#9aa0a6]">Gera backup completo de todos os registros (entidades, vereadores, partidos, PPA e dotações).</p>
                     </button>
-                    <label class="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-2 cursor-pointer">
-                        <span>📂</span> Importar Arquivo JSON
-                        <input type="file" id="input-importar-json" accept=".json" onchange="importarBackupCadastrosJSON(event)" class="hidden">
+
+                    <label class="p-4 bg-[#17181a] hover:bg-[#28292a] border border-[#333537] rounded-xl text-left transition flex flex-col justify-between space-y-2 cursor-pointer">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xl">📥</span>
+                            <strong class="text-xs text-white">Importar Arquivo JSON</strong>
+                        </div>
+                        <p class="text-[11px] text-[#9aa0a6]">Carrega dados de um arquivo `.json` previamente exportado.</p>
+                        <input type="file" id="inp-arquivo-json" accept=".json" onchange="importarBaseJSON(event)" class="hidden">
                     </label>
-                    <button type="button" onclick="restaurarTudoPadrao()" class="px-4 py-2.5 bg-red-950/60 hover:bg-red-900 text-red-300 border border-red-800/60 font-bold text-xs rounded-xl transition flex items-center gap-2">
-                        <span>⚠️</span> Resetar Tudo p/ Padrão Horizontina
+
+                    <button type="button" onclick="restaurarPadraoHorizontina()" class="p-4 bg-[#17181a] hover:bg-amber-950/40 border border-amber-800/40 rounded-xl text-left transition flex flex-col justify-between space-y-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xl">⚡</span>
+                            <strong class="text-xs text-amber-300">Restaurar Padrão Oficial</strong>
+                        </div>
+                        <p class="text-[11px] text-slate-400">Recarrega o elenco base de entidades, vereadores e cotas originais de Horizontina/RS.</p>
                     </button>
                 </div>
             </div>
@@ -286,17 +498,135 @@
 
     </main>
 
-    <!-- ========================================================================= -->
-    <!-- MODAL DE CADASTRO / EDIÇÃO DE ENTIDADE                                    -->
-    <!-- ========================================================================= -->
-    <div id="modal-form-entidade" class="hidden fixed inset-0 bg-black/80 z-[80] flex items-center justify-center backdrop-blur-md p-4 transition-opacity">
-        <div class="bg-[#1e1f20] rounded-2xl shadow-2xl w-full max-w-2xl border border-[#333537] overflow-hidden">
+    <!-- MODAL DE CADASTRO / EDIÇÃO DE VEREADOR -->
+    <div id="modal-form-vereador" class="hidden fixed inset-0 bg-black/80 z-[80] flex items-center justify-center backdrop-blur-md p-4">
+        <div class="bg-[#1e1f20] rounded-2xl shadow-2xl w-full max-w-xl border border-[#333537] overflow-hidden">
+            <div class="px-6 py-4 border-b border-[#333537] flex justify-between items-center bg-[#17181a]">
+                <div class="flex items-center gap-2.5">
+                    <span class="text-xl">🏛️</span>
+                    <div>
+                        <h3 class="text-sm font-bold text-white" id="modal-vereador-titulo">Vincular Parlamentar ao Partido</h3>
+                        <p class="text-[11px] text-[#9aa0a6]">Alimenta as cotas e o controle de acesso do Portal do Legislativo.</p>
+                    </div>
+                </div>
+                <button type="button" onclick="fecharModalVereador()" class="text-[#9aa0a6] hover:text-white text-2xl leading-none">&times;</button>
+            </div>
+
+            <form id="form-vereador" onsubmit="salvarVereador(event)" class="p-6 space-y-4 text-xs">
+                <input type="hidden" id="vereador-id" value="">
+
+                <div>
+                    <label class="block text-[11px] font-semibold text-[#9aa0a6] mb-1">Nome Completo do Vereador(a) *</label>
+                    <input type="text" id="vereador-nome" required placeholder="Ex: Eduardo Maron" class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-[#8ab4f8]">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-[#9aa0a6] mb-1">Partido / Bancada *</label>
+                        <select id="vereador-partido" required class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-[#8ab4f8]">
+                            <!-- Preenchido dinamicamente via JS -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-[#9aa0a6] mb-1">Cota Individual (2% RCL) (R$) *</label>
+                        <input type="number" step="1000" id="vereador-cota" required placeholder="120000.00" class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-purple-300 font-bold font-mono outline-none focus:ring-1 focus:ring-[#8ab4f8]">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-[#9aa0a6] mb-1">E-mail Institucional *</label>
+                        <input type="email" id="vereador-email" required placeholder="nome.sobrenome@camarahorizontina.rs.gov.br" class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-[#8ab4f8]">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-[#9aa0a6] mb-1">Status no Mandato *</label>
+                        <select id="vereador-status" required class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-[#8ab4f8]">
+                            <option value="Ativo">Ativo no Exercício</option>
+                            <option value="Licenciado">Licenciado</option>
+                            <option value="Inativo">Inativo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="px-2 py-3 border-t border-[#333537] flex justify-end gap-2.5 pt-4">
+                    <button type="button" onclick="fecharModalVereador()" class="px-4 py-2 bg-[#28292a] hover:bg-[#333537] text-slate-300 text-xs rounded-xl transition">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow-md transition">Salvar Vereador</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DE CADASTRO / EDIÇÃO DE BANCADA PARTIDÁRIA -->
+    <div id="modal-form-bancada" class="hidden fixed inset-0 bg-black/80 z-[80] flex items-center justify-center backdrop-blur-md p-4">
+        <div class="bg-[#1e1f20] rounded-2xl shadow-2xl w-full max-w-xl border border-[#333537] overflow-hidden">
+            <div class="px-6 py-4 border-b border-[#333537] flex justify-between items-center bg-[#17181a]">
+                <div class="flex items-center gap-2.5">
+                    <span class="text-xl">🏛️</span>
+                    <div>
+                        <h3 class="text-sm font-bold text-white" id="modal-bancada-titulo">Cadastrar / Editar Bancada Partidária</h3>
+                        <p class="text-[11px] text-[#9aa0a6]">Define as cotas de 1% da RCL e os parâmetros da bancada parlamentar.</p>
+                    </div>
+                </div>
+                <button type="button" onclick="fecharModalBancada()" class="text-[#9aa0a6] hover:text-white text-2xl leading-none">&times;</button>
+            </div>
+
+            <form id="form-bancada" onsubmit="salvarBancada(event)" class="p-6 space-y-4 text-xs">
+                <input type="hidden" id="bancada-id" value="">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-[#9aa0a6] mb-1">Sigla do Partido *</label>
+                        <input type="text" id="bancada-sigla" required placeholder="Ex: UNIÃO" class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white font-mono uppercase outline-none focus:ring-1 focus:ring-[#8ab4f8]">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-[#9aa0a6] mb-1">Ícone / Emoji Oficial *</label>
+                        <input type="text" id="bancada-icone" required placeholder="Ex: 🦅 ou ☀️" class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-[#8ab4f8]">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-semibold text-[#9aa0a6] mb-1">Nome Oficial da Bancada *</label>
+                    <input type="text" id="bancada-nome-bancada" required placeholder="Ex: Bancada União Brasil" class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-[#8ab4f8]">
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-semibold text-[#9aa0a6] mb-1">Razão Social / Nome do Partido *</label>
+                    <input type="text" id="bancada-nome-partido" required placeholder="Ex: União Brasil" class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-[#8ab4f8]">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-[#9aa0a6] mb-1">Cota da Bancada (1% RCL) (R$) *</label>
+                        <input type="number" step="1000" id="bancada-cota" required placeholder="480000.00" class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-amber-300 font-bold font-mono outline-none focus:ring-1 focus:ring-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-[#9aa0a6] mb-1">Líder da Bancada (Opcional)</label>
+                        <input type="text" id="bancada-lider" placeholder="Ex: Ver. Eduardo Maron" class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-[#8ab4f8]">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-semibold text-[#9aa0a6] mb-1">Estilo Visual do Badge (Tailwind classes)</label>
+                    <input type="text" id="bancada-cor-badge" placeholder="bg-blue-950 text-sky-300 border border-sky-700" class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-slate-300 font-mono outline-none focus:ring-1 focus:ring-[#8ab4f8]">
+                </div>
+
+                <div class="px-2 py-3 border-t border-[#333537] flex justify-end gap-2.5 pt-4">
+                    <button type="button" onclick="fecharModalBancada()" class="px-4 py-2 bg-[#28292a] hover:bg-[#333537] text-slate-300 text-xs rounded-xl transition">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-xl shadow-md transition">Salvar Bancada</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DE CADASTRO / EDIÇÃO DE ENTIDADE -->
+    <div id="modal-form-entidade" class="hidden fixed inset-0 bg-black/80 z-[80] flex items-center justify-center backdrop-blur-md p-4">
+        <div class="bg-[#1e1f20] rounded-2xl shadow-2xl w-full max-w-xl border border-[#333537] overflow-hidden">
             <div class="px-6 py-4 border-b border-[#333537] flex justify-between items-center bg-[#17181a]">
                 <div class="flex items-center gap-2.5">
                     <span class="text-xl">🤝</span>
                     <div>
                         <h3 class="text-sm font-bold text-white" id="modal-entidade-titulo">Cadastrar Entidade / Órgão</h3>
-                        <p class="text-[11px] text-[#9aa0a6]">Alimenta o catálogo e as caixas de seleção do Portal do Legislativo.</p>
+                        <p class="text-[11px] text-[#9aa0a6]">Alimenta as caixas de seleção do Portal do Legislativo.</p>
                     </div>
                 </div>
                 <button type="button" onclick="fecharModalEntidade()" class="text-[#9aa0a6] hover:text-white text-2xl leading-none">&times;</button>
@@ -305,57 +635,56 @@
             <form id="form-entidade" onsubmit="salvarEntidade(event)" class="p-6 space-y-4 text-xs">
                 <input type="hidden" id="entidade-id" value="">
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div class="sm:col-span-2">
-                        <label class="block text-[11px] font-semibold text-[#9aa0a6] mb-1">Nome Completo / Razão Social *</label>
-                        <input type="text" id="entidade-nome" required placeholder="Ex: APAE de Horizontina" class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-[#8ab4f8]">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-[#9aa0a6] mb-1">CNPJ *</label>
-                        <input type="text" id="entidade-cnpj" required placeholder="00.000.000/0001-00" class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white font-mono outline-none focus:ring-1 focus:ring-[#8ab4f8]">
-                    </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-[#9aa0a6] mb-1">Razão Social / Nome Oficial *</label>
+                    <input type="text" id="entidade-nome" required placeholder="Ex: APAE Horizontina" class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-[#8ab4f8]">
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
+                        <label class="block text-[11px] font-semibold text-[#9aa0a6] mb-1">CNPJ (ou Código Interno) *</label>
+                        <input type="text" id="entidade-cnpj" required placeholder="94.888.112/0001-08" class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white font-mono outline-none focus:ring-1 focus:ring-[#8ab4f8]">
+                    </div>
+                    <div>
                         <label class="block text-[11px] font-semibold text-[#9aa0a6] mb-1">Tipo de Execução *</label>
-                        <select id="entidade-tipo-exec" required onchange="aoMudarTipoExecucaoModal(this.value)" class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-[#8ab4f8]">
-                            <option value="Indireta">🤝 Indireta (OSC • Terceiro Setor)</option>
+                        <select id="entidade-tipo" required class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-[#8ab4f8]">
+                            <option value="Indireta">🤝 Terceiro Setor (OSC - Lei 13.019/14)</option>
                             <option value="Direta">🏛️ Direta (Secretaria Municipal)</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-[#9aa0a6] mb-1">Área Setorial de Atuação *</label>
-                        <input type="text" id="entidade-area" required placeholder="Ex: Saúde / Educação Especial" class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-[#8ab4f8]">
-                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
+                        <label class="block text-[11px] font-semibold text-[#9aa0a6] mb-1">Área Setorial</label>
+                        <input type="text" id="entidade-area" placeholder="Ex: Saúde e Reabilitação" class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-[#8ab4f8]">
+                    </div>
+                    <div>
                         <label class="block text-[11px] font-semibold text-[#9aa0a6] mb-1">Secretaria Gestora Padrão *</label>
                         <select id="entidade-secretaria" required class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-[#8ab4f8]">
-                            <option value="SMS">SMS - Saúde (ASPS)</option>
+                            <option value="SMS">SMS - Saúde</option>
                             <option value="SMECJL">SMECJL - Educação e Cultura</option>
                             <option value="SMDSH">SMDSH - Desenvolvimento Social</option>
                             <option value="SMDE">SMDE - Desenvolvimento Econômico</option>
-                            <option value="SMDR">SMDR - Agricultura e Rural</option>
+                            <option value="SMDR">SMDR - Agricultura e Desenvolvimento Rural</option>
                             <option value="SMILT">SMILT - Infraestrutura e Obras</option>
                             <option value="SEPLAG">SEPLAG - Planejamento</option>
-                            <option value="GABINETE">GABINETE - Governo</option>
+                            <option value="GABINETE">GABINETE - Governo Municipal</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-[#9aa0a6] mb-1">Enquadramento Sugerido (Lei 4.320) *</label>
-                        <select id="entidade-enquadramento" required class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white font-mono outline-none focus:ring-1 focus:ring-[#8ab4f8]">
-                            <option value="3.3.50.43 - Subvenções Sociais">3.3.50.43 - Subvenções Sociais (Saúde/Educação/Assistência)</option>
-                            <option value="3.3.50.41 - Contribuições Correntes">3.3.50.41 - Contribuições Correntes (Cultura/Esporte/Outras)</option>
-                            <option value="4.4.50.42 - Auxílios">4.4.50.42 - Auxílios (Capital / Bens duráveis OSC)</option>
-                            <option value="3.3.90.30 - Material de Consumo">3.3.90.30 - Material de Consumo (Prefeitura)</option>
-                            <option value="3.3.90.39 - Outros Serviços Terceiros PJ">3.3.90.39 - Serviços Terceiros PJ (Prefeitura)</option>
-                            <option value="4.4.90.52 - Equipamentos e Material Permanente">4.4.90.52 - Equipamentos (Prefeitura)</option>
-                            <option value="4.4.90.51 - Obras e Instalações">4.4.90.51 - Obras (Prefeitura)</option>
-                        </select>
-                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-semibold text-[#9aa0a6] mb-1">Classificação Orçamentária Sugerida (Lei 4.320/64) *</label>
+                    <select id="entidade-rubrica" required class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white font-mono outline-none focus:ring-1 focus:ring-[#8ab4f8]">
+                        <option value="3.3.50.43 - Subvenções Sociais">3.3.50.43 - Subvenções Sociais (Custeio Saúde/Educação/Assistência)</option>
+                        <option value="3.3.50.41 - Contribuições Correntes">3.3.50.41 - Contribuições Correntes (Custeio Outras Áreas/Cultura/Esporte)</option>
+                        <option value="4.4.50.42 - Auxílios">4.4.50.42 - Auxílios (Investimento de Capital / Bens Duráveis)</option>
+                        <option value="3.3.90.30 - Material de Consumo">3.3.90.30 - Material de Consumo (Prefeitura)</option>
+                        <option value="3.3.90.39 - Outros Serviços Terceiros PJ">3.3.90.39 - Outros Serviços de Terceiros PJ (Prefeitura)</option>
+                        <option value="4.4.90.52 - Equipamentos e Material Permanente">4.4.90.52 - Equipamentos e Material Permanente (Prefeitura)</option>
+                        <option value="4.4.90.51 - Obras e Instalações">4.4.90.51 - Obras e Instalações (Prefeitura)</option>
+                    </select>
                 </div>
 
                 <div class="px-2 py-3 border-t border-[#333537] flex justify-end gap-2.5 pt-4">
@@ -366,49 +695,110 @@
         </div>
     </div>
 
-    <!-- RODAPÉ GOVERNAMENTAL -->
-    <footer class="bg-[#17181a] border-t border-[#333537] py-6 text-xs text-[#9aa0a6] mt-auto">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-2">
-            <div>
-                <span class="font-semibold text-white">PRISMA • Base Cadastral de Entidades, PPA e Classificações Orçamentárias</span>
-                <p class="text-[11px] text-[#9aa0a6]">Município de Horizontina / RS • Exercício 2026/2027</p>
+    <!-- MODAL DO PPA -->
+    <div id="modal-form-ppa" class="hidden fixed inset-0 bg-black/80 z-[80] flex items-center justify-center backdrop-blur-md p-4">
+        <div class="bg-[#1e1f20] rounded-2xl shadow-2xl w-full max-w-lg border border-[#333537] overflow-hidden">
+            <div class="px-6 py-4 border-b border-[#333537] flex justify-between items-center bg-[#17181a]">
+                <h3 class="text-sm font-bold text-white">Programa / Ação do PPA</h3>
+                <button type="button" onclick="fecharModalPPA()" class="text-[#9aa0a6] hover:text-white text-2xl leading-none">&times;</button>
             </div>
-            <span class="text-[11px] font-mono text-slate-500">Módulo Base • Build v26.04</span>
+            <form id="form-ppa" onsubmit="salvarPPA(event)" class="p-6 space-y-4 text-xs">
+                <input type="hidden" id="ppa-id" value="">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-[#9aa0a6] mb-1">Cód. Programa *</label>
+                        <input type="text" id="ppa-prog-cod" required placeholder="Ex: 014" class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-[#8ab4f8]">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-[#9aa0a6] mb-1">Cód. Ação *</label>
+                        <input type="text" id="ppa-acao-cod" required placeholder="Ex: 2042" class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-[#8ab4f8]">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-[#9aa0a6] mb-1">Descrição da Ação Orçamentária *</label>
+                    <input type="text" id="ppa-acao-desc" required placeholder="Ex: Apoio a Serviços Especializados de Reabilitação" class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-[#8ab4f8]">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-[#9aa0a6] mb-1">Eixo Regional (COREDE Fronteira Noroeste) *</label>
+                    <select id="ppa-corede" required class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-[#8ab4f8]">
+                        <option value="Eixo 02: Saúde, Inclusão Social e Qualidade de Vida Regional">Eixo 02: Saúde, Inclusão Social e Qualidade de Vida Regional</option>
+                        <option value="Eixo 03: Educação, Ciência, Tecnologia e Formação Docente">Eixo 03: Educação, Ciência, Tecnologia e Formação Docente</option>
+                        <option value="Eixo 01: Inovação, Indústria Metalmecânica e Emprego Regional">Eixo 01: Inovação, Indústria Metalmecânica e Emprego Regional</option>
+                        <option value="Eixo 04: Infraestrutura, Sustentabilidade e Meio Ambiente">Eixo 04: Infraestrutura, Sustentabilidade e Meio Ambiente</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-2.5 pt-4 border-t border-[#333537]">
+                    <button type="button" onclick="fecharModalPPA()" class="px-4 py-2 bg-[#28292a] text-slate-300 text-xs rounded-xl">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 text-white font-bold text-xs rounded-xl shadow">Salvar Ação</button>
+                </div>
+            </form>
         </div>
-    </footer>
+    </div>
+
+    <!-- MODAL DE DOTAÇÕES -->
+    <div id="modal-form-dotacao" class="hidden fixed inset-0 bg-black/80 z-[80] flex items-center justify-center backdrop-blur-md p-4">
+        <div class="bg-[#1e1f20] rounded-2xl shadow-2xl w-full max-w-lg border border-[#333537] overflow-hidden">
+            <div class="px-6 py-4 border-b border-[#333537] flex justify-between items-center bg-[#17181a]">
+                <h3 class="text-sm font-bold text-white">Dotação / Ficha Orçamentária</h3>
+                <button type="button" onclick="fecharModalDotacao()" class="text-[#9aa0a6] hover:text-white text-2xl leading-none">&times;</button>
+            </div>
+            <form id="form-dotacao" onsubmit="salvarDotacao(event)" class="p-6 space-y-4 text-xs">
+                <input type="hidden" id="dotacao-id" value="">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-[#9aa0a6] mb-1">Nº Ficha *</label>
+                        <input type="text" id="dotacao-ficha" required placeholder="Ex: 2226" class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-[#8ab4f8]">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-[#9aa0a6] mb-1">Cód. Ação *</label>
+                        <input type="text" id="dotacao-acao" required placeholder="Ex: 2042" class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-[#8ab4f8]">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-[#9aa0a6] mb-1">Elemento de Despesa *</label>
+                    <input type="text" id="dotacao-elemento" required placeholder="Ex: 3.3.50.43 - Subvenções Sociais" class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-[#8ab4f8]">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-[#9aa0a6] mb-1">Fonte de Recursos *</label>
+                    <input type="text" id="dotacao-fonte" required placeholder="Ex: 1500 - Recursos Livres / ASPS" class="w-full p-2.5 bg-[#17181a] border border-[#333537] rounded-xl text-xs text-white outline-none focus:ring-1 focus:ring-[#8ab4f8]">
+                </div>
+                <div class="flex justify-end gap-2.5 pt-4 border-t border-[#333537]">
+                    <button type="button" onclick="fecharModalDotacao()" class="px-4 py-2 bg-[#28292a] text-slate-300 text-xs rounded-xl">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 text-white font-bold text-xs rounded-xl shadow">Salvar Dotação</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- ========================================================================= -->
     <!-- JAVASCRIPT: ARQUITETURA DE DADOS E SINCRONIZAÇÃO                          -->
     <!-- ========================================================================= -->
     <script>
-        const STORAGE_KEY_CADASTROS = "prisma_cadastros_base_v1";
+        const STORAGE_KEY_CADASTROS = "prisma_cadastros_base_v2";
 
-        // BASE DEFAULT OFICIAL DE HORIZONTINA / RS
+        // BASE OFICIAL DE HORIZONTINA (SEM DADOS FICTÍCIOS DE EMENDAS OU PROJETOS)
         const BASE_PADRAO_HORIZONTINA = {
-            entidades: [
-                { id: "ENT_01", nome: "Associação de Pais e Amigos dos Excepcionais - APAE", cnpj: "94.888.112/0001-08", area: "Saúde / Educação Especial", tipoExecucao: "Indireta", secretariaSugerida: "SMS", enquadramentoSugerido: "3.3.50.43 - Subvenções Sociais", status: "Ativa" },
-                { id: "ENT_02", nome: "Hospital Oswaldo Cruz de Horizontina", cnpj: "94.889.334/0001-22", area: "Saúde Hospitalar", tipoExecucao: "Indireta", secretariaSugerida: "SMS", enquadramentoSugerido: "3.3.50.43 - Subvenções Sociais", status: "Ativa" },
-                { id: "ENT_03", nome: "Associação Beneficente Viver Bem (Contraturno)", cnpj: "12.445.678/0001-90", area: "Educação / Assistência Social", tipoExecucao: "Indireta", secretariaSugerida: "SMECJL", enquadramentoSugerido: "3.3.50.43 - Subvenções Sociais", status: "Ativa" },
-                { id: "ENT_04", nome: "Associação Comercial e Industrial de Horizontina - ACEHOR", cnpj: "94.887.555/0001-40", area: "Desenvolvimento Econômico / Indústria", tipoExecucao: "Indireta", secretariaSugerida: "SMDE", enquadramentoSugerido: "3.3.50.41 - Contribuições Correntes", status: "Ativa" },
-                { id: "ENT_05", nome: "Lar dos Idosos de Horizontina", cnpj: "88.777.666/0001-11", area: "Assistência Social e Acolhimento", tipoExecucao: "Indireta", secretariaSugerida: "SMDSH", enquadramentoSugerido: "3.3.50.43 - Subvenções Sociais", status: "Ativa" },
-                { id: "ENT_06", nome: "Associação dos Bombeiros Voluntários de Horizontina", cnpj: "01.222.333/0001-55", area: "Segurança Comunitária e Defesa Civil", tipoExecucao: "Indireta", secretariaSugerida: "GABINETE", enquadramentoSugerido: "3.3.50.41 - Contribuições Correntes", status: "Ativa" },
-                { id: "ENT_07", nome: "Fundo Municipal de Saúde (SMS - Execução Direta)", cnpj: "14.222.333/0001-99", area: "Saúde Pública Municipal (ASPS)", tipoExecucao: "Direta", secretariaSugerida: "SMS", enquadramentoSugerido: "3.3.90.30 - Material de Consumo", status: "Ativa" },
-                { id: "ENT_08", nome: "Secretaria de Educação, Cultura, Juventude e Lazer - SMECJL", cnpj: "87.613.111/0001-20", area: "Rede Escolar e Cultura", tipoExecucao: "Direta", secretariaSugerida: "SMECJL", enquadramentoSugerido: "4.4.90.52 - Equipamentos e Material Permanente", status: "Ativa" },
-                { id: "ENT_09", nome: "Secretaria de Desenvolvimento Rural - SMDR", cnpj: "87.613.111/0001-20", area: "Agricultura e Patrulha Rural", tipoExecucao: "Direta", secretariaSugerida: "SMDR", enquadramentoSugerido: "4.4.90.52 - Equipamentos e Material Permanente", status: "Ativa" },
-                { id: "ENT_10", nome: "Secretaria de Infraestrutura, Logística e Trânsito - SMILT", cnpj: "87.613.111/0001-20", area: "Pavimentação e Obras Públicas", tipoExecucao: "Direta", secretariaSugerida: "SMILT", enquadramentoSugerido: "4.4.90.51 - Obras e Instalações", status: "Ativa" }
+            partidos: [
+                { id: "PART_UNIAO", sigla: "UNIÃO", nome: "União Brasil", bancada: "Bancada União Brasil", cor: "#002B49", icone: "🦅", cotaBancada: 0, corBadge: "bg-blue-950 text-sky-300 border border-sky-700" },
+                { id: "PART_PDT", sigla: "PDT", nome: "Partido Democrático Trabalhista", bancada: "Bancada PDT", cor: "#D91A1E", icone: "🌹", cotaBancada: 0, corBadge: "bg-red-950 text-red-300 border border-red-700" },
+                { id: "PART_PP", sigla: "PP", nome: "Progressistas", bancada: "Bancada Progressistas", cor: "#005CA9", icone: "☀️", cotaBancada: 0, corBadge: "bg-blue-900/60 text-blue-300 border border-blue-600" },
+                { id: "PART_CID", sigla: "CIDADANIA", nome: "Cidadania", bancada: "Bancada Cidadania", cor: "#E30613", icone: "🔶", cotaBancada: 0, corBadge: "bg-orange-950 text-orange-300 border border-orange-700" }
             ],
-            ppa: [
-                { id: "PPA_01", programa: "0014 - Atenção Especializada e Saúde Integral", acao: "2042 - Apoio à Rede de Reabilitação e Entidades Conveniadas", secretaria: "SMS", eixoCorede: "Eixo 02: Saúde, Inclusão Social e Qualidade de Vida Regional" },
-                { id: "PPA_02", programa: "0022 - Desenvolvimento Social, Cidadania e Infância", acao: "2055 - Fortalecimento de Projetos de Contraturno e Acolhimento", secretaria: "SMECJL", eixoCorede: "Eixo 03: Educação, Ciência, Tecnologia e Formação Docente" },
-                { id: "PPA_03", programa: "0010 - Inovação, Emprego e Qualificação Metalmecânica", acao: "2018 - Fomento a Cursos Profissionalizantes e Parcerias Produtivas", secretaria: "SMDE", eixoCorede: "Eixo 01: Inovação, Indústria Metalmecânica e Emprego Regional" },
-                { id: "PPA_04", programa: "0030 - Infraestrutura Urbana, Pavimentação e Pontes", acao: "1025 - Pavimentação Asfáltica e Obras Viárias Integradas", secretaria: "SMILT", eixoCorede: "Eixo 04: Infraestrutura, Sustentabilidade e Meio Ambiente" }
+            vereadores: [
+                { id: "VER_01", nome: "Eduardo Maron", partidoId: "PART_UNIAO", cotaIndividual: 0, indicado: 0, saude: 0, emendasQtd: 0, email: "eduardo.maron@camarahorizontina.rs.gov.br", status: "Ativo" },
+                { id: "VER_02", nome: "Valmor Reckziegel", partidoId: "PART_UNIAO", cotaIndividual: 0, indicado: 0, saude: 0, emendasQtd: 0, email: "valmor.reckziegel@camarahorizontina.rs.gov.br", status: "Ativo" },
+                { id: "VER_03", nome: "Zuleica Wehner", partidoId: "PART_UNIAO", cotaIndividual: 0, indicado: 0, saude: 0, emendasQtd: 0, email: "zuleica.wehner@camarahorizontina.rs.gov.br", status: "Ativo" },
+                { id: "VER_04", nome: "Rosane Santos", partidoId: "PART_UNIAO", cotaIndividual: 0, indicado: 0, saude: 0, emendasQtd: 0, email: "rosane.santos@camarahorizontina.rs.gov.br", status: "Ativo" },
+                { id: "VER_05", nome: "Rafael Godoy", partidoId: "PART_PDT", cotaIndividual: 0, indicado: 0, saude: 0, emendasQtd: 0, email: "rafael.godoy@camarahorizontina.rs.gov.br", status: "Ativo" },
+                { id: "VER_06", nome: "Ivete Callegaro", partidoId: "PART_PDT", cotaIndividual: 0, indicado: 0, saude: 0, emendasQtd: 0, email: "ivete.callegaro@camarahorizontina.rs.gov.br", status: "Ativo" },
+                { id: "VER_07", nome: "Marcio Fischer", partidoId: "PART_PDT", cotaIndividual: 0, indicado: 0, saude: 0, emendasQtd: 0, email: "marcio.fischer@camarahorizontina.rs.gov.br", status: "Ativo" },
+                { id: "VER_08", nome: "Lucas Stoll", partidoId: "PART_PP", cotaIndividual: 0, indicado: 0, saude: 0, emendasQtd: 0, email: "lucas.stoll@camarahorizontina.rs.gov.br", status: "Ativo" },
+                { id: "VER_09", nome: "Cleiton Niesciur", partidoId: "PART_CID", cotaIndividual: 0, indicado: 0, saude: 0, emendasQtd: 0, email: "cleiton.niesciur@camarahorizontina.rs.gov.br", status: "Ativo" }
             ],
-            dotacoes: [
-                { id: "DOT_01", ficha: "2226", acao: "2042", elemento: "3.3.50.43 - Subvenções Sociais", fonte: "1500 - Recursos Livres / ASPS" },
-                { id: "DOT_02", ficha: "2237", acao: "2042", elemento: "4.4.50.42 - Auxílios", fonte: "1500 - Recursos Livres / ASPS" },
-                { id: "DOT_03", ficha: "3110", acao: "2055", elemento: "3.3.50.43 - Subvenções Sociais", fonte: "1500 - Recursos Livres / MDE" },
-                { id: "DOT_04", ficha: "4012", acao: "1025", elemento: "4.4.90.51 - Obras e Instalações", fonte: "1500 - Recursos Próprios" }
-            ]
+            entidades: [],
+            ppa: [],
+            dotacoes: [],
+            rclExecutada: 0
         };
 
         let baseCadastros = carregarBaseCadastros();
@@ -418,12 +808,16 @@
                 const salvo = localStorage.getItem(STORAGE_KEY_CADASTROS);
                 if (salvo) {
                     const parsed = JSON.parse(salvo);
-                    if (parsed.entidades && Array.isArray(parsed.entidades)) {
+                    if (parsed.vereadores && Array.isArray(parsed.vereadores)) {
+                        if (!parsed.partidos) parsed.partidos = BASE_PADRAO_HORIZONTINA.partidos;
+                        if (!parsed.entidades) parsed.entidades = [];
+                        if (!parsed.ppa) parsed.ppa = [];
+                        if (!parsed.dotacoes) parsed.dotacoes = [];
                         return parsed;
                     }
                 }
             } catch (e) {
-                console.warn("Falha ao ler cadastros salvos, usando padrão:", e);
+                console.warn("Falha ao ler cadastros salvos, usando padrão limpo:", e);
             }
             salvarBaseCadastros(BASE_PADRAO_HORIZONTINA);
             return JSON.parse(JSON.stringify(BASE_PADRAO_HORIZONTINA));
@@ -434,6 +828,8 @@
                 localStorage.setItem(STORAGE_KEY_CADASTROS, JSON.stringify(dados));
                 baseCadastros = dados;
                 atualizarContadoresAbas();
+                // Notifica outras janelas abertas
+                window.dispatchEvent(new Event('storage'));
             } catch (e) {
                 console.error("Erro ao salvar cadastros:", e);
             }
@@ -442,114 +838,526 @@
         window.addEventListener('DOMContentLoaded', () => {
             atualizarContadoresAbas();
             renderizarTabelaEntidades();
+            renderizarPartidosEVereadores();
             renderizarTabelaPPA();
             renderizarTabelaDotacoes();
+            carregarParametrosRCLSalvos();
         });
+
+        // =========================================================================
+        // NAVEGAÇÃO ENTRE ABAS DO PAINEL DE CADASTROS
+        // =========================================================================
+        function alternarAbaCadastro(abaId) {
+            const abas = ['entidades', 'parlamentares', 'ppa', 'dotacoes', 'sincronia'];
+            abas.forEach(aba => {
+                const elConteudo = document.getElementById(`aba-conteudo-${aba}`);
+                const elBtn = document.getElementById(`tab-btn-${aba}`);
+                if (elConteudo && elBtn) {
+                    if (aba === abaId) {
+                        elConteudo.classList.remove('hidden');
+                        elBtn.className = "px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-blue-600/20 text-[#8ab4f8] border border-blue-500/40";
+                    } else {
+                        elConteudo.classList.add('hidden');
+                        elBtn.className = "px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 text-[#9aa0a6] hover:text-white hover:bg-[#28292a]";
+                    }
+                }
+            });
+        }
+
+        // =========================================================================
+        // MOTOR DE CÁLCULO DAS COTAS DA LEI ORGÂNICA (EMENDA Nº 5/2023)
+        // =========================================================================
+        function carregarParametrosRCLSalvos() {
+            const inputRCL = document.getElementById('param-rcl-exercicio');
+            if (!inputRCL) return;
+
+            if (baseCadastros.rclExecutada && baseCadastros.rclExecutada > 0) {
+                inputRCL.value = baseCadastros.rclExecutada;
+            } else {
+                inputRCL.value = '';
+            }
+            recalcularPreviaCotasLeiOrganica();
+        }
+
+        function recalcularPreviaCotasLeiOrganica() {
+            const rcl = parseFloat(document.getElementById('param-rcl-exercicio').value || 0);
+            const vereadores = baseCadastros.vereadores || [];
+            const partidos = baseCadastros.partidos || [];
+            const vereadoresAtivos = vereadores.filter(v => v.status !== "Inativo");
+            const qtdVereadores = vereadoresAtivos.length || 1;
+            const qtdBancadas = partidos.length || 1;
+
+            const elLabelNum = document.getElementById('label-num-vereadores');
+            if (elLabelNum) elLabelNum.textContent = `${qtdVereadores} ativo(s)`;
+
+            const elLabelBanc = document.getElementById('label-num-bancadas');
+            if (elLabelBanc) elLabelBanc.textContent = `${qtdBancadas} bancada(s)`;
+
+            const bTotalVer = document.getElementById('badge-total-vereadores-calc');
+            if (bTotalVer) bTotalVer.textContent = `${qtdVereadores} Vereadores`;
+
+            const bTotalBanc = document.getElementById('badge-total-bancadas-calc');
+            if (bTotalBanc) bTotalBanc.textContent = `${qtdBancadas} Bancadas`;
+
+            // 1. Emendas Individuais: 2% da RCL (Art. 77, § 1º com redação da Emenda nº 5/2023)
+            const totalIndividuais = rcl * 0.02;
+            const metadeSaudeGlobal = totalIndividuais * 0.50; // 1% da RCL para saúde
+            const cotaPorVereador = rcl > 0 ? (totalIndividuais / qtdVereadores) : 0;
+            const saudePorVereador = cotaPorVereador * 0.50;
+
+            // 2. Emendas Coletivas de Bancada: 1% da RCL (Art. 77, § 10 da Emenda nº 5/2023)
+            const totalBancadas = rcl * 0.01;
+            const totalEmendasGlobal = totalIndividuais + totalBancadas; // 3% da RCL
+
+            document.getElementById('prev-total-rcl').textContent = formatarMoeda(totalEmendasGlobal);
+            document.getElementById('prev-total-individuais').textContent = formatarMoeda(totalIndividuais);
+            document.getElementById('prev-total-saude').textContent = formatarMoeda(metadeSaudeGlobal);
+            document.getElementById('prev-cota-unit-vereador').textContent = formatarMoeda(cotaPorVereador);
+            document.getElementById('prev-saude-unit-vereador').textContent = `50% Saúde: ${formatarMoeda(saudePorVereador)}`;
+            document.getElementById('prev-total-bancadas').textContent = formatarMoeda(totalBancadas);
+        }
+
+        function aplicarCotasCalculadasLeiOrganica() {
+            const rcl = parseFloat(document.getElementById('param-rcl-exercicio').value || 0);
+            if (rcl <= 0) {
+                mostrarToast("Informe um valor válido de Receita Corrente Líquida (RCL).", "erro");
+                return;
+            }
+
+            const vereadores = baseCadastros.vereadores || [];
+            const partidos = baseCadastros.partidos || [];
+            const vereadoresAtivos = vereadores.filter(v => v.status !== "Inativo");
+            const totalAtivos = vereadoresAtivos.length || 1;
+            const totalBancadasConstituidas = partidos.length || 1;
+
+            pedirConfirmacao(
+                "Aplicar Cotas da Lei Orgânica",
+                `Deseja atualizar a cota dos ${totalAtivos} vereadores (2% RCL) e das ${totalBancadasConstituidas} bancadas (1% RCL) com base na RCL de ${formatarMoeda(rcl)}?`,
+                () => {
+                    const totalIndividuais = rcl * 0.02;
+                    const cotaPorVereador = Math.round((totalIndividuais / totalAtivos) * 100) / 100;
+                    const totalBancadas = rcl * 0.01;
+
+                    // Atualiza cota individual de todos os vereadores ativos
+                    baseCadastros.vereadores = vereadores.map(v => {
+                        if (v.status !== "Inativo") {
+                            return { ...v, cotaIndividual: cotaPorVereador };
+                        }
+                        return v;
+                    });
+
+                    // Atualiza cota da bancada de forma equitativa e proporcional à representatividade partidária
+                    baseCadastros.partidos = partidos.map(p => {
+                        const membrosPartido = vereadoresAtivos.filter(v => v.partidoId === p.id).length;
+                        const cotaDestaBancada = Math.round((totalBancadas * (membrosPartido / totalAtivos)) * 100) / 100;
+                        return { ...p, cotaBancada: cotaDestaBancada };
+                    });
+
+                    baseCadastros.rclExecutada = rcl;
+                    baseCadastros.dataAtualizacaoRcl = new Date().toISOString();
+
+                    salvarBaseCadastros(baseCadastros);
+                    renderizarPartidosEVereadores();
+                    mostrarToast("Cotas de vereadores e bancadas sincronizadas com a Lei Orgânica!");
+                }
+            );
+        }
 
         function atualizarContadoresAbas() {
             document.getElementById('cont-aba-entidades').textContent = (baseCadastros.entidades || []).length;
+            const elParl = document.getElementById('cont-aba-parlamentares');
+            if (elParl) elParl.textContent = (baseCadastros.vereadores || []).length;
+            const elBanc = document.getElementById('cont-aba-bancadas');
+            if (elBanc) elBanc.textContent = (baseCadastros.partidos || []).length;
             document.getElementById('cont-aba-ppa').textContent = (baseCadastros.ppa || []).length;
             document.getElementById('cont-aba-dotacoes').textContent = (baseCadastros.dotacoes || []).length;
         }
+        // RENDERIZAÇÃO DE PARTIDOS, BANCADAS E VEREADORES
+        function renderizarPartidosEVereadores() {
+            const gridPartidos = document.getElementById('grid-partidos-cadastrados');
+            const tbodyBancadas = document.getElementById('tbody-bancadas');
+            const tbodyVereadores = document.getElementById('tbody-vereadores');
+            const totalVereadores = document.getElementById('total-vereadores-cont');
+            const totalBancadas = document.getElementById('total-bancadas-cont');
 
-        // ALTERNAR ABAS
-        function alternarAbaCadastro(abaId) {
-            const abas = ['entidades', 'ppa', 'dotacoes', 'sincronia'];
-            abas.forEach(a => {
-                const el = document.getElementById(`aba-conteudo-${a}`);
-                const btn = document.getElementById(`tab-btn-${a}`);
-                if (el && btn) {
-                    if (a === abaId) {
-                        el.classList.remove('hidden');
-                        btn.className = "px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-blue-600/20 text-[#8ab4f8] border border-blue-500/40";
-                    } else {
-                        el.classList.add('hidden');
-                        btn.className = "px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 text-[#9aa0a6] hover:text-white hover:bg-[#28292a]";
-                    }
+            if (!gridPartidos || !tbodyVereadores) return;
+
+            const partidos = baseCadastros.partidos || [];
+            const vereadores = baseCadastros.vereadores || [];
+            const totalAssentos = vereadores.filter(v => v.status !== "Inativo").length || 9;
+
+            if (totalVereadores) totalVereadores.textContent = vereadores.length;
+            if (totalBancadas) totalBancadas.textContent = partidos.length;
+
+            // 1. Tabela Detalhada de Bancadas Partidárias
+            if (tbodyBancadas) {
+                if (partidos.length === 0) {
+                    tbodyBancadas.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500 font-mono">Nenhuma bancada registrada.</td></tr>`;
+                } else {
+                    tbodyBancadas.innerHTML = partidos.map(p => {
+                        const membros = vereadores.filter(v => v.partidoId === p.id);
+                        const somaIndicado = membros.reduce((acc, v) => acc + (v.indicado || 0), 0);
+                        const saldoBancada = (p.cotaBancada || 0) - somaIndicado;
+                        const pctRepresentacao = ((membros.length / totalAssentos) * 100).toFixed(1);
+                        const nomesMembros = membros.map(m => m.nome).join(', ') || 'Nenhum vereador vinculado';
+
+                        return `
+                            <tr class="hover:bg-[#17181a] transition">
+                                <td class="p-3">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xl">${p.icone || '🏛️'}</span>
+                                        <div>
+                                            <strong class="text-white text-xs block font-bold">${p.bancada || p.nome}</strong>
+                                            <span class="text-[10px] text-slate-400 font-mono">${p.sigla} • ${p.nome}</span>
+                                            ${p.lider ? `<span class="text-[9px] text-amber-300 block">Líder: ${p.lider}</span>` : ''}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="p-3">
+                                    <span class="text-xs text-slate-200 font-bold block">${membros.length} parlamentar(es)</span>
+                                    <span class="text-[10px] text-slate-400 font-sans block max-w-xs truncate" title="${nomesMembros}">
+                                        ${nomesMembros}
+                                    </span>
+                                </td>
+                                <td class="p-3">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-blue-950/60 text-sky-300 border border-sky-800">
+                                        ${pctRepresentacao}% (${membros.length}/${totalAssentos})
+                                    </span>
+                                </td>
+                                <td class="p-3 font-bold text-amber-300">${formatarMoeda(p.cotaBancada)}</td>
+                                <td class="p-3 font-bold text-blue-300">
+                                    ${formatarMoeda(somaIndicado)}
+                                </td>
+                                <td class="p-3 font-bold ${saldoBancada >= 0 ? 'text-emerald-400' : 'text-red-400'}">
+                                    ${formatarMoeda(saldoBancada)}
+                                </td>
+                                <td class="p-3 text-right">
+                                    <div class="flex justify-end gap-1.5">
+                                        <button type="button" onclick="editarBancada('${p.id}')" class="px-2 py-1 bg-[#28292a] hover:bg-[#333537] text-amber-300 rounded-lg transition text-[11px]">✏️ Editar</button>
+                                        <button type="button" onclick="excluirBancada('${p.id}')" class="px-2 py-1 bg-red-950/40 hover:bg-red-900/60 text-red-300 rounded-lg transition text-[11px]">🗑️</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
                 }
+            }
+
+            // 2. Cards de Visão Rápida dos Partidos
+            gridPartidos.innerHTML = partidos.map(p => {
+                const membros = vereadores.filter(v => v.partidoId === p.id);
+                const somaIndicado = membros.reduce((acc, v) => acc + (v.indicado || 0), 0);
+                const saldoBancada = (p.cotaBancada || 0) - somaIndicado;
+
+                return `
+                    <div class="p-4 bg-[#17181a] border border-[#333537] rounded-xl flex flex-col justify-between space-y-2">
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-center gap-2">
+                                <span class="text-2xl">${p.icone || '🏛️'}</span>
+                                <div>
+                                    <strong class="text-white block font-bold text-xs">${p.sigla}</strong>
+                                    <span class="text-[10px] text-slate-400">${p.bancada || p.nome}</span>
+                                </div>
+                            </div>
+                            <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded ${p.corBadge || 'bg-slate-800 text-slate-300'}">${membros.length} ver.</span>
+                        </div>
+
+                        <div class="pt-2 border-t border-[#26282a] text-[11px] font-mono space-y-1">
+                            <div class="flex justify-between text-slate-400">
+                                <span>Cota Bancada:</span>
+                                <span class="text-white font-bold">${formatarMoeda(p.cotaBancada)}</span>
+                            </div>
+                            <div class="flex justify-between text-slate-400">
+                                <span>Saldo Livre:</span>
+                                <span class="text-emerald-400 font-bold">${formatarMoeda(saldoBancada)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // 3. Tabela de Vereadores Individuais
+            tbodyVereadores.innerHTML = vereadores.map(v => {
+                const partido = partidos.find(p => p.id === v.partidoId) || { sigla: "S/P", nome: "Sem Partido", icone: "👤", corBadge: "bg-slate-800 text-slate-300" };
+                const saldoLivre = v.cotaIndividual - (v.indicado || 0);
+                const pctSaude = v.indicado > 0 ? ((v.saude / v.indicado) * 100).toFixed(1) : 0;
+                const saudeOk = pctSaude >= 50;
+
+                return `
+                    <tr class="hover:bg-[#17181a] transition">
+                        <td class="p-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-base">${partido.icone || '👤'}</span>
+                                <div>
+                                    <strong class="text-white text-xs block">${v.nome}</strong>
+                                    <span class="text-[10px] text-slate-500 font-mono">${v.email}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded font-mono ${partido.corBadge}">
+                                ${partido.sigla} • ${partido.bancada || partido.nome}
+                            </span>
+                        </td>
+                        <td class="p-3 font-bold text-white">${formatarMoeda(v.cotaIndividual)}</td>
+                        <td class="p-3 text-blue-300 font-bold">
+                            ${v.emendasQtd || 0} emenda(s)
+                            <span class="text-[10px] text-slate-400 block font-normal">${formatarMoeda(v.indicado)}</span>
+                        </td>
+                        <td class="p-3 font-bold ${saldoLivre >= 0 ? 'text-emerald-400' : 'text-red-400'}">
+                            ${formatarMoeda(saldoLivre)}
+                        </td>
+                        <td class="p-3">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${saudeOk ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-amber-950 text-amber-400 border border-amber-800'}">
+                                ${pctSaude}% (${saudeOk ? 'Regular ✓' : 'Abaixo 50% ⚠️'})
+                            </span>
+                        </td>
+                        <td class="p-3 text-right">
+                            <div class="flex justify-end gap-1.5">
+                                <button type="button" onclick="editarVereador('${v.id}')" class="px-2 py-1 bg-[#28292a] hover:bg-[#333537] text-[#8ab4f8] rounded-lg transition text-[11px]">✏️ Editar</button>
+                                <button type="button" onclick="excluirVereador('${v.id}')" class="px-2 py-1 bg-red-950/40 hover:bg-red-900/60 text-red-300 rounded-lg transition text-[11px]">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // FUNÇÕES PARA GERENCIAMENTO DE BANCADAS PARTIDÁRIAS
+        function abrirModalNovaBancada() {
+            document.getElementById('bancada-id').value = '';
+            document.getElementById('form-bancada').reset();
+            document.getElementById('bancada-cor-badge').value = 'bg-blue-950 text-sky-300 border border-sky-700';
+            document.getElementById('modal-bancada-titulo').textContent = "Cadastrar Bancada Partidária";
+            document.getElementById('modal-form-bancada').classList.remove('hidden');
+        }
+
+        function fecharModalBancada() {
+            document.getElementById('modal-form-bancada').classList.add('hidden');
+        }
+
+        function editarBancada(id) {
+            const p = (baseCadastros.partidos || []).find(item => item.id === id);
+            if (!p) return;
+
+            document.getElementById('bancada-id').value = p.id;
+            document.getElementById('bancada-sigla').value = p.sigla || '';
+            document.getElementById('bancada-icone').value = p.icone || '🏛️';
+            document.getElementById('bancada-nome-bancada').value = p.bancada || '';
+            document.getElementById('bancada-nome-partido').value = p.nome || '';
+            document.getElementById('bancada-cota').value = p.cotaBancada || 0;
+            document.getElementById('bancada-lider').value = p.lider || '';
+            document.getElementById('bancada-cor-badge').value = p.corBadge || 'bg-slate-800 text-slate-300';
+            document.getElementById('modal-bancada-titulo').textContent = `Editar: ${p.bancada || p.sigla}`;
+            document.getElementById('modal-form-bancada').classList.remove('hidden');
+        }
+
+        function salvarBancada(e) {
+            e.preventDefault();
+            const id = document.getElementById('bancada-id').value || `PART_${Date.now()}`;
+            const sigla = document.getElementById('bancada-sigla').value.trim().toUpperCase();
+            const icone = document.getElementById('bancada-icone').value.trim();
+            const bancada = document.getElementById('bancada-nome-bancada').value.trim();
+            const nome = document.getElementById('bancada-nome-partido').value.trim();
+            const cotaBancada = parseFloat(document.getElementById('bancada-cota').value || 0);
+            const lider = document.getElementById('bancada-lider').value.trim();
+            const corBadge = document.getElementById('bancada-cor-badge').value.trim() || 'bg-slate-800 text-slate-300';
+
+            baseCadastros.partidos = baseCadastros.partidos || [];
+            const idx = baseCadastros.partidos.findIndex(p => p.id === id);
+
+            const novo = {
+                id, sigla, icone, bancada, nome, cotaBancada, lider, corBadge
+            };
+
+            if (idx >= 0) {
+                baseCadastros.partidos[idx] = { ...baseCadastros.partidos[idx], ...novo };
+                mostrarToast("Bancada partidária atualizada com sucesso!");
+            } else {
+                baseCadastros.partidos.push(novo);
+                mostrarToast("Nova bancada cadastrada com sucesso!");
+            }
+
+            salvarBaseCadastros(baseCadastros);
+            fecharModalBancada();
+            renderizarPartidosEVereadores();
+            recalcularPreviaCotasLeiOrganica();
+        }
+
+        function excluirBancada(id) {
+            const p = (baseCadastros.partidos || []).find(item => item.id === id);
+            if (!p) return;
+
+            const membros = (baseCadastros.vereadores || []).filter(v => v.partidoId === id);
+            if (membros.length > 0) {
+                mostrarToast(`Não é possível excluir: existem ${membros.length} vereador(es) vinculados a esta bancada.`, "erro");
+                return;
+            }
+
+            pedirConfirmacao("Excluir Bancada", `Deseja remover a ${p.bancada || p.sigla} da Câmara?`, () => {
+                baseCadastros.partidos = baseCadastros.partidos.filter(item => item.id !== id);
+                salvarBaseCadastros(baseCadastros);
+                renderizarPartidosEVereadores();
+                recalcularPreviaCotasLeiOrganica();
+                mostrarToast("Bancada removida com sucesso!");
+            });
+        }
+
+        function formatarMoeda(val) {
+            return `R$ ${(val || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        }
+
+        function mostrarToast(mensagem, tipo = 'sucesso') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const t = document.createElement('div');
+            const cor = tipo === 'sucesso' ? 'bg-emerald-950/90 text-emerald-300 border-emerald-700' : 'bg-red-950/90 text-red-300 border-red-700';
+            t.className = `p-3 rounded-xl border text-xs shadow-xl backdrop-blur flex items-center gap-2 transition-all transform duration-300 pointer-events-auto ${cor}`;
+            t.innerHTML = `<span>${tipo === 'sucesso' ? '✅' : '⚠️'}</span><span>${mensagem}</span>`;
+            container.appendChild(t);
+            setTimeout(() => { t.remove(); }, 3500);
+        }
+
+        function pedirConfirmacao(titulo, mensagem, callbackSim) {
+            const modal = document.getElementById('modal-confirmacao');
+            document.getElementById('confirm-titulo').textContent = titulo;
+            document.getElementById('confirm-mensagem').textContent = mensagem;
+            const btnSim = document.getElementById('confirm-btn-confirmar');
+            const btnNao = document.getElementById('confirm-btn-cancelar');
+
+            const fechar = () => modal.classList.add('hidden');
+            btnNao.onclick = fechar;
+            btnSim.onclick = () => {
+                fechar();
+                if (callbackSim) callbackSim();
+            };
+            modal.classList.remove('hidden');
+        }
+
+        function abrirModalNovoVereador() {
+            document.getElementById('vereador-id').value = '';
+            document.getElementById('form-vereador').reset();
+            popularSelectPartidosModal();
+            document.getElementById('modal-vereador-titulo').textContent = "Cadastrar / Vincular Parlamentar";
+            document.getElementById('modal-form-vereador').classList.remove('hidden');
+        }
+
+        function fecharModalVereador() {
+            document.getElementById('modal-form-vereador').classList.add('hidden');
+        }
+
+        function popularSelectPartidosModal(selecionadoId = '') {
+            const select = document.getElementById('vereador-partido');
+            if (!select) return;
+            select.innerHTML = (baseCadastros.partidos || []).map(p => `
+                <option value="${p.id}" ${p.id === selecionadoId ? 'selected' : ''}>
+                    ${p.icone || '🏛️'} ${p.sigla} - ${p.bancada}
+                </option>
+            `).join('');
+        }
+
+        function editarVereador(id) {
+            const v = (baseCadastros.vereadores || []).find(item => item.id === id);
+            if (!v) return;
+
+            document.getElementById('vereador-id').value = v.id;
+            document.getElementById('vereador-nome').value = v.nome;
+            document.getElementById('vereador-cota').value = v.cotaIndividual;
+            document.getElementById('vereador-email').value = v.email;
+            document.getElementById('vereador-status').value = v.status || "Ativo";
+            popularSelectPartidosModal(v.partidoId);
+            document.getElementById('modal-vereador-titulo').textContent = `Editar: ${v.nome}`;
+            document.getElementById('modal-form-vereador').classList.remove('hidden');
+        }
+
+        function salvarVereador(e) {
+            e.preventDefault();
+            const id = document.getElementById('vereador-id').value || `VER_${Date.now()}`;
+            const nome = document.getElementById('vereador-nome').value.trim();
+            const partidoId = document.getElementById('vereador-partido').value;
+            const cota = parseFloat(document.getElementById('vereador-cota').value || 120000);
+            const email = document.getElementById('vereador-email').value.trim();
+            const status = document.getElementById('vereador-status').value;
+
+            baseCadastros.vereadores = baseCadastros.vereadores || [];
+            const idx = baseCadastros.vereadores.findIndex(v => v.id === id);
+
+            const atual = idx >= 0 ? baseCadastros.vereadores[idx] : { indicado: 0, saude: 0, emendasQtd: 0 };
+            const novo = {
+                ...atual,
+                id, nome, partidoId, cotaIndividual: cota, email, status
+            };
+
+            if (idx >= 0) {
+                baseCadastros.vereadores[idx] = novo;
+                mostrarToast("Dados do vereador atualizados com sucesso!");
+            } else {
+                baseCadastros.vereadores.push(novo);
+                mostrarToast("Novo vereador vinculado ao partido!");
+            }
+
+            salvarBaseCadastros(baseCadastros);
+            fecharModalVereador();
+            renderizarPartidosEVereadores();
+        }
+
+        function excluirVereador(id) {
+            const v = (baseCadastros.vereadores || []).find(item => item.id === id);
+            if (!v) return;
+            pedirConfirmacao("Excluir Parlamentar", `Deseja remover o vínculo de ${v.nome}?`, () => {
+                baseCadastros.vereadores = baseCadastros.vereadores.filter(item => item.id !== id);
+                salvarBaseCadastros(baseCadastros);
+                renderizarPartidosEVereadores();
+                mostrarToast("Parlamentar removido da base!");
             });
         }
 
         // RENDERIZAÇÃO DA TABELA DE ENTIDADES
         function renderizarTabelaEntidades() {
             const tbody = document.getElementById('tbody-entidades');
-            const termoBusca = (document.getElementById('filtro-busca-entidades')?.value || '').toLowerCase();
-            const filtroTipo = document.getElementById('filtro-tipo-exec-entidade')?.value || '';
+            const busca = (document.getElementById('filtro-busca-entidade').value || '').toLowerCase();
+            const tipoFiltro = document.getElementById('filtro-tipo-entidade').value;
 
-            if (!tbody) return;
-
-            let lista = (baseCadastros.entidades || []).filter(e => {
-                const bateTexto = !termoBusca || e.nome.toLowerCase().includes(termoBusca) || e.cnpj.includes(termoBusca) || e.area.toLowerCase().includes(termoBusca) || e.secretariaSugerida.toLowerCase().includes(termoBusca);
-                const bateTipo = !filtroTipo || e.tipoExecucao === filtroTipo;
-                return bateTexto && bateTipo;
+            const entidades = (baseCadastros.entidades || []).filter(e => {
+                const passaBusca = !busca || e.nome.toLowerCase().includes(busca) || e.cnpj.toLowerCase().includes(busca) || (e.area || '').toLowerCase().includes(busca);
+                const passaTipo = !tipoFiltro || e.tipo === tipoFiltro;
+                return passaBusca && passaTipo;
             });
 
-            if (lista.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500 font-mono">Nenhuma entidade encontrada para os filtros aplicados.</td></tr>`;
+            if (entidades.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500 font-mono text-xs">
+                    <span class="text-2xl block mb-2">🤝</span>
+                    Nenhuma entidade ou órgão cadastrado. Clique no botão "<b>+ Cadastrar Entidade / Órgão</b>" acima para iniciar o catálogo oficial.
+                </td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = lista.map(e => `
+            tbody.innerHTML = entidades.map(e => `
                 <tr class="hover:bg-[#17181a] transition">
-                    <td class="p-3.5">
-                        <strong class="text-white text-xs block">${e.nome}</strong>
-                        <span class="text-[10px] text-slate-500 font-mono">CNPJ: ${e.cnpj}</span>
+                    <td class="p-3">
+                        <strong class="text-white block text-xs">${e.nome}</strong>
+                        <span class="text-[10px] text-slate-400">${e.area || 'Área não especificada'}</span>
                     </td>
-                    <td class="p-3.5">
-                        <span class="text-[9px] font-mono px-2 py-0.5 rounded font-bold ${e.tipoExecucao === 'Indireta' ? 'bg-purple-950 text-purple-300 border border-purple-800' : 'bg-blue-950 text-blue-300 border border-blue-800'}">${e.tipoExecucao}</span>
-                        <p class="text-[11px] text-slate-400 mt-1">${e.area}</p>
+                    <td class="p-3 font-mono text-slate-300">${e.cnpj}</td>
+                    <td class="p-3">
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded font-mono ${e.tipo === 'Indireta' ? 'bg-purple-950/70 text-purple-300 border border-purple-800' : 'bg-blue-950/70 text-blue-300 border border-blue-800'}">
+                            ${e.tipo === 'Indireta' ? '🤝 Terceiro Setor' : '🏛️ Direta'}
+                        </span>
                     </td>
-                    <td class="p-3.5 font-bold text-white font-mono">${e.secretariaSugerida}</td>
-                    <td class="p-3.5 text-[11px] text-slate-300 font-mono">${e.enquadramentoSugerido.split(' - ')[0]}</td>
-                    <td class="p-3.5 text-center">
-                        <span class="text-[10px] px-2 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">${e.status || 'Ativa'}</span>
-                    </td>
-                    <td class="p-3.5 text-right space-x-1.5 whitespace-nowrap">
-                        <button type="button" onclick="editarEntidade('${e.id}')" class="px-2.5 py-1 bg-[#28292a] hover:bg-[#333537] text-[#8ab4f8] rounded-lg transition text-[11px]" title="Editar">✏️ Editar</button>
-                        <button type="button" onclick="excluirEntidade('${e.id}')" class="px-2.5 py-1 bg-[#28292a] hover:bg-red-950 text-red-400 rounded-lg transition text-[11px]" title="Excluir">🗑️</button>
+                    <td class="p-3 font-mono font-bold text-slate-200">${e.secretariaPadrao || 'N/D'}</td>
+                    <td class="p-3 font-mono text-[11px] text-slate-400 truncate max-w-xs">${e.rubricaSugerida || 'N/D'}</td>
+                    <td class="p-3 text-right whitespace-nowrap">
+                        <button type="button" onclick="editarEntidade('${e.id}')" class="px-2 py-1 bg-[#28292a] hover:bg-[#333537] text-[#8ab4f8] rounded-lg transition text-[11px]">✏️ Editar</button>
+                        <button type="button" onclick="excluirEntidade('${e.id}')" class="px-2 py-1 bg-red-950/40 hover:bg-red-900/60 text-red-300 rounded-lg transition text-[11px] ml-1">🗑️</button>
                     </td>
                 </tr>
             `).join('');
         }
 
-        // RENDERIZAÇÃO PPA E DOTAÇÕES
-        function renderizarTabelaPPA() {
-            const tbody = document.getElementById('tbody-ppa');
-            if (!tbody) return;
-            tbody.innerHTML = (baseCadastros.ppa || []).map(p => `
-                <tr class="hover:bg-[#17181a] transition">
-                    <td class="p-3.5 font-semibold text-white">${p.programa}</td>
-                    <td class="p-3.5 text-emerald-400">${p.acao}</td>
-                    <td class="p-3.5 font-bold">${p.secretaria}</td>
-                    <td class="p-3.5 text-[11px] text-slate-400">${p.eixoCorede}</td>
-                    <td class="p-3.5 text-right">
-                        <button type="button" onclick="excluirItemGenerico('ppa', '${p.id}')" class="text-red-400 hover:text-red-300 text-xs">🗑️</button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function renderizarTabelaDotacoes() {
-            const tbody = document.getElementById('tbody-dotacoes');
-            if (!tbody) return;
-            tbody.innerHTML = (baseCadastros.dotacoes || []).map(d => `
-                <tr class="hover:bg-[#17181a] transition">
-                    <td class="p-3.5 font-bold text-white">${d.ficha}</td>
-                    <td class="p-3.5 text-blue-300">${d.acao}</td>
-                    <td class="p-3.5 text-slate-300">${d.elemento}</td>
-                    <td class="p-3.5 text-[11px] text-slate-400">${d.fonte}</td>
-                    <td class="p-3.5 text-right">
-                        <button type="button" onclick="excluirItemGenerico('dotacoes', '${d.id}')" class="text-red-400 hover:text-red-300 text-xs">🗑️</button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        // MODAL DE ENTIDADE (CRUD)
         function abrirModalNovaEntidade() {
             document.getElementById('entidade-id').value = '';
             document.getElementById('form-entidade').reset();
-            document.getElementById('modal-entidade-titulo').textContent = "Cadastrar Nova Entidade / Órgão";
+            document.getElementById('modal-entidade-titulo').textContent = "Cadastrar Entidade / Órgão";
             document.getElementById('modal-form-entidade').classList.remove('hidden');
         }
 
@@ -557,182 +1365,220 @@
             document.getElementById('modal-form-entidade').classList.add('hidden');
         }
 
-        function aoMudarTipoExecucaoModal(tipo) {
-            const selEnq = document.getElementById('entidade-enquadramento');
-            if (tipo === 'Indireta') {
-                selEnq.value = "3.3.50.43 - Subvenções Sociais";
-            } else {
-                selEnq.value = "3.3.90.30 - Material de Consumo";
-            }
+        function editarEntidade(id) {
+            const e = (baseCadastros.entidades || []).find(item => item.id === id);
+            if (!e) return;
+            document.getElementById('entidade-id').value = e.id;
+            document.getElementById('entidade-nome').value = e.nome;
+            document.getElementById('entidade-cnpj').value = e.cnpj;
+            document.getElementById('entidade-tipo').value = e.tipo;
+            document.getElementById('entidade-area').value = e.area || '';
+            document.getElementById('entidade-secretaria').value = e.secretariaPadrao || 'SMS';
+            document.getElementById('entidade-rubrica').value = e.rubricaSugerida || '3.3.50.43 - Subvenções Sociais';
+            document.getElementById('modal-entidade-titulo').textContent = `Editar: ${e.nome}`;
+            document.getElementById('modal-form-entidade').classList.remove('hidden');
         }
 
-        function salvarEntidade(e) {
-            e.preventDefault();
+        function salvarEntidade(evt) {
+            evt.preventDefault();
             const id = document.getElementById('entidade-id').value || `ENT_${Date.now()}`;
             const nome = document.getElementById('entidade-nome').value.trim();
             const cnpj = document.getElementById('entidade-cnpj').value.trim();
-            const tipo = document.getElementById('entidade-tipo-exec').value;
+            const tipo = document.getElementById('entidade-tipo').value;
             const area = document.getElementById('entidade-area').value.trim();
-            const sec = document.getElementById('entidade-secretaria').value;
-            const enq = document.getElementById('entidade-enquadramento').value;
+            const secretariaPadrao = document.getElementById('entidade-secretaria').value;
+            const rubricaSugerida = document.getElementById('entidade-rubrica').value;
 
-            const nova = {
-                id, nome, cnpj, tipoExecucao: tipo, area, secretariaSugerida: sec, enquadramentoSugerido: enq, status: "Ativa"
-            };
+            baseCadastros.entidades = baseCadastros.entidades || [];
+            const idx = baseCadastros.entidades.findIndex(e => e.id === id);
+            const dados = { id, nome, cnpj, tipo, area, secretariaPadrao, rubricaSugerida };
 
-            const idx = (baseCadastros.entidades || []).findIndex(item => item.id === id);
             if (idx >= 0) {
-                baseCadastros.entidades[idx] = nova;
-                mostrarToast("Entidade atualizada com sucesso!");
+                baseCadastros.entidades[idx] = dados;
+                mostrarToast("Entidade atualizada!");
             } else {
-                baseCadastros.entidades.push(nova);
-                mostrarToast("Nova entidade cadastrada!");
+                baseCadastros.entidades.push(dados);
+                mostrarToast("Entidade cadastrada com sucesso!");
             }
-
             salvarBaseCadastros(baseCadastros);
             fecharModalEntidade();
             renderizarTabelaEntidades();
         }
 
-        function editarEntidade(id) {
-            const ent = (baseCadastros.entidades || []).find(e => e.id === id);
-            if (!ent) return;
-
-            document.getElementById('entidade-id').value = ent.id;
-            document.getElementById('entidade-nome').value = ent.nome;
-            document.getElementById('entidade-cnpj').value = ent.cnpj;
-            document.getElementById('entidade-tipo-exec').value = ent.tipoExecucao;
-            document.getElementById('entidade-area').value = ent.area;
-            document.getElementById('entidade-secretaria').value = ent.secretariaSugerida;
-            document.getElementById('entidade-enquadramento').value = ent.enquadramentoSugerido;
-            document.getElementById('modal-entidade-titulo').textContent = `Editar: ${ent.nome}`;
-
-            document.getElementById('modal-form-entidade').classList.remove('hidden');
-        }
-
         function excluirEntidade(id) {
-            if (confirm("Deseja realmente remover esta entidade do catálogo?")) {
-                baseCadastros.entidades = (baseCadastros.entidades || []).filter(e => e.id !== id);
+            const e = (baseCadastros.entidades || []).find(item => item.id === id);
+            if (!e) return;
+            pedirConfirmacao("Excluir Entidade", `Deseja remover ${e.nome} do catálogo?`, () => {
+                baseCadastros.entidades = baseCadastros.entidades.filter(item => item.id !== id);
                 salvarBaseCadastros(baseCadastros);
                 renderizarTabelaEntidades();
-                mostrarToast("Entidade removida do catálogo.");
-            }
+                mostrarToast("Entidade removida!");
+            });
         }
 
-        function excluirItemGenerico(aba, id) {
-            if (confirm("Remover este item?")) {
-                baseCadastros[aba] = (baseCadastros[aba] || []).filter(item => item.id !== id);
-                salvarBaseCadastros(baseCadastros);
-                if (aba === 'ppa') renderizarTabelaPPA();
-                if (aba === 'dotacoes') renderizarTabelaDotacoes();
-                mostrarToast("Item removido com sucesso.");
+        // RENDERIZAÇÃO PPA
+        function renderizarTabelaPPA() {
+            const tbody = document.getElementById('tbody-ppa');
+            const lista = baseCadastros.ppa || [];
+            if (lista.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500 font-mono text-xs">
+                    <span class="text-2xl block mb-2">📊</span>
+                    Nenhum programa ou ação do PPA cadastrado. Clique no botão "<b>+ Cadastrar Programa/Ação</b>" acima.
+                </td></tr>`;
+                return;
             }
+            tbody.innerHTML = lista.map(p => `
+                <tr class="hover:bg-[#17181a] transition">
+                    <td class="p-3 font-mono font-bold text-white">${p.programa}</td>
+                    <td class="p-3 font-mono text-blue-300 font-bold">${p.acao}</td>
+                    <td class="p-3">${p.acaoDesc}</td>
+                    <td class="p-3 text-[11px] text-slate-400 font-mono">${p.corede}</td>
+                    <td class="p-3 text-right">
+                        <button type="button" onclick="excluirPPA('${p.id}')" class="px-2 py-1 bg-red-950/40 hover:bg-red-900/60 text-red-300 rounded-lg text-[11px]">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
         }
 
-        // CADASTRO SIMPLIFICADO DE PPA E DOTAÇÃO
-        function abrirModalNovaAcaoPPA() {
-            const programa = prompt("Informe o Código e Nome do Programa (Ex: 0014 - Atenção Especializada):");
-            if (!programa) return;
-            const acao = prompt("Informe o Código e Nome da Ação (Ex: 2042 - Apoio à Rede):");
-            if (!acao) return;
-            const sec = prompt("Secretaria Executora (SMS, SMECJL, etc.):", "SMS");
+        function abrirModalNovoPPA() {
+            document.getElementById('ppa-id').value = '';
+            document.getElementById('form-ppa').reset();
+            document.getElementById('modal-form-ppa').classList.remove('hidden');
+        }
+
+        function fecharModalPPA() {
+            document.getElementById('modal-form-ppa').classList.add('hidden');
+        }
+
+        function salvarPPA(evt) {
+            evt.preventDefault();
+            const id = `PPA_${Date.now()}`;
+            const programa = document.getElementById('ppa-prog-cod').value.trim();
+            const acao = document.getElementById('ppa-acao-cod').value.trim();
+            const acaoDesc = document.getElementById('ppa-acao-desc').value.trim();
+            const corede = document.getElementById('ppa-corede').value;
 
             baseCadastros.ppa = baseCadastros.ppa || [];
-            baseCadastros.ppa.push({
-                id: `PPA_${Date.now()}`,
-                programa, acao, secretaria: sec || "SMS",
-                eixoCorede: "Eixo 02: Saúde, Inclusão Social e Qualidade de Vida Regional"
-            });
+            baseCadastros.ppa.push({ id, programa, acao, acaoDesc, corede });
             salvarBaseCadastros(baseCadastros);
+            fecharModalPPA();
             renderizarTabelaPPA();
-            mostrarToast("Ação PPA adicionada!");
+            mostrarToast("Ação do PPA adicionada!");
+        }
+
+        function excluirPPA(id) {
+            pedirConfirmacao("Excluir Ação PPA", "Remover esta ação do cadastro do PPA?", () => {
+                baseCadastros.ppa = (baseCadastros.ppa || []).filter(item => item.id !== id);
+                salvarBaseCadastros(baseCadastros);
+                renderizarTabelaPPA();
+                mostrarToast("Ação removida!");
+            });
+        }
+
+        // RENDERIZAÇÃO DOTAÇÕES
+        function renderizarTabelaDotacoes() {
+            const tbody = document.getElementById('tbody-dotacoes');
+            const lista = baseCadastros.dotacoes || [];
+            if (lista.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500 font-mono text-xs">
+                    <span class="text-2xl block mb-2">📑</span>
+                    Nenhuma dotação ou ficha cadastrada. Clique no botão "<b>+ Cadastrar Dotação / Ficha</b>" acima.
+                </td></tr>`;
+                return;
+            }
+            tbody.innerHTML = lista.map(d => `
+                <tr class="hover:bg-[#17181a] transition">
+                    <td class="p-3 font-mono font-bold text-emerald-400">${d.ficha}</td>
+                    <td class="p-3 font-mono text-blue-300 font-bold">${d.acao}</td>
+                    <td class="p-3 font-mono text-[11px]">${d.elemento}</td>
+                    <td class="p-3 text-slate-400">${d.fonte}</td>
+                    <td class="p-3 text-right">
+                        <button type="button" onclick="excluirDotacao('${d.id}')" class="px-2 py-1 bg-red-950/40 hover:bg-red-900/60 text-red-300 rounded-lg text-[11px]">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
         }
 
         function abrirModalNovaDotacao() {
-            const ficha = prompt("Número da Ficha/Dotação (Ex: 2226):");
-            if (!ficha) return;
-            const acao = prompt("Ação Vinculada (Ex: 2042):");
-            if (!acao) return;
-            const elemento = prompt("Elemento de Despesa:", "3.3.50.43 - Subvenções Sociais");
+            document.getElementById('dotacao-id').value = '';
+            document.getElementById('form-dotacao').reset();
+            document.getElementById('modal-form-dotacao').classList.remove('hidden');
+        }
+
+        function fecharModalDotacao() {
+            document.getElementById('modal-form-dotacao').classList.add('hidden');
+        }
+
+        function salvarDotacao(evt) {
+            evt.preventDefault();
+            const id = `DOT_${Date.now()}`;
+            const ficha = document.getElementById('dotacao-ficha').value.trim();
+            const acao = document.getElementById('dotacao-acao').value.trim();
+            const elemento = document.getElementById('dotacao-elemento').value.trim();
+            const fonte = document.getElementById('dotacao-fonte').value.trim();
 
             baseCadastros.dotacoes = baseCadastros.dotacoes || [];
-            baseCadastros.dotacoes.push({
-                id: `DOT_${Date.now()}`,
-                ficha, acao, elemento: elemento || "3.3.50.43", fonte: "1500 - Recursos Livres"
-            });
+            baseCadastros.dotacoes.push({ id, ficha, acao, elemento, fonte });
             salvarBaseCadastros(baseCadastros);
+            fecharModalDotacao();
             renderizarTabelaDotacoes();
             mostrarToast("Dotação cadastrada!");
         }
 
-        function restaurarPadroesEntidades() {
-            if (confirm("Deseja restaurar o catálogo de entidades padrão de Horizontina?")) {
-                baseCadastros.entidades = JSON.parse(JSON.stringify(BASE_PADRAO_HORIZONTINA.entidades));
+        function excluirDotacao(id) {
+            pedirConfirmacao("Excluir Dotação", "Remover esta dotação do catálogo?", () => {
+                baseCadastros.dotacoes = (baseCadastros.dotacoes || []).filter(item => item.id !== id);
                 salvarBaseCadastros(baseCadastros);
-                renderizarTabelaEntidades();
-                mostrarToast("Catálogo padrão restaurado!");
-            }
-        }
-
-        function restaurarTudoPadrao() {
-            if (confirm("ATENÇÃO: Deseja redefinir toda a base cadastral (entidades, PPA e dotações) para os valores padrão oficiais de Horizontina?")) {
-                salvarBaseCadastros(JSON.parse(JSON.stringify(BASE_PADRAO_HORIZONTINA)));
-                renderizarTabelaEntidades();
-                renderizarTabelaPPA();
                 renderizarTabelaDotacoes();
-                mostrarToast("Toda a base cadastral foi redefinida para o padrão oficial.");
-            }
+                mostrarToast("Dotação removida!");
+            });
         }
 
-        // BACKUP E RESTAURAÇÃO JSON
-        function exportarBackupCadastrosJSON() {
-            const blob = new Blob([JSON.stringify(baseCadastros, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `PRISMA_Base_Cadastral_Horizontina_${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            mostrarToast("Arquivo de backup baixado!");
+        // BACKUP E RESTAURAÇÃO
+        function exportarBaseJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(baseCadastros, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `PRISMA_CADASTROS_HORIZONTINA_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            mostrarToast("Arquivo JSON gerado para download!");
         }
 
-        function importarBackupCadastrosJSON(event) {
-            const file = event.target.files?.[0];
+        function importarBaseJSON(evt) {
+            const file = evt.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = (e) => {
                 try {
-                    const dados = JSON.parse(e.target.result);
-                    if (dados && dados.entidades && Array.isArray(dados.entidades)) {
-                        salvarBaseCadastros(dados);
+                    const parsed = JSON.parse(e.target.result);
+                    if (parsed.entidades && Array.isArray(parsed.entidades)) {
+                        salvarBaseCadastros(parsed);
                         renderizarTabelaEntidades();
+                        renderizarPartidosEVereadores();
                         renderizarTabelaPPA();
                         renderizarTabelaDotacoes();
-                        mostrarToast("Base cadastral importada com sucesso!");
+                        mostrarToast("Base restaurada com sucesso!");
                     } else {
-                        alert("Arquivo JSON inválido. Estrutura não reconhecida pelo PRISMA.");
+                        mostrarToast("Arquivo inválido. Formato não compatível.", "erro");
                     }
                 } catch (err) {
-                    alert("Erro ao ler o arquivo JSON: " + err.message);
+                    mostrarToast("Erro ao processar arquivo JSON.", "erro");
                 }
             };
             reader.readAsText(file);
         }
 
-        function mostrarToast(mensagem) {
-            const container = document.getElementById('toast-container');
-            if (!container) return;
-            const toast = document.createElement('div');
-            toast.className = "bg-[#1e1f20] text-white border border-[#333537] px-4 py-2.5 rounded-xl shadow-2xl text-xs flex items-center gap-2 transform transition-all duration-200";
-            toast.innerHTML = `<span>ℹ️</span><span>${mensagem}</span>`;
-            container.appendChild(toast);
-            setTimeout(() => {
-                toast.classList.add('opacity-0');
-                setTimeout(() => toast.remove(), 200);
-            }, 3000);
+        function restaurarPadraoHorizontina() {
+            pedirConfirmacao("Restaurar Padrão Oficial", "Deseja restaurar as entidades, partidos e cotas originais de Horizontina/RS?", () => {
+                salvarBaseCadastros(BASE_PADRAO_HORIZONTINA);
+                renderizarTabelaEntidades();
+                renderizarPartidosEVereadores();
+                renderizarTabelaPPA();
+                renderizarTabelaDotacoes();
+                mostrarToast("Base oficial de Horizontina restaurada!");
+            });
         }
     </script>
 </body>
