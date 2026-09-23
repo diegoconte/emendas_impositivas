@@ -975,12 +975,66 @@
             }
         }
         window.aoSelecionarAcaoPPACatalogo = aoSelecionarAcaoPPACatalogo;
+
+        // CONTROLE DE NAVEGAÇÃO POR ABAS
+        function trocarAba(abaId) {
+            const abas = ['proposicao', 'monitor', 'regras', 'loa'];
+            abas.forEach(aba => {
+                const elSec = document.getElementById(`aba-conteudo-${aba}`);
+                const elBtn = document.getElementById(`tab-btn-${aba}`);
+                if (elSec && elBtn) {
+                    if (aba === abaId) {
+                        elSec.classList.remove('hidden');
+                        elBtn.className = "px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-emerald-950/60 text-emerald-300 border border-emerald-700/60 shadow-sm";
+                    } else {
+                        elSec.classList.add('hidden');
+                        elBtn.className = "px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 text-slate-400 hover:text-white hover:bg-[#12151b]";
+                    }
+                }
+            });
+            if (abaId === 'monitor') {
+                renderizarTabelaCotasGeral();
+            }
+        }
+        window.trocarAba = trocarAba;
+
+        // POPULA O SELETOR DE GABINETES / MODO "VER COMO"
+        function popularSeletorGabinetes() {
+            const select = document.getElementById('sel-gabinete-parlamentar');
+            if (!select) return;
+            const vereadores = baseCentral.vereadores || [];
+            const partidos = baseCentral.partidos || [];
+
+            const valorAtual = select.value;
+            let html = `<option value="ADM" class="bg-[#0a0c0f] text-white">⚙️ Visão Administrador Geral (Todos)</option>`;
+
+            vereadores.forEach(v => {
+                const part = partidos.find(p => p.id === v.partidoId) || { sigla: "S/P", icone: "👤" };
+                html += `<option value="${v.id}" class="bg-[#0a0c0f] text-white">👁️ Ver como: Ver. ${v.nome} (${part.sigla} ${part.icone || ''})</option>`;
+            });
+            select.innerHTML = html;
+
+            if (valorAtual && (valorAtual === 'ADM' || vereadores.some(v => v.id === valorAtual))) {
+                select.value = valorAtual;
+            }
+        }
+        window.popularSeletorGabinetes = popularSeletorGabinetes;
+
+        // ALTERNÂNCIA DE GABINETE / MODO "VER COMO"
+        function alternarSessaoGabinete(idGabinete) {
+            const banner = document.getElementById('banner-modo-simulacao');
+            const lblNome = document.getElementById('banner-simulacao-nome');
+            const select = document.getElementById('sel-gabinete-parlamentar');
+            if (select && select.value !== idGabinete) select.value = idGabinete;
+
+            if (idGabinete === 'ADM') {
+                vereadorSimuladoAtivo = null;
                 if (banner) banner.classList.add('hidden');
             } else {
                 vereadorSimuladoAtivo = (baseCentral.vereadores || []).find(v => v.id === idGabinete) || null;
                 if (vereadorSimuladoAtivo && banner) {
                     const part = (baseCentral.partidos || []).find(p => p.id === vereadorSimuladoAtivo.partidoId) || { sigla: "S/P" };
-                    lblNome.textContent = `Ver. ${vereadorSimuladoAtivo.nome} (${part.sigla})`;
+                    if (lblNome) lblNome.textContent = `Ver. ${vereadorSimuladoAtivo.nome} (${part.sigla})`;
                     banner.classList.remove('hidden');
                 }
             }
