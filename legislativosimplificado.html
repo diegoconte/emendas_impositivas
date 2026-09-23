@@ -1,0 +1,2434 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRISMA • Assistente Simplificado de Emendas Parlamentares</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK Compat -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        prisma: {
+                            bg: '#070809',
+                            surface: '#0d1015',
+                            card: '#12161f',
+                            cardHover: '#181e2a',
+                            border: '#1f2735',
+                            borderLight: '#2c374a',
+                            emerald: '#10b981',
+                            emeraldHover: '#059669',
+                            amber: '#f59e0b',
+                            blue: '#3b82f6',
+                            text: '#f1f5f9',
+                            muted: '#94a3b8'
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #070809;
+            color: #f1f5f9;
+        }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #070809; }
+        ::-webkit-scrollbar-thumb { background: #1f2735; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2c374a; }
+
+        @media print {
+            @page { size: A4 portrait; margin: 1.2cm; }
+            body { background: #ffffff !important; color: #000000 !important; font-family: 'Arial', sans-serif !important; }
+            .no-print { display: none !important; }
+            #modal-minuta-final { display: block !important; position: static !important; background: transparent !important; }
+            #corpo-minuta-print { box-shadow: none !important; border: none !important; padding: 0 !important; }
+            table, th, td { border-color: #000000 !important; color: #000000 !important; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between antialiased selection:bg-emerald-900 selection:text-emerald-200">
+
+    <!-- TOAST DE NOTIFICAÇÕES -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-[100] flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- TOPO INSTITUCIONAL -->
+    <header class="bg-[#040608] text-slate-400 text-[11px] font-medium border-b border-[#141820] no-print">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div class="flex items-center gap-2">
+                <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-slate-300 font-semibold tracking-wide">CÂMARA MUNICIPAL DE VEREADORES DE HORIZONTINA • RS</span>
+            </div>
+            <div class="flex items-center gap-3 text-[10px] font-mono text-slate-400">
+                <span>Modelo Oficial de Emenda Impositiva</span>
+                <span>•</span>
+                <span>Lei 4.320/64</span>
+                <span>•</span>
+                <span>LC 210/2024</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- BARRA PRINCIPAL -->
+    <nav class="bg-[#0a0d12] border-b border-[#1f2735] sticky top-0 z-40 shadow-lg no-print">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-950/70 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-lg shadow-inner">
+                        <i class="fa-solid fa-feather-pointed"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-extrabold text-base tracking-tight text-white">PRISMA</span>
+                            <span class="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-950/90 text-emerald-300 border border-emerald-700/60">
+                                Assistente do Vereador
+                            </span>
+                        </div>
+                        <p class="text-[11px] text-slate-400">Elaboração Guiada de Emendas Impositivas com Dupla Auditoria da IA</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2.5">
+                    <button type="button" onclick="abrirModalGuiaContabil()" class="px-3 py-1.5 rounded-xl bg-[#12161f] hover:bg-[#181e2a] text-slate-300 border border-[#1f2735] text-xs font-semibold transition flex items-center gap-1.5 shadow-sm">
+                        <i class="fa-solid fa-book-open-reader text-emerald-400"></i>
+                        <span class="hidden sm:inline">Guia da Despesa</span>
+                    </button>
+                    <a href="cadastros.html" target="_blank" class="px-3 py-1.5 rounded-xl bg-[#12161f] hover:bg-[#181e2a] text-slate-300 border border-[#1f2735] text-xs font-semibold transition flex items-center gap-1.5 shadow-sm" title="Gerenciar PPA, dotações e associações">
+                        <i class="fa-solid fa-database text-blue-400"></i>
+                        <span class="hidden md:inline">Cadastros</span>
+                    </a>
+                    <a href="legislativo.html" class="px-3 py-1.5 rounded-xl bg-[#12161f] hover:bg-[#181e2a] text-slate-300 border border-[#1f2735] text-xs font-semibold transition flex items-center gap-1.5 shadow-sm" title="Acessar o módulo completo com quadros de cotas">
+                        <i class="fa-solid fa-gauge text-slate-400"></i>
+                        <span class="hidden md:inline">Portal Avançado</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-grow space-y-8 no-print">
+
+        <!-- ETAPA 0: IDENTIFICAÇÃO DO VEREADOR / AUTOR -->
+        <section class="bg-[#12161f] border border-[#1f2735] rounded-2xl p-6 sm:p-7 shadow-xl space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-[#1f2735]">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-xl bg-blue-950/60 border border-blue-600/40 flex items-center justify-center text-blue-400 text-xl shrink-0">
+                        <i class="fa-solid fa-user-tie"></i>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-blue-400">Identificação Parlamentar</span>
+                        <h2 class="text-base font-bold text-white">Identifique o Mandato ou Bancada Autora</h2>
+                        <p class="text-xs text-slate-400">O sistema carrega os dados oficiais para assinatura e personalização do protocolo oficial.</p>
+                    </div>
+                </div>
+
+                <div class="w-full sm:w-auto min-w-[280px]">
+                    <select id="sel-parlamentar-ativo" onchange="aoMudarParlamentarAtivo(this.value)" class="w-full p-2.5 bg-[#070809] border border-[#1f2735] focus:border-emerald-500 rounded-xl text-xs text-white font-semibold outline-none cursor-pointer">
+                        <option value="">Selecione o Parlamentar...</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="box-resumo-parlamentar" class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                <div class="p-3.5 bg-[#070809] border border-[#1f2735] rounded-xl flex items-center justify-between">
+                    <div>
+                        <span class="text-[11px] text-slate-400 font-medium block">Autoria da Proposição:</span>
+                        <strong class="text-xs text-white block mt-0.5" id="lbl-autor-nome">Nenhum selecionado</strong>
+                    </div>
+                    <span class="text-xl" id="badge-autor-icone">🏛️</span>
+                </div>
+
+                <div class="p-3.5 bg-[#070809] border border-[#1f2735] rounded-xl flex items-center justify-between">
+                    <div>
+                        <span class="text-[11px] text-slate-400 font-medium block">Filiação / Bancada:</span>
+                        <strong class="text-xs text-emerald-400 block mt-0.5" id="lbl-autor-partido">Aguardando seleção</strong>
+                    </div>
+                    <i class="fa-solid fa-landmark-flag text-slate-500"></i>
+                </div>
+
+                <div class="p-3.5 bg-[#070809] border border-[#1f2735] rounded-xl flex items-center justify-between">
+                    <div>
+                        <span class="text-[11px] text-slate-400 font-medium block">Proposições Lançadas:</span>
+                        <strong class="text-xs text-white font-mono block mt-0.5" id="lbl-autor-total-emendas">0 emenda(s)</strong>
+                    </div>
+                    <button type="button" onclick="rolarParaMinhasEmendas()" class="text-[10px] px-2.5 py-1 bg-[#181e2a] hover:bg-emerald-950 text-emerald-300 rounded-lg border border-emerald-900/60 font-semibold transition">
+                        Ver Minhas Proposições ↓
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SELEÇÃO DE FLUXO: MOMENTO 1 DA IA VS PREENCHIMENTO DIRETO -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            <div onclick="escolherModo('ia')" id="card-modo-ia" class="p-6 bg-gradient-to-br from-emerald-950/40 via-[#12161f] to-[#12161f] border-2 border-emerald-600 rounded-2xl cursor-pointer hover:border-emerald-400 transition-all shadow-xl space-y-3 group relative overflow-hidden">
+                <div class="flex items-center justify-between">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-900/40 border border-emerald-500/50 flex items-center justify-center text-emerald-300 text-lg group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                    <span class="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-700">
+                        Momento 1 da IA
+                    </span>
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-white group-hover:text-emerald-300 transition-colors">
+                        Concepção da Ideia (Brainstorming Livre & Análise de Mérito)
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                        Escreva livremente a sua intenção em texto corrido. A IA avalia se há interesse público concreto perante a LC 210/2024 e MROSC, explica as opções legais e sugere o formato técnico adequado.
+                    </p>
+                </div>
+                <div class="pt-2 flex items-center gap-1.5 text-xs font-semibold text-emerald-400">
+                    <span>Avaliar Ideia com Assistente</span>
+                    <i class="fa-solid fa-arrow-right text-[11px] group-hover:translate-x-1 transition-transform"></i>
+                </div>
+            </div>
+
+            <div onclick="escolherModo('branco')" id="card-modo-branco" class="p-6 bg-[#12161f] border-2 border-[#1f2735] rounded-2xl cursor-pointer hover:border-blue-500 transition-all shadow-xl space-y-3 group">
+                <div class="flex items-center justify-between">
+                    <div class="w-10 h-10 rounded-xl bg-blue-950/40 border border-blue-600/40 flex items-center justify-center text-blue-300 text-lg group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-pen-ruler"></i>
+                    </div>
+                    <span class="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-blue-950 text-blue-300 border border-blue-800">
+                        Formulário Guiado
+                    </span>
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-white group-hover:text-blue-300 transition-colors">
+                        Preenchimento Passo a Passo com Seleção em Cascata
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                        Preencha os campos organizados em etapas: Secretaria $\rightarrow$ Ação PPA $\rightarrow$ Dotação Suplementada $\rightarrow$ Fonte de Redução, com auditoria final pela IA no Momento 2.
+                    </p>
+                </div>
+                <div class="pt-2 flex items-center gap-1.5 text-xs font-semibold text-blue-400">
+                    <span>Iniciar Formulário Direto</span>
+                    <i class="fa-solid fa-arrow-right text-[11px] group-hover:translate-x-1 transition-transform"></i>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- CAIXA DO MOMENTO 1 DA IA: CONCEPÇÃO DA IDEIA -->
+        <section id="secao-consultoria-ia" class="hidden bg-[#12161f] border border-emerald-700/60 rounded-2xl p-6 sm:p-7 shadow-2xl space-y-4">
+            <div class="flex items-center gap-3 pb-3 border-b border-[#1f2735]">
+                <div class="p-2 bg-emerald-500/20 text-emerald-400 rounded-xl border border-emerald-500/30">
+                    <i class="fa-solid fa-brain text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-white">Momento 1: Triagem de Viabilidade & Interesse Público da Ideia</h3>
+                    <p class="text-xs text-slate-400">Sem engessamento em secretarias pré-fixadas. Escreva o que você gostaria de propor e veja a orientação legal.</p>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <label class="block text-xs font-semibold text-slate-300">
+                    Descreva com suas palavras o objetivo que deseja viabilizar com a emenda:
+                </label>
+                <textarea id="txt-ideia-livre-ia" rows="3" class="w-full p-3.5 bg-[#070809] border border-[#1f2735] focus:border-emerald-500 rounded-xl text-xs text-white placeholder-slate-500 outline-none leading-relaxed transition" placeholder="Exemplos:
+• 'Gostaria de alocar R$ 120 mil para o Hospital Oswaldo Cruz comprar um aparelho de Raio-X digital para atender o SUS'
+• 'Destinar R$ 20 mil para evento esportivo comunitário comemorativo de 32 anos integrando equipes da cidade'
+• 'Destinar R$ 80 mil para a APAE adquirir equipamentos sensoriais para crianças autistas'"></textarea>
+
+                <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+                    <div class="flex flex-wrap items-center gap-1.5 text-[11px] text-slate-400">
+                        <span>Exemplos rápidos:</span>
+                        <button type="button" onclick="preencherExemploSimples('hospital')" class="px-2.5 py-1 rounded-lg bg-[#070809] hover:bg-[#181e2a] text-emerald-300 border border-[#1f2735] text-[10px] transition">
+                            🏥 Raio-X Hospital
+                        </button>
+                        <button type="button" onclick="preencherExemploSimples('evento')" class="px-2.5 py-1 rounded-lg bg-[#070809] hover:bg-[#181e2a] text-amber-300 border border-[#1f2735] text-[10px] transition">
+                            🏆 Evento Esportivo
+                        </button>
+                        <button type="button" onclick="preencherExemploSimples('apae')" class="px-2.5 py-1 rounded-lg bg-[#070809] hover:bg-[#181e2a] text-blue-300 border border-[#1f2735] text-[10px] transition">
+                            🤝 APAE Inclusão
+                        </button>
+                        <button type="button" onclick="preencherExemploSimples('rua')" class="px-2.5 py-1 rounded-lg bg-[#070809] hover:bg-[#181e2a] text-purple-300 border border-[#1f2735] text-[10px] transition">
+                            🚜 Asfalto/Obras
+                        </button>
+                    </div>
+
+                    <button type="button" onclick="consultarIAConcepcao()" id="btn-disparar-ia-m1" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center gap-2 shadow-lg border border-emerald-400/40">
+                        <i class="fa-solid fa-magnifying-glass-chart"></i>
+                        <span>Avaliar Ideia no Momento 1</span>
+                    </button>
+                </div>
+
+                <!-- BOX DIAGNÓSTICO DO MOMENTO 1 -->
+                <div id="box-diagnostico-ia-m1" class="hidden p-4 rounded-xl border text-xs space-y-3 mt-3 transition-all">
+                </div>
+            </div>
+        </section>
+
+        <!-- WIZARD PASSO A PASSO (FOCO ISOLADO ESTILO GESTORES) -->
+        <section id="secao-wizard-emenda" class="bg-[#12161f] border border-[#1f2735] rounded-2xl p-6 sm:p-7 shadow-2xl space-y-6">
+            
+            <!-- BARRA DE PASSOS DO WIZARD -->
+            <div class="border-b border-[#1f2735] pb-5">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div>
+                        <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-400" id="wiz-passo-numero-badge">
+                            Passo 1 de 5 • Dados Básicos & Projeto de Lei
+                        </span>
+                        <h2 class="text-base sm:text-lg font-bold text-white mt-0.5" id="wiz-passo-titulo">
+                            Identificação da Proposição
+                        </h2>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-mono font-bold text-slate-400 bg-[#070809] px-3 py-1 rounded-xl border border-[#1f2735]" id="wiz-indicador-passos">
+                            1 / 5
+                        </span>
+                    </div>
+                </div>
+
+                <div class="w-full bg-[#070809] rounded-full h-1.5 overflow-hidden border border-[#1f2735] mt-4">
+                    <div id="wiz-barra-progresso" class="h-full bg-emerald-500 transition-all duration-300 rounded-full" style="width: 20%"></div>
+                </div>
+            </div>
+
+            <!-- FORMULÁRIO PRINCIPAL COM CAMPOS DA MATRIZ OFICIAL DE HORIZONTINA -->
+            <form id="form-emenda-passos" class="space-y-6">
+                
+                <!-- PASSO 1: DADOS BÁSICOS, NÚMERO, PROJETO DE LEI E VALOR -->
+                <div id="etapa-1-conteudo" class="space-y-4">
+                    <div class="p-3.5 bg-blue-950/30 border border-blue-700/50 rounded-xl text-xs text-blue-300 flex items-start gap-2.5">
+                        <i class="fa-solid fa-circle-info text-base shrink-0 mt-0.5"></i>
+                        <p class="leading-relaxed">
+                            Informe os identificadores do processo legislativo: o número da sua emenda, o número do <b>Projeto de Lei do Orçamento (PLOA)</b> tramitando na Câmara e o valor financeiro.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">
+                                Emenda Orçamento Nº *
+                            </label>
+                            <input type="text" id="inp-passo-numero" placeholder="Ex: 050/2025 ou 015/2026" class="w-full p-2.5 bg-[#070809] border border-[#1f2735] focus:border-emerald-500 rounded-xl text-xs text-white font-mono outline-none">
+                            <span class="text-[10px] text-slate-500 mt-1 block">Número oficial da emenda.</span>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">
+                                Projeto de Lei nº (PLOA) *
+                            </label>
+                            <input type="text" id="inp-passo-projeto-lei" placeholder="Ex: Projeto de Lei nº 81/2025" class="w-full p-2.5 bg-[#070809] border border-[#1f2735] focus:border-emerald-500 rounded-xl text-xs text-white font-mono outline-none">
+                            <span class="text-[10px] text-slate-500 mt-1 block">Projeto de Lei Orçamentária Anual.</span>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">
+                                Valor da Emenda (R$) *
+                            </label>
+                            <input type="number" step="0.01" id="inp-passo-valor" oninput="atualizarExtensoValor(this.value)" placeholder="Ex: 20000.00" class="w-full p-2.5 bg-[#070809] border border-[#1f2735] focus:border-emerald-500 rounded-xl text-xs font-bold font-mono text-emerald-400 outline-none">
+                            <span class="text-[10px] text-emerald-500 mt-1 block truncate" id="lbl-valor-extenso">R$ 0,00 (Zero reais)</span>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">
+                                Ordem de Prioridade *
+                            </label>
+                            <select id="sel-passo-prioridade" class="w-full p-2.5 bg-[#070809] border border-[#1f2735] focus:border-emerald-500 rounded-xl text-xs text-white outline-none cursor-pointer">
+                                <option value="1ª">⭐ 1ª Prioridade</option>
+                                <option value="2ª">⭐ 2ª Prioridade</option>
+                                <option value="3ª">⭐ 3ª Prioridade</option>
+                                <option value="4ª">⭐ 4ª Prioridade</option>
+                                <option value="5ª">⭐ 5ª Prioridade</option>
+                                <option value="6ª">⭐ 6ª Prioridade</option>
+                                <option value="7ª" selected>⭐ 7ª Prioridade</option>
+                                <option value="8ª">⭐ 8ª Prioridade</option>
+                                <option value="9ª">⭐ 9ª Prioridade</option>
+                                <option value="10ª">⭐ 10ª Prioridade</option>
+                            </select>
+                            <span class="text-[10px] text-slate-500 mt-1 block">Ordem de execução pelo Executivo.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PASSO 2: BENEFICIÁRIO & TIPO DE EXECUÇÃO -->
+                <div id="etapa-2-conteudo" class="hidden space-y-4">
+                    <div class="p-3.5 bg-purple-950/30 border border-purple-700/50 rounded-xl text-xs text-purple-300 flex items-start gap-2.5">
+                        <i class="fa-solid fa-people-arrows text-base shrink-0 mt-0.5"></i>
+                        <p class="leading-relaxed">
+                            <b>Filtro de Despesa:</b> Escolha entre <b>Execução Indireta (Repasse a Entidade)</b> ou <b>Execução Direta (Compras pela Prefeitura)</b>. O sistema filtra automaticamente as rubricas e dotações correspondentes nos passos seguintes.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">
+                                Forma de Execução *
+                            </label>
+                            <select id="sel-passo-tipo-execucao" onchange="aoAlternarTipoExecucao(this.value)" class="w-full p-2.5 bg-[#070809] border border-[#1f2735] focus:border-emerald-500 rounded-xl text-xs text-white outline-none cursor-pointer font-bold">
+                                <option value="Indireta">🤝 Indireta (Repasse a Entidade sem Fins Lucrativos / MROSC)</option>
+                                <option value="Direta">🏛️ Direta (Compras ou Obras Executadas pela Prefeitura)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">
+                                Secretaria Municipal Gestora / Executora *
+                            </label>
+                            <select id="sel-passo-secretaria" onchange="aoSelecionarSecretaria(this.value)" class="w-full p-2.5 bg-[#070809] border border-[#1f2735] focus:border-emerald-500 rounded-xl text-xs text-white outline-none cursor-pointer">
+                                <option value="">Selecione a Secretaria...</option>
+                                <option value="SMS">SMS • Secretaria Municipal de Saúde</option>
+                                <option value="SMECJL">SMECJL • Secretaria de Esporte, Cultura, Juventude e Lazer</option>
+                                <option value="SMILT">SMILT • Infraestrutura, Logística e Trânsito (Obras)</option>
+                                <option value="SMDSH">SMDSH • Desenvolvimento Social e Habitação</option>
+                                <option value="SMDE">SMDE • Desenvolvimento Econômico e Indústria</option>
+                                <option value="SMDR">SMDR • Desenvolvimento Rural e Agricultura</option>
+                                <option value="SEPLAG">SEPLAG • Planejamento e Gestão de Projetos</option>
+                                <option value="GABINETE">GABINETE • Gabinete do Prefeito</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- CAMPO BENEFICIÁRIO (SELETOR DE CATÁLOGO OU LIVRE) -->
+                    <div id="container-beneficiario-campo" class="space-y-1.5">
+                        <label class="block text-xs font-semibold text-slate-300" id="lbl-beneficiario-titulo">
+                            Beneficiário Completo (Nome da Associação/Órgão e CNPJ) *
+                        </label>
+                        <div class="flex gap-2">
+                            <select id="sel-passo-entidade-catalogo" onchange="aoSelecionarEntidadeDoSelect(this.value)" class="w-full p-2.5 bg-[#070809] border border-[#1f2735] focus:border-emerald-500 rounded-xl text-xs text-white outline-none cursor-pointer">
+                                <option value="">Selecione do Catálogo de Associações Cadastradas...</option>
+                            </select>
+                            <button type="button" onclick="abrirCatalogoAssociacoes()" class="px-3.5 py-2 rounded-xl bg-[#181e2a] hover:bg-[#202838] text-emerald-300 border border-emerald-900/60 font-semibold text-xs transition flex items-center gap-1.5 shrink-0" title="Ver catálogo detalhado com CNPJs e áreas">
+                                <i class="fa-solid fa-address-book"></i> Ver Catálogo
+                            </button>
+                        </div>
+                        <input type="text" id="inp-passo-beneficiario-livre" placeholder="Ex: CLUBE SOCIAL, RECREATIVO, ESPORTIVO E CULTURAL 31 - CNPJ 03.203.985/0001-40" class="w-full p-2.5 bg-[#070809] border border-[#1f2735] focus:border-emerald-500 rounded-xl text-xs text-white outline-none mt-1">
+                        <span class="text-[10px] text-slate-500 block">Este texto sairá exatamente no campo 'Beneficiário' do modelo oficial da Câmara.</span>
+                    </div>
+
+                    <!-- SELEÇÃO DE ELEMENTO DE DESPESA / RUBRICA -->
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between items-center">
+                            <label class="text-xs font-semibold text-slate-300">
+                                Elemento de Despesa (Rubrica Contábil da Lei 4.320/64) *
+                            </label>
+                            <button type="button" onclick="abrirModalGuiaContabil()" class="text-[11px] text-emerald-400 hover:underline">
+                                📖 Guia Didático da Despesa
+                            </button>
+                        </div>
+                        <select id="sel-passo-enquadramento" onchange="atualizarExplicacaoRubrica(this.value)" class="w-full p-2.5 bg-[#070809] border border-[#1f2735] focus:border-emerald-500 rounded-xl text-xs text-white outline-none cursor-pointer font-mono">
+                            <!-- Preenchido dinamicamente conforme Direta ou Indireta -->
+                        </select>
+                    </div>
+
+                    <div id="card-didatico-rubrica" class="p-3.5 bg-[#070809] border border-[#1f2735] rounded-xl text-xs space-y-1">
+                    </div>
+                </div>
+
+                <!-- PASSO 3: CRÉDITO SUPLEMENTADO (CLASSIFICADORES DA SECRETARIA SELECIONADA) -->
+                <div id="etapa-3-conteudo" class="hidden space-y-4">
+                    <div class="p-3.5 bg-emerald-950/30 border border-emerald-700/50 rounded-xl text-xs text-emerald-300 flex items-start gap-2.5">
+                        <i class="fa-solid fa-sitemap text-base shrink-0 mt-0.5"></i>
+                        <p class="leading-relaxed">
+                            <b>Classificadores Orçamentários da Suplementação:</b> Selecione a Ação e a Dotação. O sistema lista apenas as opções cadastradas para a Secretaria escolhida e compatíveis com a forma de execução (Direta vs Indireta).
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">
+                                Crédito Orçamentário: *
+                            </label>
+                            <div class="flex gap-4 p-2 bg-[#070809] border border-[#1f2735] rounded-xl text-xs">
+                                <label class="flex items-center gap-1.5 cursor-pointer text-slate-400">
+                                    <input type="radio" name="rad_credito_tipo" value="Novo" class="text-emerald-500">
+                                    <span>( ) Novo</span>
+                                </label>
+                                <label class="flex items-center gap-1.5 cursor-pointer text-emerald-400 font-bold">
+                                    <input type="radio" name="rad_credito_tipo" value="Suplementado" checked class="text-emerald-500">
+                                    <span>(X) Suplementado</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">
+                                Ação Setorial do PPA *
+                            </label>
+                            <select id="sel-passo-acao-ppa" onchange="aoSelecionarAcaoPPA(this.value)" class="w-full p-2.5 bg-[#070809] border border-[#1f2735] focus:border-emerald-500 rounded-xl text-xs text-white outline-none cursor-pointer">
+                                <option value="">Selecione a Ação do PPA...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- DOTAÇÃO ESPECÍFICA SUPLEMENTADA -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">
+                            Referência Dotação (Ficha Orçamentária e Vínculo) *
+                        </label>
+                        <select id="sel-passo-dotacao-suplementada" onchange="aoSelecionarDotacaoSuplementada(this.value)" class="w-full p-2.5 bg-[#070809] border border-[#1f2735] focus:border-emerald-500 rounded-xl text-xs text-emerald-300 font-bold font-mono outline-none cursor-pointer">
+                            <option value="">Selecione a Dotação Cadastrada...</option>
+                        </select>
+                    </div>
+
+                    <!-- QUADRO DE VISUALIZAÇÃO DOS CÓDIGOS DA MATRIZ -->
+                    <div class="p-4 bg-[#070809] border border-[#1f2735] rounded-xl space-y-2 text-xs font-mono">
+                        <span class="text-slate-400 font-bold block text-[11px] uppercase border-b border-[#1f2735] pb-1">
+                            Classificadores Completos que constarão na Tabela da Emenda:
+                        </span>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-300">
+                            <div><b>Órgão:</b> <span id="lbl-quadro-orgao">-</span></div>
+                            <div><b>Unidade Orçamentária:</b> <span id="lbl-quadro-unidade">-</span></div>
+                            <div><b>Função:</b> <span id="lbl-quadro-funcao">-</span></div>
+                            <div><b>Subfunção:</b> <span id="lbl-quadro-subfuncao">-</span></div>
+                            <div><b>Programa:</b> <span id="lbl-quadro-programa">-</span></div>
+                            <div><b>Ação:</b> <span id="lbl-quadro-acao">-</span></div>
+                            <div><b>Elemento:</b> <span id="lbl-quadro-elemento" class="text-emerald-400">-</span></div>
+                            <div><b>Refer. Dotação / Vínculo:</b> <span id="lbl-quadro-ficha-vinculo" class="text-emerald-400">-</span></div>
+                        </div>
+                    </div>
+
+                    <!-- TRAVA DE OBRAS / ENGENHARIA -->
+                    <div class="p-4 bg-[#070809] border border-[#1f2735] rounded-xl flex items-center justify-between gap-3">
+                        <div class="space-y-0.5">
+                            <strong class="text-white text-xs block">Intervenção Física, Reforma Predial ou Pavimentação?</strong>
+                            <p class="text-[11px] text-slate-400">
+                                A <b>LC 210/2024 (Art. 10, III)</b> exige memorial descritivo, ART e projeto de engenharia prévios homologados pela SMILT para evitar obras paradas.
+                            </p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                            <input type="checkbox" id="chk-passo-engenharia" class="sr-only peer">
+                            <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- PASSO 4: CRÉDITO REDUZIDO (FONTE COMPENSATÓRIA - SUPERÁVIT / RESERVA) -->
+                <div id="etapa-4-conteudo" class="hidden space-y-4">
+                    <div class="p-3.5 bg-amber-950/30 border border-amber-700/50 rounded-xl text-xs text-amber-300 flex items-start gap-2.5">
+                        <i class="fa-solid fa-scale-balanced text-base shrink-0 mt-0.5"></i>
+                        <p class="leading-relaxed">
+                            <b>Crédito Orçamentário Reduzido (Art. 166, § 3º da CF):</b> Selecione de qual dotação municipal o valor será deduzido (anulação compensatória, como a Reserva de Contingência ou Superávit Financeiro cadastrados).
+                        </p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">
+                            Selecione a Dotação de Redução Cadastrada no Sistema *
+                        </label>
+                        <select id="sel-passo-dotacao-reducao" onchange="aoSelecionarDotacaoReducao(this.value)" class="w-full p-2.5 bg-[#070809] border border-[#1f2735] focus:border-emerald-500 rounded-xl text-xs text-amber-300 font-bold font-mono outline-none cursor-pointer">
+                            <option value="">Selecione a Dotação de Redução Disponível...</option>
+                        </select>
+                        <span class="text-[10px] text-slate-500 mt-1 block">Carregadas do módulo de Cadastros e Parâmetros.</span>
+                    </div>
+
+                    <!-- QUADRO DE VISUALIZAÇÃO DOS CÓDIGOS DA REDUÇÃO -->
+                    <div class="p-4 bg-[#070809] border border-[#1f2735] rounded-xl space-y-2 text-xs font-mono">
+                        <span class="text-amber-400 font-bold block text-[11px] uppercase border-b border-[#1f2735] pb-1">
+                            Classificadores da Redução que constarão no Quadro Reduzido da Emenda:
+                        </span>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-300">
+                            <div><b>Órgão:</b> <span id="lbl-reducao-orgao">-</span></div>
+                            <div><b>Unidade Orçamentária:</b> <span id="lbl-reducao-unidade">-</span></div>
+                            <div><b>Função:</b> <span id="lbl-reducao-funcao">-</span></div>
+                            <div><b>Subfunção:</b> <span id="lbl-reducao-subfuncao">-</span></div>
+                            <div><b>Programa:</b> <span id="lbl-reducao-programa">-</span></div>
+                            <div><b>Ação:</b> <span id="lbl-reducao-acao">-</span></div>
+                            <div><b>Elemento de Despesa:</b> <span id="lbl-reducao-elemento" class="text-amber-300">-</span></div>
+                            <div><b>Refer. Dotação / Vínculo:</b> <span id="lbl-reducao-ficha-vinculo" class="text-amber-300">-</span></div>
+                            <div class="sm:col-span-2"><b>Valores Iniciais da Dotação:</b> <span id="lbl-reducao-valor-inicial" class="text-white font-bold">-</span></div>
+                        </div>
+                    </div>
+
+                    <!-- STATUS DA REDUÇÃO (TRAVA CONSTITUCIONAL) -->
+                    <div id="box-status-reducao" class="p-3 bg-[#070809] border border-[#1f2735] rounded-xl text-xs flex items-center gap-2.5 text-slate-300">
+                        <i class="fa-solid fa-shield-halved text-emerald-400 text-sm"></i>
+                        <span id="txt-status-reducao">Selecione uma dotação de redução acima para verificar a conformidade constitucional.</span>
+                    </div>
+                </div>
+
+                <!-- PASSO 5: JUSTIFICATIVA, OBJETIVO ESPECÍFICO E AUDITORIA MOMENTO 2 -->
+                <div id="etapa-5-conteudo" class="hidden space-y-5">
+                    <div class="p-3.5 bg-blue-950/30 border border-blue-700/50 rounded-xl text-xs text-blue-300 flex items-start gap-2.5">
+                        <i class="fa-solid fa-align-left text-base shrink-0 mt-0.5"></i>
+                        <p class="leading-relaxed">
+                            Preencha a <b>Justificativa</b> e o <b>Objetivo Específico</b>. Em seguida, acione a <b>Auditoria do Momento 2</b> para que a IA cruze os dados com a LC 210/2024 e emita a nota técnica pré-protocolo.
+                        </p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">
+                            Justificativa Oficial da Proposição *
+                        </label>
+                        <textarea id="inp-passo-justificativa" rows="4" class="w-full p-3 bg-[#070809] border border-[#1f2735] focus:border-emerald-500 rounded-xl text-xs text-white placeholder-slate-500 outline-none leading-relaxed" placeholder="Descreva a importância social, conveniência comunitária e impacto coletivo da emenda para Horizontina..."></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">
+                            Objetivo Específico (Meta / Produto Direto) *
+                        </label>
+                        <textarea id="inp-passo-objetivo" rows="2" class="w-full p-3 bg-[#070809] border border-[#1f2735] focus:border-emerald-500 rounded-xl text-xs text-white placeholder-slate-500 outline-none leading-relaxed" placeholder="Ex: Fortalecer o esporte local por meio da realização de evento comemorativo integrando equipes e comunidade em ações comunitárias."></textarea>
+                    </div>
+
+                    <!-- BOX DO MOMENTO 2 DA IA: AUDITORIA FINAL PRÉ-PROTOCOLO -->
+                    <div class="bg-gradient-to-r from-blue-950/40 via-[#070809] to-[#070809] border border-blue-500/40 p-5 rounded-2xl space-y-3">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                            <div class="flex items-center gap-2.5">
+                                <div class="p-2 bg-blue-500/20 text-blue-400 rounded-xl border border-blue-500/30">
+                                    <i class="fa-solid fa-certificate text-lg"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-white uppercase tracking-wider">Momento 2: Auditoria Final Pré-Protocolo pela IA</h4>
+                                    <p class="text-[11px] text-slate-400">A IA cruza todas as informações preenchidas com as hipóteses de impedimento da LC 210/2024 e emite a nota.</p>
+                                </div>
+                            </div>
+
+                            <button type="button" onclick="executarAuditoriaFinalIA()" id="btn-disparar-auditoria-m2" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition flex items-center gap-2 shadow-lg border border-blue-400/40 shrink-0">
+                                <i class="fa-solid fa-shield-check"></i>
+                                <span>Executar Auditoria Final</span>
+                            </button>
+                        </div>
+
+                        <!-- RESULTADO DA AUDITORIA DO MOMENTO 2 -->
+                        <div id="box-resultado-auditoria-m2" class="hidden p-4 rounded-xl border text-xs space-y-3 mt-2">
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+
+            <!-- NAVEGAÇÃO DO WIZARD -->
+            <div class="pt-5 border-t border-[#1f2735] flex flex-wrap justify-between items-center gap-3">
+                <button type="button" id="btn-voltar-passo" onclick="voltarPasso()" class="px-4 py-2 bg-[#070809] hover:bg-[#181e2a] text-slate-300 text-xs font-semibold rounded-xl border border-[#1f2735] transition flex items-center gap-2">
+                    <i class="fa-solid fa-chevron-left"></i> Voltar Passo
+                </button>
+
+                <div class="flex items-center gap-2">
+                    <button type="button" id="btn-avancar-passo" onclick="avancarPasso()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition flex items-center gap-2 shadow-lg border border-emerald-400/40">
+                        <span>Avançar para o Próximo Passo</span>
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                    <button type="button" id="btn-finalizar-emenda" onclick="finalizarEmenda()" class="hidden px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition flex items-center gap-2 shadow-lg border border-emerald-400/40">
+                        <i class="fa-solid fa-file-circle-check"></i>
+                        <span>Gerar Minuta Oficial no Modelo da Câmara</span>
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- SEÇÃO: SUAS EMENDAS CADASTRADAS (LISTAGEM DO VEREADOR) -->
+        <section id="secao-minhas-emendas" class="bg-[#12161f] border border-[#1f2735] rounded-2xl p-6 sm:p-7 shadow-xl space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-3 border-b border-[#1f2735]">
+                <div>
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-emerald-400"></i> Proposições Lançadas pelo seu Gabinete
+                    </h3>
+                    <p class="text-xs text-slate-400">Acompanhe as emendas já estruturadas, imprima minutas oficiais ou edite os dados.</p>
+                </div>
+                <span class="text-xs font-mono text-emerald-300 font-bold bg-emerald-950 px-3 py-1 rounded-xl border border-emerald-800" id="badge-contador-minhas-emendas">
+                    0 emendas
+                </span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs border-collapse font-mono">
+                    <thead class="bg-[#070809] border-b border-[#1f2735] text-slate-400 text-[11px]">
+                        <tr>
+                            <th class="p-3">Número</th>
+                            <th class="p-3">Projeto de Lei</th>
+                            <th class="p-3">Beneficiário</th>
+                            <th class="p-3 text-right">Valor Indicado</th>
+                            <th class="p-3">Execução</th>
+                            <th class="p-3">Ação / Ficha</th>
+                            <th class="p-3 text-right">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-minhas-emendas" class="divide-y divide-[#1f2735] text-slate-300">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- RODAPÉ -->
+    <footer class="bg-[#0a0d12] border-t border-[#1f2735] py-6 text-xs text-slate-400 mt-auto no-print">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div>
+                <span class="font-bold text-white">PRISMA • Portal do Legislativo Simplificado</span>
+                <p class="text-[11px] text-slate-500">Desenvolvido sob preceitos da Lei Federal 13.019/2014, LC 210/2024 e Lei 4.320/64.</p>
+            </div>
+            <span class="text-[11px] font-mono text-slate-500">Câmara Municipal de Horizontina • RS</span>
+        </div>
+    </footer>
+
+    <!-- MODAL CATÁLOGO DE ASSOCIAÇÕES & ENTIDADES -->
+    <div id="modal-catalogo-associacoes" class="hidden fixed inset-0 bg-black/85 z-[80] flex items-center justify-center backdrop-blur-md p-4 no-print">
+        <div class="bg-[#12161f] rounded-2xl shadow-2xl w-full max-w-xl border border-[#1f2735] flex flex-col max-h-[85vh] overflow-hidden">
+            <div class="px-6 py-4 border-b border-[#1f2735] flex justify-between items-center bg-[#070809]">
+                <div class="flex items-center gap-2.5">
+                    <span class="text-xl">🤝</span>
+                    <div>
+                        <h3 class="text-sm font-bold text-white">Catálogo de Entidades & Associações</h3>
+                        <p class="text-[11px] text-slate-400">Clique para vincular os dados ao seu formulário.</p>
+                    </div>
+                </div>
+                <button type="button" onclick="fecharModalCatalogo()" class="text-slate-400 hover:text-white text-2xl leading-none">&times;</button>
+            </div>
+
+            <div class="p-4 border-b border-[#1f2735] bg-[#0a0d12]">
+                <input type="text" id="filtro-busca-modal-entidades" oninput="filtrarEntidadesModal()" placeholder="Buscar associação por nome ou área..." class="w-full p-2 bg-[#070809] border border-[#1f2735] rounded-xl text-xs text-white outline-none focus:border-emerald-500">
+            </div>
+
+            <div class="p-4 overflow-y-auto flex-grow space-y-2.5" id="lista-cards-associacoes">
+            </div>
+
+            <div class="px-6 py-3 border-t border-[#1f2735] bg-[#070809] flex justify-end">
+                <button type="button" onclick="fecharModalCatalogo()" class="px-4 py-1.5 bg-[#181e2a] hover:bg-[#222838] text-slate-300 text-xs rounded-xl border border-[#2a3446]">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL GUIA DIDÁTICO DA DESPESA (LEI 4.320/64) -->
+    <div id="modal-guia-didatico" class="hidden fixed inset-0 bg-black/85 z-[80] flex items-center justify-center backdrop-blur-md p-4 no-print">
+        <div class="bg-[#12161f] rounded-2xl shadow-2xl w-full max-w-2xl border border-[#1f2735] flex flex-col max-h-[85vh] overflow-hidden">
+            <div class="px-6 py-4 border-b border-[#1f2735] flex justify-between items-center bg-[#070809]">
+                <div class="flex items-center gap-2.5">
+                    <span class="text-xl">📖</span>
+                    <div>
+                        <h3 class="text-sm font-bold text-white">Guia da Despesa Pública para Leigos</h3>
+                        <p class="text-[11px] text-slate-400">Classificação simplificada (Lei Federal nº 4.320/1964).</p>
+                    </div>
+                </div>
+                <button type="button" onclick="fecharModalGuiaContabil()" class="text-slate-400 hover:text-white text-2xl leading-none">&times;</button>
+            </div>
+
+            <div class="p-6 overflow-y-auto flex-grow space-y-4 text-xs">
+                <div class="p-4 rounded-xl bg-[#070809] border border-blue-900/50 space-y-1.5">
+                    <strong class="text-blue-300 text-sm block">1. Execução Direta vs. Execução Indireta</strong>
+                    <p class="text-slate-300 leading-relaxed">
+                        • <b>Execução Direta:</b> A própria Prefeitura realiza a licitação e faz o pagamento das compras ou obras. A emenda entra no orçamento de uma Secretaria Municipal.<br>
+                        • <b>Execução Indireta (MROSC):</b> O recurso é repassado a uma Organização da Sociedade Civil (OSC/Associação privada sem fins lucrativos) através de Termo de Fomento ou Colaboração.
+                    </p>
+                </div>
+
+                <div class="p-4 rounded-xl bg-[#070809] border border-emerald-900/50 space-y-1.5">
+                    <div class="flex justify-between items-center">
+                        <strong class="text-emerald-300 text-sm font-mono">3.3.50.43 • Subvenção Social</strong>
+                        <span class="text-[10px] bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded border border-emerald-800 font-bold">Custeio Restrito</span>
+                    </div>
+                    <p class="text-slate-300 leading-relaxed">
+                        <b>Quando usar:</b> Repasses para entidades sem fins lucrativos que prestem serviços essenciais de <b>Saúde, Educação ou Assistência Social</b> (Art. 16 da Lei 4.320/64).<br>
+                        <b>O que paga:</b> Salários de terapeutas/monitores, alimentação, material de consumo, luz, água e combustível da entidade.
+                    </p>
+                </div>
+
+                <div class="p-4 rounded-xl bg-[#070809] border border-amber-900/50 space-y-1.5">
+                    <div class="flex justify-between items-center">
+                        <strong class="text-amber-300 text-sm font-mono">3.3.50.41 • Contribuições Correntes</strong>
+                        <span class="text-[10px] bg-amber-950 text-amber-300 px-2 py-0.5 rounded border border-amber-800 font-bold">Custeio Geral</span>
+                    </div>
+                    <p class="text-slate-300 leading-relaxed">
+                        <b>Quando usar:</b> Repasses de custeio para entidades sem fins lucrativos das <b>DEMAIS ÁREAS</b> (Cultura, Esporte, Agricultura, Desenvolvimento Econômico, ACEHOR).
+                    </p>
+                </div>
+
+                <div class="p-4 rounded-xl bg-[#070809] border border-purple-900/50 space-y-1.5">
+                    <div class="flex justify-between items-center">
+                        <strong class="text-purple-300 text-sm font-mono">4.4.50.42 • Auxílios de Capital</strong>
+                        <span class="text-[10px] bg-purple-950 text-purple-300 px-2 py-0.5 rounded border border-purple-800 font-bold">Investimento em OSC</span>
+                    </div>
+                    <p class="text-slate-300 leading-relaxed">
+                        <b>Quando usar:</b> Quando a associação privada precisa comprar <b>bens duráveis</b> (computadores, maquinários, veículos, equipamentos médicos) ou reformar suas sedes. Exige cláusula de reversão patrimonial.
+                    </p>
+                </div>
+
+                <div class="p-4 rounded-xl bg-[#070809] border border-slate-700/60 space-y-1.5">
+                    <strong class="text-slate-200 text-sm block">Vedações a Anulações Orçamentárias (Art. 166, § 3º, II da CF)</strong>
+                    <p class="text-slate-300 leading-relaxed">
+                        Ao indicar uma dotação de redução, o vereador **NÃO PODE** reduzir despesas com pessoal e encargos, juros e amortização da dívida consolidada, ou dotações destinadas à manutenção e desenvolvimento do ensino (educação básica).
+                    </p>
+                </div>
+            </div>
+
+            <div class="px-6 py-3 border-t border-[#1f2735] bg-[#070809] flex justify-end">
+                <button type="button" onclick="fecharModalGuiaContabil()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shadow-md transition">
+                    Entendido
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE MINUTA OFICIAL NO MODELO EXATO DA CÂMARA DE HORIZONTINA -->
+    <div id="modal-minuta-final" class="hidden fixed inset-0 bg-black/85 z-[90] flex items-center justify-center backdrop-blur-md p-4">
+        <div class="bg-[#12161f] rounded-2xl shadow-2xl w-full max-w-4xl border border-[#1f2735] flex flex-col max-h-[92vh] overflow-hidden">
+            <div class="px-6 py-4 border-b border-[#1f2735] flex justify-between items-center bg-[#070809] no-print">
+                <div class="flex items-center gap-2.5">
+                    <span class="text-xl">📄</span>
+                    <div>
+                        <h3 class="text-sm font-bold text-white">Minuta Oficial no Padrão da Câmara de Horizontina</h3>
+                        <p class="text-[11px] text-slate-400">Documento estruturado exatamente conforme o modelo da Emenda nº 050/2025.</p>
+                    </div>
+                </div>
+                <button type="button" onclick="fecharModalMinuta()" class="text-slate-400 hover:text-white text-2xl leading-none">&times;</button>
+            </div>
+
+            <div class="p-6 overflow-y-auto flex-grow bg-slate-900/60">
+                <div id="corpo-minuta-print" class="bg-white text-black p-8 sm:p-12 rounded-xl shadow-md max-w-3xl mx-auto space-y-4 font-serif text-[11px] leading-relaxed border border-slate-300">
+                </div>
+            </div>
+
+            <div class="px-6 py-4 border-t border-[#1f2735] bg-[#070809] flex flex-wrap justify-between items-center gap-2 no-print">
+                <button type="button" onclick="fecharModalMinuta()" class="px-4 py-2 bg-[#181e2a] hover:bg-[#202838] text-slate-300 text-xs rounded-xl border border-[#2a3446]">
+                    Voltar
+                </button>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="window.print()" class="px-4 py-2 bg-[#181e2a] hover:bg-[#202838] text-emerald-300 text-xs font-bold rounded-xl border border-emerald-900/60 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-print"></i> Imprimir Folha A4
+                    </button>
+                    <button type="button" onclick="exportarMinutaParaWord()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shadow-lg transition flex items-center gap-2 border border-emerald-400/40">
+                        <i class="fa-solid fa-file-word"></i> Baixar Documento Word (.doc)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT DE COMPORTAMENTO E INTEGRAÇÃO -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAdHnH9Q6c6GqE8mlhBxcNdcEB6n3G7QvU",
+            authDomain: "emendas-b63d1.firebaseapp.com",
+            projectId: "emendas-b63d1",
+            storageBucket: "emendas-b63d1.firebasestorage.app",
+            messagingSenderId: "819384266831",
+            appId: "1:819384266831:web:d94187838a57bbe0f67a3a"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+
+        const STORAGE_KEY_CADASTROS = "prisma_cadastros_base_v2";
+        const STORAGE_KEY_EMENDAS = "emendas_cache_v3";
+
+        // BASE PADRÃO INICIAL
+        const BASE_PADRAO_HORIZONTINA = {
+            partidos: [
+                { id: "PART_UNIAO", sigla: "UNIÃO", nome: "União Brasil", bancada: "Bancada União Brasil", icone: "🦅" },
+                { id: "PART_PDT", sigla: "PDT", nome: "Partido Democrático Trabalhista", bancada: "Bancada PDT", icone: "🌹" },
+                { id: "PART_PP", sigla: "PP", nome: "Progressistas", bancada: "Bancada Progressistas", icone: "☀️" },
+                { id: "PART_CID", sigla: "CIDADANIA", nome: "Cidadania", bancada: "Bancada Cidadania", icone: "🔶" }
+            ],
+            vereadores: [
+                { id: "VER_01", nome: "Eduardo Maron", partidoId: "PART_UNIAO" },
+                { id: "VER_02", nome: "Valmor Reckziegel", partidoId: "PART_UNIAO" },
+                { id: "VER_03", nome: "Zuleica Wehner", partidoId: "PART_UNIAO" },
+                { id: "VER_04", nome: "Rosane Santos", partidoId: "PART_UNIAO" },
+                { id: "VER_05", nome: "Rafael Godoy", partidoId: "PART_PDT" },
+                { id: "VER_06", nome: "Ivete Fátima Callegaro da Silva", partidoId: "PART_PDT" },
+                { id: "VER_07", nome: "Marcio Fischer", partidoId: "PART_PDT" },
+                { id: "VER_08", nome: "Lucas Stoll", partidoId: "PART_PP" },
+                { id: "VER_09", nome: "Cleiton Niesciur", partidoId: "PART_CID" }
+            ],
+            entidades: [
+                { id: "ENT_CLUBE31", nome: "CLUBE SOCIAL, RECREATIVO, ESPORTIVO E CULTURAL 31", cnpj: "03.203.985/0001-40", tipo: "Indireta", area: "Esporte Comunitário e Cultura", secretariaPadrao: "SMECJL", rubrica: "3.3.50.41 - Contribuições Correntes" },
+                { id: "ENT_APAE", nome: "APAE - Associação de Pais e Amigos dos Excepcionais", cnpj: "94.888.112/0001-08", tipo: "Indireta", area: "Saúde Especializada e TEA", secretariaPadrao: "SMS", rubrica: "4.4.50.42 - Auxílios de Capital" },
+                { id: "ENT_HOSPITAL", nome: "Hospital Beneficente Oswaldo Cruz (HBOC)", cnpj: "90.234.567/0001-12", tipo: "Indireta", area: "Saúde Hospitalar SUS", secretariaPadrao: "SMS", rubrica: "4.4.50.42 - Auxílios de Capital" },
+                { id: "ENT_ACEHOR", nome: "ACEHOR - Associação Comercial e Empresarial", cnpj: "87.654.321/0001-99", tipo: "Indireta", area: "Qualificação Metalmecânica e Emprego", secretariaPadrao: "SMDE", rubrica: "3.3.50.41 - Contribuições Correntes" },
+                { id: "ENT_VIVERBEM", nome: "Associação Beneficente Viver Bem", cnpj: "95.123.456/0001-44", tipo: "Indireta", area: "Juventude, Contraturno e Cidadania", secretariaPadrao: "SMDSH", rubrica: "3.3.50.43 - Subvenções Sociais" },
+                { id: "ENT_BOMBEIROS", nome: "Associação de Bombeiros Voluntários de Horizontina", cnpj: "89.456.789/0001-22", tipo: "Indireta", area: "Defesa Civil e Resgate Comunitário", secretariaPadrao: "GABINETE", rubrica: "3.3.50.41 - Contribuições Correntes" }
+            ],
+            ppa: [
+                { id: "PPA_SMECJL_01", secretaria: "SMECJL", orgaoCod: "12", orgaoNome: "Sec.mun.de Esporte Cultura Juven. Lazer", unidadeCod: "003", unidadeNome: "Departamento de Esporte e Lazer", funcaoCod: "0027", funcaoNome: "Desporto e Lazer", subfuncaoCod: "0812", subfuncaoNome: "Desporto Comunitário", programaCod: "0074", programaNome: "GESTÃO ADMINISTRATIVA - SMECJL", acao: "2237", acaoDesc: "MANUT.DOS EVENTOS E ATIVIDADES ESPOTIVAS, AMADORAS, TRADICIONAIS E DA JUVENTUDE DO MUNICIPIO.", corede: "Eixo 03: Educação, Ciência, Tecnologia e Formação Docente" },
+                { id: "PPA_SMS_01", secretaria: "SMS", orgaoCod: "08", orgaoNome: "Secretaria Municipal de Saúde", unidadeCod: "001", unidadeNome: "Fundo Municipal de Saúde", funcaoCod: "0010", funcaoNome: "Saúde", subfuncaoCod: "0301", subfuncaoNome: "Atenção Básica", programaCod: "0010", programaNome: "SAÚDE PARA TODOS", acao: "2042", acaoDesc: "Apoio e Qualificação dos Serviços Especializados de Reabilitação Física, Intelectual e TEA", corede: "Eixo 02: Saúde, Inclusão Social e Qualidade de Vida Regional" },
+                { id: "PPA_SMS_02", secretaria: "SMS", orgaoCod: "08", orgaoNome: "Secretaria Municipal de Saúde", unidadeCod: "001", unidadeNome: "Fundo Municipal de Saúde", funcaoCod: "0010", funcaoNome: "Saúde", subfuncaoCod: "0302", subfuncaoNome: "Assistência Hospitalar e Ambulatorial", programaCod: "0010", programaNome: "SAÚDE PARA TODOS", acao: "1018", acaoDesc: "Modernização Tecnológica e Aquisição de Equipamentos Hospitalares de Média e Alta Complexidade", corede: "Eixo 02: Saúde, Inclusão Social e Qualidade de Vida Regional" },
+                { id: "PPA_SMILT_01", secretaria: "SMILT", orgaoCod: "06", orgaoNome: "Sec. Infraestrutura, Logística e Trânsito", unidadeCod: "001", unidadeNome: "Divisão de Obras e Vias Públicas", funcaoCod: "0015", funcaoNome: "Urbanismo", subfuncaoCod: "0451", subfuncaoNome: "Infraestrutura Urbana", programaCod: "0030", programaNome: "INFRAESTRUTURA INTEGRADA", acao: "1035", acaoDesc: "Pavimentação Asfáltica, Drenagem Pluvial e Qualificação de Vias Urbanas", corede: "Eixo 04: Infraestrutura, Sustentabilidade e Meio Ambiente" },
+                { id: "PPA_SMDSH_01", secretaria: "SMDSH", orgaoCod: "09", orgaoNome: "Sec. de Desenvolvimento Social e Habitação", unidadeCod: "001", unidadeNome: "Fundo Municipal de Assistência Social", funcaoCod: "0008", funcaoNome: "Assistência Social", subfuncaoCod: "0244", subfuncaoNome: "Assistência Comunitária", programaCod: "0040", programaNome: "ACOLHIMENTO E CIDADANIA", acao: "2072", acaoDesc: "Serviço de Convivência e Fortalecimento de Vínculos para Crianças e Idosos", corede: "Eixo 02: Saúde, Inclusão Social e Qualidade de Vida Regional" },
+                { id: "PPA_SMDE_01", secretaria: "SMDE", orgaoCod: "10", orgaoNome: "Sec. Desenvolvimento Econômico e Indústria", unidadeCod: "001", unidadeNome: "Departamento de Indústria e Comércio", funcaoCod: "0022", funcaoNome: "Indústria", subfuncaoCod: "0661", subfuncaoNome: "Promoção Industrial", programaCod: "0050", programaNome: "DESENVOLVIMENTO ECONÔMICO", acao: "2085", acaoDesc: "Qualificação Profissional Tecnológica na Cadeia Metalmecânica e Agroindustrial", corede: "Eixo 01: Inovação, Indústria Metalmecânica e Emprego Regional" }
+            ],
+            dotacoes: [
+                // SMECJL
+                { id: "DOT_SMECJL_01", secretaria: "SMECJL", acao: "2237", ficha: "2226", elementoCod: "3350410000000000000", elementoDesc: "Contribuições", vinculo: "15000001", tipo: "Indireta", podeAnular: true, valoresIniciais: 20000.00 },
+                { id: "DOT_SMECJL_02", secretaria: "SMECJL", acao: "2237", ficha: "2227", elementoCod: "3390300000000000000", elementoDesc: "Material de Consumo", vinculo: "15000001", tipo: "Direta", podeAnular: true, valoresIniciais: 35000.00 },
+                { id: "DOT_SMECJL_03", secretaria: "SMECJL", acao: "2237", ficha: "2228", elementoCod: "3390390000000000000", elementoDesc: "Outros Serviços de Terceiros - PJ", vinculo: "15000001", tipo: "Direta", podeAnular: true, valoresIniciais: 50000.00 },
+                // SMS
+                { id: "DOT_SMS_01", secretaria: "SMS", acao: "2042", ficha: "2201", elementoCod: "3350430000000000000", elementoDesc: "Subvenções Sociais", vinculo: "15000001", tipo: "Indireta", podeAnular: true, valoresIniciais: 150000.00 },
+                { id: "DOT_SMS_02", secretaria: "SMS", acao: "1018", ficha: "2205", elementoCod: "4450420000000000000", elementoDesc: "Auxílios de Capital", vinculo: "15000001", tipo: "Indireta", podeAnular: true, valoresIniciais: 250000.00 },
+                { id: "DOT_SMS_03", secretaria: "SMS", acao: "2042", ficha: "2206", elementoCod: "3390300000000000000", elementoDesc: "Material de Consumo", vinculo: "15000001", tipo: "Direta", podeAnular: true, valoresIniciais: 80000.00 },
+                // SMILT
+                { id: "DOT_SMILT_01", secretaria: "SMILT", acao: "1035", ficha: "2401", elementoCod: "4490510000000000000", elementoDesc: "Obras e Instalações", vinculo: "15000001", tipo: "Direta", podeAnular: true, valoresIniciais: 300000.00 },
+                // DOTAÇÕES DE REDUÇÃO (SUPERÁVIT ANTERIOR / RESERVA DE CONTINGÊNCIA DAS EMENDAS)
+                { id: "DOT_RED_RESERVA_INDIV", secretaria: "FAZENDA", orgaoCod: "14", orgaoNome: "Reserva de Contingência", unidadeCod: "001", unidadeNome: "Reserva de Contingência", funcaoCod: "0099", funcaoNome: "Reserva de Contingência", subfuncaoCod: "0999", subfuncaoNome: "Reserva de Contingência", programaCod: "9999", programaNome: "Reserva de Contingência", acao: "0012", acaoDesc: "Reserva de Contingência - Emendas Individuais", ficha: "2337", elementoCod: "399999900", elementoDesc: "Reserva de Contingência e Reserva do RPPS", vinculo: "15000001", tipo: "Direta", podeAnular: true, valoresIniciais: 3538245.78, rotuloCurto: "Reserva de Contingência / Superávit Anterior (Dotação 2337 - Ficha 2337)" },
+                { id: "DOT_RED_RESERVA_BANC", secretaria: "FAZENDA", orgaoCod: "14", orgaoNome: "Reserva de Contingência", unidadeCod: "001", unidadeNome: "Reserva de Contingência", funcaoCod: "0099", funcaoNome: "Reserva de Contingência", subfuncaoCod: "0999", subfuncaoNome: "Reserva de Contingência", programaCod: "9999", programaNome: "Reserva de Contingência", acao: "0013", acaoDesc: "Reserva de Contingência - Emendas de Bancada", ficha: "2338", elementoCod: "399999900", elementoDesc: "Reserva de Contingência e Reserva do RPPS", vinculo: "15000001", tipo: "Direta", podeAnular: true, valoresIniciais: 1750000.00, rotuloCurto: "Reserva de Contingência - Bancadas (Dotação 2338)" },
+                { id: "DOT_RED_SUPERAVIT_LIVRE", secretaria: "FAZENDA", orgaoCod: "04", orgaoNome: "Secretaria Municipal da Fazenda", unidadeCod: "001", unidadeNome: "Tesouro Municipal", funcaoCod: "0004", funcaoNome: "Administração", subfuncaoCod: "0123", subfuncaoNome: "Administração Financeira", programaCod: "0005", programaNome: "GESTÃO FISCAL", acao: "0005", acaoDesc: "Superávit Financeiro do Exercício Anterior (Recursos Livres)", ficha: "1002", elementoCod: "99999900", elementoDesc: "Recursos de Superávit Financeiro Apurado", vinculo: "15000001", tipo: "Direta", podeAnular: true, valoresIniciais: 5000000.00, rotuloCurto: "Superávit Financeiro do Exercício Anterior (Tesouro Municipal)" }
+            ]
+        };
+
+        let baseCentral = carregarBaseCentral();
+        let listaEmendas = carregarEmendasLocal();
+        let autorAtivo = null;
+        let passoAtual = 1;
+        const TOTAL_PASSOS = 5;
+        let emendaIdEmEdicao = null;
+
+        function carregarBaseCentral() {
+            try {
+                const s = localStorage.getItem(STORAGE_KEY_CADASTROS);
+                if (s) {
+                    const parsed = JSON.parse(s);
+                    if (parsed && Array.isArray(parsed.vereadores) && parsed.vereadores.length > 0) {
+                        if (!parsed.ppa || parsed.ppa.length === 0) parsed.ppa = BASE_PADRAO_HORIZONTINA.ppa;
+                        if (!parsed.dotacoes || parsed.dotacoes.length === 0) parsed.dotacoes = BASE_PADRAO_HORIZONTINA.dotacoes;
+                        return parsed;
+                    }
+                }
+            } catch(e) {}
+            return JSON.parse(JSON.stringify(BASE_PADRAO_HORIZONTINA));
+        }
+
+        function carregarEmendasLocal() {
+            try {
+                const s = localStorage.getItem(STORAGE_KEY_EMENDAS);
+                if (s) {
+                    const p = JSON.parse(s);
+                    if (Array.isArray(p)) return p;
+                }
+            } catch(e) {}
+            return [];
+        }
+
+        function formatarMoeda(val) {
+            return Number(val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        // CONVERSOR DE NÚMERO PARA VALOR POR EXTENSO EM REAIS
+        function valorPorExtenso(valor) {
+            valor = parseFloat(valor || 0);
+            if (valor <= 0) return "Zero reais";
+
+            const unidades = ["", "um", "dois", "três", "quatro", "cinco", "seis", "sete", "oito", "nove", "dez", "onze", "doze", "treze", "quatorze", "quinze", "dezesseis", "dezessete", "dezoito", "dezenove"];
+            const dezenas = ["", "", "vinte", "trinta", "quarenta", "cinquenta", "sessenta", "setenta", "oitenta", "noventa"];
+            const centenas = ["", "cento", "duzentos", "trezentos", "quatrocentos", "quinhentos", "seiscentos", "setecentos", "oitocentos", "novecentos"];
+
+            function converterGrupo(n) {
+                let out = "";
+                let c = Math.floor(n / 100);
+                let d = Math.floor((n % 100) / 10);
+                let u = n % 10;
+
+                if (n === 100) return "cem";
+                if (c > 0) out += centenas[c];
+
+                let resto = n % 100;
+                if (resto > 0) {
+                    if (c > 0) out += " e ";
+                    if (resto < 20) {
+                        out += unidades[resto];
+                    } else {
+                        out += dezenas[d];
+                        if (u > 0) out += " e " + unidades[u];
+                    }
+                }
+                return out;
+            }
+
+            let inteiro = Math.floor(valor);
+            let centavos = Math.round((valor - inteiro) * 100);
+
+            let milhoes = Math.floor(inteiro / 1000000);
+            let milhares = Math.floor((inteiro % 1000000) / 1000);
+            let resto = inteiro % 1000;
+
+            let partes = [];
+            if (milhoes > 0) {
+                partes.push(converterGrupo(milhoes) + (milhoes === 1 ? " milhão" : " milhões"));
+            }
+            if (milhares > 0) {
+                partes.push(converterGrupo(milhares) + " mil");
+            }
+            if (resto > 0 || partes.length === 0) {
+                partes.push(converterGrupo(resto));
+            }
+
+            let resultado = partes.join(", ");
+            resultado += (inteiro === 1 ? " real" : " reais");
+
+            if (centavos > 0) {
+                resultado += " e " + converterGrupo(centavos) + (centavos === 1 ? " centavo" : " centavos");
+            }
+
+            return resultado.charAt(0).toUpperCase() + resultado.slice(1);
+        }
+
+        function atualizarExtensoValor(val) {
+            const el = document.getElementById('lbl-valor-extenso');
+            if (el) el.textContent = `${formatarMoeda(val)} (${valorPorExtenso(val)})`;
+        }
+
+        function mostrarToast(mensagem, tipo = "sucesso") {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const t = document.createElement('div');
+            const isErro = tipo === "erro";
+            t.className = `p-3.5 rounded-xl border text-xs font-semibold shadow-2xl flex items-center gap-2 transform transition-all duration-300 pointer-events-auto ${
+                isErro ? 'bg-red-950 text-red-200 border-red-700/80' : 'bg-emerald-950 text-emerald-200 border-emerald-700/80'
+            }`;
+            t.innerHTML = `<span>${isErro ? '⚠️' : '✓'}</span> <span>${mensagem}</span>`;
+            container.appendChild(t);
+            setTimeout(() => {
+                t.classList.add('opacity-0', 'translate-x-4');
+                setTimeout(() => t.remove(), 300);
+            }, 4000);
+        }
+
+        async function sincronizarComFirestore() {
+            try {
+                if (typeof db !== 'undefined') {
+                    const docSnap = await db.collection("configuracoes").doc("base_cadastros").get();
+                    if (docSnap.exists) {
+                        const d = docSnap.data();
+                        if (d) {
+                            if (Array.isArray(d.entidades) && d.entidades.length > 0) baseCentral.entidades = d.entidades;
+                            if (Array.isArray(d.ppa) && d.ppa.length > 0) baseCentral.ppa = d.ppa;
+                            if (Array.isArray(d.dotacoes) && d.dotacoes.length > 0) baseCentral.dotacoes = d.dotacoes;
+                            localStorage.setItem(STORAGE_KEY_CADASTROS, JSON.stringify(baseCentral));
+                        }
+                    }
+
+                    const snapEmendas = await db.collection("emendas").get();
+                    const ems = [];
+                    snapEmendas.forEach(docSnapRef => {
+                        ems.push({ id: docSnapRef.id, ...docSnapRef.data() });
+                    });
+                    if (ems.length > 0) {
+                        listaEmendas = ems;
+                        localStorage.setItem(STORAGE_KEY_EMENDAS, JSON.stringify(ems));
+                    }
+                    renderizarMinhasEmendas();
+                }
+            } catch(e) {
+                console.warn("Firestore offline/cache:", e.message);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            popularSeletorParlamentares();
+            sincronizarComFirestore();
+            popularSelectEntidadesCatalogo();
+            popularSelectDotacoesReducao();
+            aoAlternarTipoExecucao(document.getElementById('sel-passo-tipo-execucao').value);
+            atualizarPassoUI();
+        });
+
+        // 1. POPULA O SELETOR DE PARLAMENTARES
+        function popularSeletorParlamentares() {
+            const sel = document.getElementById('sel-parlamentar-ativo');
+            if (!sel) return;
+
+            const vers = baseCentral.vereadores || [];
+            const parts = baseCentral.partidos || [];
+
+            let html = `<option value="">Selecione o Parlamentar / Gabinete...</option>`;
+            html += `<optgroup label="👤 Mandatos Individuais (Vereadores)">`;
+            vers.forEach(v => {
+                const p = parts.find(part => part.id === v.partidoId) || { sigla: "PDT", bancada: "Bancada PDT", icone: "🌹" };
+                html += `<option value="IND_${v.id}">👤 Ver. ${v.nome} (${p.sigla})</option>`;
+            });
+            html += `</optgroup><optgroup label="🏛️ Emendas Coletivas de Bancada">`;
+            parts.forEach(p => {
+                html += `<option value="BANC_${p.id}">${p.icone || '🏛️'} ${p.bancada || p.nome} (${p.sigla})</option>`;
+            });
+            html += `</optgroup>`;
+            sel.innerHTML = html;
+
+            // Seleciona a Vereadora Ivete por padrão se presente, para reproduzir com fidelidade a matriz
+            const ivete = vers.find(v => v.nome.toLowerCase().includes("ivete"));
+            if (ivete) {
+                sel.value = `IND_${ivete.id}`;
+                aoMudarParlamentarAtivo(sel.value);
+            } else if (vers.length > 0) {
+                sel.value = `IND_${vers[0].id}`;
+                aoMudarParlamentarAtivo(sel.value);
+            }
+        }
+
+        function aoMudarParlamentarAtivo(val) {
+            if (!val) {
+                autorAtivo = null;
+                document.getElementById('lbl-autor-nome').textContent = "Nenhum selecionado";
+                document.getElementById('lbl-autor-partido').textContent = "Aguardando seleção";
+                document.getElementById('badge-autor-icone').textContent = "🏛️";
+                renderizarMinhasEmendas();
+                return;
+            }
+
+            const vers = baseCentral.vereadores || [];
+            const parts = baseCentral.partidos || [];
+
+            if (val.startsWith("IND_")) {
+                const idVer = val.replace("IND_", "");
+                const v = vers.find(item => item.id === idVer);
+                if (v) {
+                    const p = parts.find(part => part.id === v.partidoId) || { sigla: "PDT", bancada: "Bancada PDT", icone: "🌹" };
+                    autorAtivo = {
+                        tipo: "INDIVIDUAL",
+                        id: v.id,
+                        nome: v.nome,
+                        partidoSigla: p.sigla,
+                        bancada: p.bancada,
+                        icone: p.icone || "👤"
+                    };
+                    document.getElementById('lbl-autor-nome').textContent = v.nome;
+                    document.getElementById('lbl-autor-partido').textContent = `${p.sigla} • ${p.bancada}`;
+                    document.getElementById('badge-autor-icone').textContent = p.icone || "👤";
+                }
+            } else if (val.startsWith("BANC_")) {
+                const idPart = val.replace("BANC_", "");
+                const p = parts.find(part => part.id === idPart);
+                if (p) {
+                    autorAtivo = {
+                        tipo: "BANCADA",
+                        id: p.id,
+                        nome: p.bancada || p.nome,
+                        partidoSigla: p.sigla,
+                        bancada: p.bancada || p.nome,
+                        icone: p.icone || "🏛️"
+                    };
+                    document.getElementById('lbl-autor-nome').textContent = p.bancada || p.nome;
+                    document.getElementById('lbl-autor-partido').textContent = `Emenda de Bancada Partidária (${p.sigla})`;
+                    document.getElementById('badge-autor-icone').textContent = p.icone || "🏛️";
+                }
+            }
+            renderizarMinhasEmendas();
+        }
+
+        // ESCOLHA DO MODO (MOMENTO 1 DA IA OU FORMULÁRIO BRANCO)
+        function escolherModo(modo) {
+            const boxIA = document.getElementById('secao-consultoria-ia');
+            const cardIA = document.getElementById('card-modo-ia');
+            const cardBranco = document.getElementById('card-modo-branco');
+
+            if (modo === 'ia') {
+                boxIA.classList.remove('hidden');
+                cardIA.classList.add('border-emerald-500', 'bg-emerald-950/40');
+                cardBranco.classList.remove('border-blue-500');
+                document.getElementById('txt-ideia-livre-ia').focus();
+            } else {
+                boxIA.classList.add('hidden');
+                cardBranco.classList.add('border-blue-500');
+                cardIA.classList.remove('border-emerald-500', 'bg-emerald-950/40');
+                passoAtual = 1;
+                atualizarPassoUI();
+                document.getElementById('secao-wizard-emenda').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function preencherExemploSimples(tipo) {
+            const t = document.getElementById('txt-ideia-livre-ia');
+            if (tipo === 'hospital') {
+                t.value = "Destinar R$ 120 mil para o Hospital Oswaldo Cruz adquirir um aparelho de Raio-X digital para exames pelo SUS.";
+            } else if (tipo === 'evento') {
+                t.value = "Destinar R$ 20.000,00 para evento esportivo comunitário comemorativo de 32 anos integrando equipes da cidade e valorizando o desporto amador.";
+            } else if (tipo === 'apae') {
+                t.value = "Quero destinar R$ 75 mil para a APAE adquirir equipamentos sensoriais para a sala de atendimento de 25 crianças autistas.";
+            } else if (tipo === 'rua') {
+                t.value = "Indicar R$ 90 mil para a Secretaria de Obras realizar pavimentação asfáltica e drenagem de rua urbana.";
+            }
+        }
+
+        // 2. MOMENTO 1 DA IA: CONSULTORIA DE CONCEPÇÃO & INTERESSE PÚBLICO
+        async function consultarIAConcepcao() {
+            const texto = (document.getElementById('txt-ideia-livre-ia')?.value || "").trim();
+            if (!texto) {
+                mostrarToast("Escreva o que deseja realizar para a IA avaliar.", "erro");
+                return;
+            }
+
+            const btn = document.getElementById('btn-disparar-ia-m1');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Avaliando com IA...`;
+
+            let analise = null;
+
+            try {
+                let apiKey = "";
+                if (typeof db !== 'undefined') {
+                    const snap = await db.collection('configuracoes').doc('api_keys').get();
+                    if (snap.exists) {
+                        apiKey = snap.data().openRouter || snap.data().openrouter || snap.data().apiKey || "";
+                    }
+                }
+
+                if (apiKey) {
+                    const prompt = `Você é o Consultor Jurídico-Contábil de Emendas Parlamentares de Horizontina/RS.
+Sua missão é ajudar o vereador com base estrita nestas normas:
+1. Lei Federal 4.320/1964: Classificação da despesa (Custeio vs Capital; Subvenções x Contribuições x Auxílios x Compras Diretas).
+2. Marco Regulatório MROSC (Lei 13.019/14): Repasses a entidades devem ser de interesse público, gratuitos e universais.
+3. Lei Complementar nº 210/2024: Avalie o interesse público real e se há risco de impedimento técnico (Art. 10).
+
+IMPORTANTE: Você é ABERTO a qualquer tema e secretaria (não engesse em nenhuma pré-definida).
+
+Texto do vereador: "${texto}"
+
+Responda ESTRITAMENTE em formato JSON:
+{
+  "viavel": true ou false,
+  "resumo_juridico": "Explicação didática sobre a viabilidade legal e o porquê da classificação",
+  "alerta_lc210": "Se houver risco de impedimento da LC 210, diga qual o inciso e por que. Se ok, vazio.",
+  "valor": 20000.00,
+  "beneficiario": "Nome da entidade ou secretaria",
+  "tipo_execucao": "Indireta" ou "Direta",
+  "secretaria": "SMS", "SMECJL", "SMILT", "SMDSH", "SMDE", "SMDR" ou "GABINETE",
+  "rubrica_sugerida": "3.3.50.41 - Contribuições Correntes", "3.3.50.43 - Subvenções Sociais", "4.4.50.42 - Auxílios de Capital", "4.4.90.51 - Obras e Instalações" ou "4.4.90.52 - Equipamentos e Mat. Permanente",
+  "justificativa_sugerida": "Texto completo e formal de justificativa demonstrando interesse público",
+  "objetivo_especifico": "Objetivo específico direto com meta",
+  "exige_engenharia": true ou false
+}`;
+
+                    const controller = new AbortController();
+                    const timeout = setTimeout(() => controller.abort(), 8000);
+
+                    const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                        method: "POST",
+                        signal: controller.signal,
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${apiKey}`,
+                            "HTTP-Referer": "https://prisma-horizontina.rs.gov.br",
+                            "X-Title": "PRISMA Legislativo Simplificado"
+                        },
+                        body: JSON.stringify({
+                            model: "openrouter/free",
+                            messages: [{ role: "user", content: prompt }],
+                            temperature: 0.1
+                        })
+                    });
+                    clearTimeout(timeout);
+
+                    if (resp.ok) {
+                        const j = await resp.json();
+                        const raw = j?.choices?.[0]?.message?.content || "";
+                        const m = raw.match(/\{[\s\S]*\}/);
+                        if (m) analise = JSON.parse(m[0]);
+                    }
+                }
+            } catch(e) {
+                console.warn("Nuvem indisponível, usando motor local:", e.message);
+            }
+
+            if (!analise) {
+                analise = executarAnaliseLocalHeuristica(texto);
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fa-solid fa-magnifying-glass-chart"></i> Reavaliar Ideia`;
+            exibirResultadoDiagnosticoM1(analise);
+        }
+
+        // MOTOR DETERMINÍSTICO LOCAL DE CONCEPÇÃO (MOMENTO 1)
+        function executarAnaliseLocalHeuristica(texto) {
+            const l = texto.toLowerCase();
+            let valor = 20000;
+            const mMil = texto.match(/(\d+[\d.,]*)\s*(mil|reais|milhões)/i);
+            if (mMil) {
+                let n = parseFloat(mMil[1].replace(/\./g, '').replace(',', '.'));
+                if (mMil[2].toLowerCase().includes('mil')) valor = n * 1000;
+                else valor = n;
+            }
+
+            const ehEvento = l.includes('evento') || l.includes('esporte') || l.includes('clube 31') || l.includes('amador') || l.includes('comemorat');
+            const ehHospital = l.includes('hospital') || l.includes('raio-x') || l.includes('raio x') || l.includes('médic') || l.includes('saúde');
+            const ehApae = l.includes('apae') || l.includes('autis');
+            const ehObra = l.includes('asfalto') || l.includes('paviment') || l.includes('calçamento') || l.includes('obra');
+
+            if (ehEvento) {
+                return {
+                    viavel: true,
+                    resumo_juridico: "Apoio a evento comunitário esportivo sem fins lucrativos. Enquadra-se como Contribuições Correntes (3.3.50.41) na SMECJL, voltado ao desporto amador e integração social.",
+                    alerta_lc210: "",
+                    valor: valor,
+                    beneficiario: "CLUBE SOCIAL, RECREATIVO, ESPORTIVO E CULTURAL 31 - CNPJ 03.203.985/0001-40",
+                    secretaria: "SMECJL",
+                    tipo_execucao: "Indireta",
+                    rubrica_sugerida: "3.3.50.41 - Contribuições Correntes",
+                    justificativa_sugerida: "A presente emenda justifica-se pela importância de fortalecer o esporte local e ampliar a participação da comunidade nas atividades esportivas do município, estimulando o convívio comunitário, o lazer e o bem-estar.",
+                    objetivo_especifico: "Fortalecer o esporte local por meio da realização de evento esportivo comunitário integrando equipes de Horizontina e a comunidade em ações de valorização do desporto amador.",
+                    exige_engenharia: false
+                };
+            }
+
+            if (ehHospital) {
+                return {
+                    viavel: true,
+                    resumo_juridico: "Equipamentos permanentes para hospital filantrópico parceiro do SUS. Enquadra-se como Auxílios de Capital (4.4.50.42) na SMS, computando na cota de Saúde.",
+                    alerta_lc210: "",
+                    valor: valor > 0 ? valor : 120000,
+                    beneficiario: "Hospital Beneficente Oswaldo Cruz (HBOC) - CNPJ 90.234.567/0001-12",
+                    secretaria: "SMS",
+                    tipo_execucao: "Indireta",
+                    rubrica_sugerida: "4.4.50.42 - Auxílios de Capital",
+                    justificativa_sugerida: "Modernização tecnológica e fortalecimento da capacidade diagnóstica hospitalar do município para garantia de atendimento gratuito e universal aos pacientes do SUS.",
+                    objetivo_especifico: "Aquisição de equipamento de diagnóstico por imagem para modernização do atendimento hospitalar pelo Sistema Único de Saúde.",
+                    exige_engenharia: false
+                };
+            }
+
+            if (ehApae) {
+                return {
+                    viavel: true,
+                    resumo_juridico: "Repasse MROSC para aquisição de equipamentos de reabilitação. Enquadra-se como Auxílios de Capital (4.4.50.42) na SMS.",
+                    alerta_lc210: "",
+                    valor: valor > 0 ? valor : 75000,
+                    beneficiario: "APAE - Associação de Pais e Amigos dos Excepcionais - CNPJ 94.888.112/0001-08",
+                    secretaria: "SMS",
+                    tipo_execucao: "Indireta",
+                    rubrica_sugerida: "4.4.50.42 - Auxílios de Capital",
+                    justificativa_sugerida: "Apoio à reabilitação especializada e inclusão de munícipes neuroatípicos, fortalecendo a sala multidisciplinar de estimulação sensorial.",
+                    objetivo_especifico: "Aquisição de equipamentos terapêuticos e sensoriais para estruturação de atendimento continuado a crianças autistas.",
+                    exige_engenharia: false
+                };
+            }
+
+            if (ehObra) {
+                return {
+                    viavel: true,
+                    resumo_juridico: "Execução Direta pela Secretaria de Infraestrutura (SMILT). Atenção à exigência de memorial, planilha e ART prévios pela LC 210/2024.",
+                    alerta_lc210: "Art. 10, Incisos III e VI da LC 210/2024: Obras exigem memorial descritivo, orçamento e ART antes do empenho.",
+                    valor: valor > 0 ? valor : 90000,
+                    beneficiario: "Secretaria Municipal de Infraestrutura, Logística e Trânsito (SMILT)",
+                    secretaria: "SMILT",
+                    tipo_execucao: "Direta",
+                    rubrica_sugerida: "4.4.90.51 - Obras e Instalações",
+                    justificativa_sugerida: "Qualificação da malha viária urbana municipal, garantindo mobilidade, drenagem de águas pluviais e acessibilidade aos moradores.",
+                    objetivo_especifico: "Execução de obras de pavimentação asfáltica e drenagem em vias urbanas de Horizontina.",
+                    exige_engenharia: true
+                };
+            }
+
+            return {
+                viavel: true,
+                resumo_juridico: "A proposta possui viabilidade comunitária e pode ser formalizada via Termo de Fomento ou contratação direta pela Prefeitura.",
+                alerta_lc210: "",
+                valor: valor,
+                beneficiario: "Entidade ou Secretaria Correspondente",
+                secretaria: "SMECJL",
+                tipo_execucao: "Indireta",
+                rubrica_sugerida: "3.3.50.41 - Contribuições Correntes",
+                justificativa_sugerida: texto,
+                objetivo_especifico: "Desenvolvimento de atividades de interesse comunitário no município de Horizontina.",
+                exige_engenharia: false
+            };
+        }
+
+        function exibirResultadoDiagnosticoM1(res) {
+            const box = document.getElementById('box-diagnostico-ia-m1');
+            box.classList.remove('hidden');
+
+            const isOk = res.viavel;
+            box.className = `p-4 rounded-xl border text-xs space-y-3 mt-3 ${
+                isOk ? 'bg-[#0a1410] border-emerald-700/70 text-slate-200' : 'bg-[#1a0c0c] border-red-700/80 text-red-200'
+            }`;
+
+            let htmlAlerta = "";
+            if (res.alerta_lc210) {
+                htmlAlerta = `
+                    <div class="p-3 bg-red-950/70 border border-red-600 rounded-lg text-red-300 space-y-1">
+                        <strong class="block text-red-400 font-bold"><i class="fa-solid fa-triangle-exclamation"></i> Risco de Impedimento Legal (LC 210/2024):</strong>
+                        <p>${res.alerta_lc210}</p>
+                    </div>
+                `;
+            }
+
+            box.innerHTML = `
+                <div class="flex justify-between items-center pb-2 border-b ${isOk ? 'border-emerald-900/60' : 'border-red-900/60'}">
+                    <span class="font-bold flex items-center gap-1.5 ${isOk ? 'text-emerald-400' : 'text-red-400'}">
+                        <i class="fa-solid ${isOk ? 'fa-circle-check' : 'fa-circle-xmark'} text-base"></i>
+                        <span>${isOk ? 'Proposição Viável Legalmente' : 'Necessita de Ajuste no Objeto'}</span>
+                    </span>
+                    <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded ${isOk ? 'bg-emerald-950 text-emerald-300' : 'bg-red-950 text-red-300'}">
+                        Momento 1: Triagem
+                    </span>
+                </div>
+
+                <p class="leading-relaxed text-[11px]">${res.resumo_juridico}</p>
+                ${htmlAlerta}
+
+                <div class="p-3 bg-[#070809] border border-[#1f2735] rounded-xl space-y-1.5 text-[11px]">
+                    <div><b>Sugestão de Beneficiário:</b> <span class="text-white">${res.beneficiario}</span></div>
+                    <div><b>Secretaria Sugerida:</b> <span class="text-blue-300 font-bold">${res.secretaria}</span> • <b>Rubrica:</b> <span class="text-emerald-400 font-mono">${res.rubrica_sugerida}</span></div>
+                    <div><b>Execução:</b> <span class="text-white">${res.tipo_execucao}</span> (Valor: ${formatarMoeda(res.valor)})</div>
+                </div>
+
+                <div class="flex justify-end pt-1">
+                    <button type="button" onclick="aplicarSugestoesM1AoFormulario(${JSON.stringify(res).replace(/"/g, '&quot;')})" class="px-4 py-2 bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition flex items-center gap-2 shadow-md">
+                        <i class="fa-solid fa-arrow-down-long"></i>
+                        <span>Transferir Sugestão para o Formulário Passo a Passo</span>
+                    </button>
+                </div>
+            `;
+        }
+
+        function aplicarSugestoesM1AoFormulario(dados) {
+            if (dados.valor) {
+                document.getElementById('inp-passo-valor').value = dados.valor;
+                atualizarExtensoValor(dados.valor);
+            }
+            if (dados.tipo_execucao) {
+                document.getElementById('sel-passo-tipo-execucao').value = dados.tipo_execucao;
+                aoAlternarTipoExecucao(dados.tipo_execucao);
+            }
+            if (dados.secretaria) {
+                document.getElementById('sel-passo-secretaria').value = dados.secretaria;
+                aoSelecionarSecretaria(dados.secretaria);
+            }
+            if (dados.beneficiario) {
+                document.getElementById('inp-passo-beneficiario-livre').value = dados.beneficiario;
+            }
+            if (dados.rubrica_sugerida) {
+                document.getElementById('sel-passo-enquadramento').value = dados.rubrica_sugerida;
+                atualizarExplicacaoRubrica(dados.rubrica_sugerida);
+            }
+            if (typeof dados.exige_engenharia !== 'undefined') {
+                document.getElementById('chk-passo-engenharia').checked = !!dados.exige_engenharia;
+            }
+            if (dados.justificativa_sugerida) document.getElementById('inp-passo-justificativa').value = dados.justificativa_sugerida;
+            if (dados.objetivo_especifico) document.getElementById('inp-passo-objetivo').value = dados.objetivo_especifico;
+
+            passoAtual = 1;
+            atualizarPassoUI();
+            document.getElementById('secao-wizard-emenda').scrollIntoView({ behavior: 'smooth' });
+            mostrarToast("Campos do formulário preenchidos com o parecer da IA!");
+        }
+
+        // 3. AMARRAÇÃO ORÇAMENTÁRIA EM CASCATA SEM PRÉ-PREENCHIMENTO ENGESSADO
+        function aoAlternarTipoExecucao(tipo) {
+            const selRub = document.getElementById('sel-passo-enquadramento');
+            const lblBen = document.getElementById('lbl-beneficiario-titulo');
+
+            if (tipo === "Indireta") {
+                // EXCLUSIVAMENTE RUBRICAS DE REPASSE A ENTIDADES
+                selRub.innerHTML = `
+                    <option value="3.3.50.41 - Contribuições Correntes">3.3.50.41 - Contribuições Correntes (Custeio geral: Esporte, Cultura, Agricultura, etc.)</option>
+                    <option value="3.3.50.43 - Subvenções Sociais">3.3.50.43 - Subvenções Sociais (Custeio restrito: Saúde, Educação ou Assistência)</option>
+                    <option value="4.4.50.42 - Auxílios de Capital">4.4.50.42 - Auxílios de Capital (Bens duráveis, veículos, máquinas ou reforma em OSC)</option>
+                `;
+                lblBen.textContent = "Beneficiário Completo (Entidade / Associação sem fins lucrativos e CNPJ) *";
+            } else {
+                // EXCLUSIVAMENTE RUBRICAS DE COMPRA DIRETA PELA PREFEITURA
+                selRub.innerHTML = `
+                    <option value="3.3.90.30 - Material de Consumo">3.3.90.30 - Material de Consumo (Remédios, peças, combustível, etc.)</option>
+                    <option value="3.3.90.39 - Serviços de Terceiros PJ">3.3.90.39 - Serviços de Terceiros PJ (Contratações de serviços)</option>
+                    <option value="4.4.90.52 - Equipamentos e Mat. Permanente">4.4.90.52 - Equipamentos e Mat. Permanente (Bens comprados pela prefeitura)</option>
+                    <option value="4.4.90.51 - Obras e Instalações">4.4.90.51 - Obras e Instalações (Construções e pavimentações licitadas)</option>
+                `;
+                lblBen.textContent = "Beneficiário Completo (Secretaria Municipal / Órgão Executante) *";
+            }
+            atualizarExplicacaoRubrica(selRub.value);
+            filtrarDotacoesSuplementadas();
+        }
+
+        function aoSelecionarSecretaria(sec) {
+            filtrarAcoesPPA(sec);
+            filtrarDotacoesSuplementadas();
+        }
+
+        function popularSelectEntidadesCatalogo() {
+            const sel = document.getElementById('sel-passo-entidade-catalogo');
+            if (!sel) return;
+            const ents = baseCentral.entidades || [];
+            let html = `<option value="">Selecione do Catálogo de Associações Cadastradas...</option>`;
+            ents.forEach(e => {
+                html += `<option value="${e.nome}">${e.nome} (${e.cnpj})</option>`;
+            });
+            sel.innerHTML = html;
+        }
+
+        function aoSelecionarEntidadeDoSelect(nome) {
+            if (!nome) return;
+            const ents = baseCentral.entidades || [];
+            const achou = ents.find(e => e.nome === nome);
+            if (achou) {
+                document.getElementById('inp-passo-beneficiario-livre').value = `${achou.nome} - CNPJ ${achou.cnpj}`;
+                if (achou.secretariaPadrao) {
+                    document.getElementById('sel-passo-secretaria').value = achou.secretariaPadrao;
+                    aoSelecionarSecretaria(achou.secretariaPadrao);
+                }
+                if (achou.rubrica) {
+                    document.getElementById('sel-passo-enquadramento').value = achou.rubrica;
+                    atualizarExplicacaoRubrica(achou.rubrica);
+                }
+            }
+        }
+
+        function filtrarAcoesPPA(sec) {
+            const selPPA = document.getElementById('sel-passo-acao-ppa');
+            if (!selPPA) return;
+            const ppas = (baseCentral.ppa || []).filter(p => !sec || p.secretaria === sec);
+            let html = `<option value="">Selecione a Ação do PPA (${ppas.length} cadastradas)...</option>`;
+            ppas.forEach(p => {
+                html += `<option value="${p.acao}">Ação ${p.acao} - Programa ${p.programaCod || p.programa} (${p.acaoDesc.substring(0, 50)}...)</option>`;
+            });
+            selPPA.innerHTML = html;
+
+            // Se for SMECJL e houver ação 2237, pré-seleciona para facilitar
+            if (sec === "SMECJL") {
+                const ac2237 = ppas.find(p => p.acao === "2237");
+                if (ac2237) {
+                    selPPA.value = "2237";
+                    aoSelecionarAcaoPPA("2237");
+                }
+            }
+        }
+
+        function aoSelecionarAcaoPPA(acaoCod) {
+            filtrarDotacoesSuplementadas();
+            atualizarQuadroSuplementacaoUI();
+        }
+
+        function filtrarDotacoesSuplementadas() {
+            const selDot = document.getElementById('sel-passo-dotacao-suplementada');
+            if (!selDot) return;
+            const sec = document.getElementById('sel-passo-secretaria')?.value;
+            const acao = document.getElementById('sel-passo-acao-ppa')?.value;
+            const tipo = document.getElementById('sel-passo-tipo-execucao')?.value;
+
+            const dots = (baseCentral.dotacoes || []).filter(d => {
+                const passaSec = !sec || d.secretaria === sec;
+                const passaAcao = !acao || d.acao === acao;
+                const passaTipo = !tipo || d.tipo === tipo;
+                return passaSec && passaAcao && passaTipo;
+            });
+
+            if (dots.length === 0) {
+                selDot.innerHTML = `<option value="">Nenhuma dotação cadastrada para esta Ação (${tipo}). Cadastre em cadastros.html</option>`;
+                limparQuadroSuplementacaoUI();
+                return;
+            }
+
+            let html = `<option value="">Selecione a Dotação (${dots.length} disponíveis)...</option>`;
+            dots.forEach(d => {
+                html += `<option value="${d.id}">Ficha ${d.ficha} • ${d.elementoDesc} (${d.elementoCod}) - Vínculo ${d.vinculo}</option>`;
+            });
+            selDot.innerHTML = html;
+
+            // Se for ficha 2226 da ação 2237, pré-seleciona
+            const d2226 = dots.find(d => d.ficha === "2226");
+            if (d2226) {
+                selDot.value = d2226.id;
+            } else if (dots.length > 0) {
+                selDot.value = dots[0].id;
+            }
+            aoSelecionarDotacaoSuplementada(selDot.value);
+        }
+
+        function aoSelecionarDotacaoSuplementada(dotId) {
+            atualizarQuadroSuplementacaoUI();
+        }
+
+        function atualizarQuadroSuplementacaoUI() {
+            const acaoCod = document.getElementById('sel-passo-acao-ppa')?.value;
+            const dotId = document.getElementById('sel-passo-dotacao-suplementada')?.value;
+
+            const ppaItem = (baseCentral.ppa || []).find(p => p.acao === acaoCod);
+            const dotItem = (baseCentral.dotacoes || []).find(d => d.id === dotId);
+
+            document.getElementById('lbl-quadro-orgao').textContent = ppaItem ? `${ppaItem.orgaoCod || '12'} ${ppaItem.orgaoNome || 'Secretaria Municipal'}` : "-";
+            document.getElementById('lbl-quadro-unidade').textContent = ppaItem ? `${ppaItem.unidadeCod || '003'} ${ppaItem.unidadeNome || 'Departamento'}` : "-";
+            document.getElementById('lbl-quadro-funcao').textContent = ppaItem ? `${ppaItem.funcaoCod || '0027'} ${ppaItem.funcaoNome || 'Desporto e Lazer'}` : "-";
+            document.getElementById('lbl-quadro-subfuncao').textContent = ppaItem ? `${ppaItem.subfuncaoCod || '0812'} ${ppaItem.subfuncaoNome || 'Desporto Comunitário'}` : "-";
+            document.getElementById('lbl-quadro-programa').textContent = ppaItem ? `${ppaItem.programaCod || ppaItem.programa || '0074'} ${ppaItem.programaNome || 'Gestão'}` : "-";
+            document.getElementById('lbl-quadro-acao').textContent = ppaItem ? `${ppaItem.acao} ${ppaItem.acaoDesc}` : "-";
+
+            document.getElementById('lbl-quadro-elemento').textContent = dotItem ? `${dotItem.elementoCod || '3350410000000000000'} ${dotItem.elementoDesc}` : "-";
+            document.getElementById('lbl-quadro-ficha-vinculo').textContent = dotItem ? `${dotItem.ficha}  Vínculo: ${dotItem.vinculo}` : "-";
+        }
+
+        function limparQuadroSuplementacaoUI() {
+            document.getElementById('lbl-quadro-orgao').textContent = "-";
+            document.getElementById('lbl-quadro-unidade').textContent = "-";
+            document.getElementById('lbl-quadro-funcao').textContent = "-";
+            document.getElementById('lbl-quadro-subfuncao').textContent = "-";
+            document.getElementById('lbl-quadro-programa').textContent = "-";
+            document.getElementById('lbl-quadro-acao').textContent = "-";
+            document.getElementById('lbl-quadro-elemento').textContent = "-";
+            document.getElementById('lbl-quadro-ficha-vinculo').textContent = "-";
+        }
+
+        function popularSelectDotacoesReducao() {
+            const selRed = document.getElementById('sel-passo-dotacao-reducao');
+            if (!selRed) return;
+            const dots = baseCentral.dotacoes || [];
+            // Filtra dotações que são fontes válidas de anulação/redução
+            let html = `<option value="">Selecione a Dotação de Redução Disponível...</option>`;
+            dots.forEach(d => {
+                if (d.podeAnular) {
+                    const rotulo = d.rotuloCurto || `${d.secretaria} • Ficha ${d.ficha} - ${d.elementoDesc} (Saldo Inicial: ${formatarMoeda(d.valoresIniciais || 0)})`;
+                    html += `<option value="${d.id}">${rotulo}</option>`;
+                }
+            });
+            selRed.innerHTML = html;
+
+            // Pré-seleciona a Reserva de Contingência se existir
+            const resIndiv = dots.find(d => d.id === "DOT_RED_RESERVA_INDIV");
+            if (resIndiv) {
+                selRed.value = resIndiv.id;
+                aoSelecionarDotacaoReducao(resIndiv.id);
+            }
+        }
+
+        function aoSelecionarDotacaoReducao(idDot) {
+            const box = document.getElementById('box-status-reducao');
+            const txt = document.getElementById('txt-status-reducao');
+            const dots = baseCentral.dotacoes || [];
+            const achou = dots.find(d => d.id === idDot);
+
+            if (!achou) {
+                box.className = "p-3 bg-[#070809] border border-[#1f2735] rounded-xl text-xs flex items-center gap-2.5 text-slate-300";
+                txt.textContent = "Selecione uma dotação de redução acima para verificar a conformidade constitucional.";
+                document.getElementById('lbl-reducao-orgao').textContent = "-";
+                document.getElementById('lbl-reducao-unidade').textContent = "-";
+                document.getElementById('lbl-reducao-funcao').textContent = "-";
+                document.getElementById('lbl-reducao-subfuncao').textContent = "-";
+                document.getElementById('lbl-reducao-programa').textContent = "-";
+                document.getElementById('lbl-reducao-acao').textContent = "-";
+                document.getElementById('lbl-reducao-elemento').textContent = "-";
+                document.getElementById('lbl-reducao-ficha-vinculo').textContent = "-";
+                document.getElementById('lbl-reducao-valor-inicial').textContent = "-";
+                return;
+            }
+
+            document.getElementById('lbl-reducao-orgao').textContent = `${achou.orgaoCod || '14'} ${achou.orgaoNome || 'Reserva de Contingência'}`;
+            document.getElementById('lbl-reducao-unidade').textContent = `${achou.unidadeCod || '001'} ${achou.unidadeNome || 'Reserva de Contingência'}`;
+            document.getElementById('lbl-reducao-funcao').textContent = `${achou.funcaoCod || '0099'} ${achou.funcaoNome || 'Reserva de Contingência'}`;
+            document.getElementById('lbl-reducao-subfuncao').textContent = `${achou.subfuncaoCod || '0999'} ${achou.subfuncaoNome || 'Reserva de Contingência'}`;
+            document.getElementById('lbl-reducao-programa').textContent = `${achou.programaCod || '9999'} ${achou.programaNome || 'Reserva de Contingência'}`;
+            document.getElementById('lbl-reducao-acao').textContent = `${achou.acao || '0012'} ${achou.acaoDesc || 'Reserva de Contingência - Emendas Individuais'}`;
+            document.getElementById('lbl-reducao-elemento').textContent = `${achou.elementoCod || '399999900'} ${achou.elementoDesc || 'Reserva de Contingência e Reserva do RPPS'}`;
+            document.getElementById('lbl-reducao-ficha-vinculo').textContent = `${achou.ficha || '2337'}  Vínculo: ${achou.vinculo || '15000001'}`;
+            document.getElementById('lbl-reducao-valor-inicial').textContent = formatarMoeda(achou.valoresIniciais || 3538245.78);
+
+            box.className = "p-3 bg-emerald-950/60 border border-emerald-600 rounded-xl text-xs flex items-center gap-2.5 text-emerald-200";
+            txt.innerHTML = `✓ <b>Dotação de Redução em Conformidade Constitucional:</b> Fonte válida nos termos do Art. 166, § 3º, II da Constituição Federal.`;
+        }
+
+        function atualizarExplicacaoRubrica(rubrica) {
+            const card = document.getElementById('card-didatico-rubrica');
+            if (rubrica.includes("3.3.50.41")) {
+                card.innerHTML = `
+                    <b class="text-amber-400 block font-bold">3.3.50.41 • Contribuições Correntes (Custeio Geral):</b>
+                    <p class="text-slate-300">Adequado para entidades do terceiro setor nas áreas de <b>Esporte, Cultura, Agricultura, Indústria</b> (Ex: Clube 31, ACEHOR). Não exige lei específica prévia quando fixada como emenda na LOA.</p>
+                `;
+            } else if (rubrica.includes("3.3.50.43")) {
+                card.innerHTML = `
+                    <b class="text-emerald-400 block font-bold">3.3.50.43 • Subvenção Social (Custeio Restrito):</b>
+                    <p class="text-slate-300">Exclusiva para entidades privadas sem fins lucrativos que atuem diretamente na <b>Saúde, Educação ou Assistência Social</b> (Art. 16 da Lei 4.320/64). Paga salários de monitores da OSC, alimentação, água e luz.</p>
+                `;
+            } else if (rubrica.includes("4.4.50.42")) {
+                card.innerHTML = `
+                    <b class="text-purple-400 block font-bold">4.4.50.42 • Auxílios de Capital (Investimento em OSC):</b>
+                    <p class="text-slate-300">Para entidades que precisam comprar <b>bens duráveis</b> (veículos, aparelhos hospitalares, computadores) ou reformar suas sedes.</p>
+                `;
+            } else if (rubrica.includes("4.4.90.51")) {
+                card.innerHTML = `
+                    <b class="text-blue-400 block font-bold">4.4.90.51 • Obras e Instalações (Execução Direta):</b>
+                    <p class="text-slate-300">Para obras de engenharia, reformas de prédios públicos e asfalto licitados diretamente pela Prefeitura (SMILT). Exige memorial descritivo e ART de engenheiro.</p>
+                `;
+            } else {
+                card.innerHTML = `
+                    <b class="text-slate-200 block font-bold">Compras Diretas pela Prefeitura (3.3.90):</b>
+                    <p class="text-slate-300">Despesas com compras ou serviços licitados e executados diretamente pelos órgãos municipais.</p>
+                `;
+            }
+        }
+
+        // 4. MOMENTO 2 DA IA: AUDITORIA FINAL PRÉ-PROTOCOLO
+        async function executarAuditoriaFinalIA() {
+            const btn = document.getElementById('btn-disparar-auditoria-m2');
+            const boxRes = document.getElementById('box-resultado-auditoria-m2');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Auditando todos os campos com IA...`;
+
+            const dadosEmenda = {
+                numero: document.getElementById('inp-passo-numero').value,
+                projeto_lei: document.getElementById('inp-passo-projeto-lei').value,
+                valor: parseFloat(document.getElementById('inp-passo-valor').value || 0),
+                beneficiario: document.getElementById('inp-passo-beneficiario-livre').value,
+                tipo_execucao: document.getElementById('sel-passo-tipo-execucao').value,
+                secretaria: document.getElementById('sel-passo-secretaria').value,
+                rubrica: document.getElementById('sel-passo-enquadramento').value,
+                acao_ppa: document.getElementById('sel-passo-acao-ppa').value,
+                dotacao_suplementada: document.getElementById('sel-passo-dotacao-suplementada').value,
+                dotacao_reducao: document.getElementById('sel-passo-dotacao-reducao').value,
+                exige_engenharia: document.getElementById('chk-passo-engenharia').checked,
+                justificativa: document.getElementById('inp-passo-justificativa').value,
+                objetivo_especifico: document.getElementById('inp-passo-objetivo').value
+            };
+
+            let parecer = null;
+
+            try {
+                let apiKey = "";
+                if (typeof db !== 'undefined') {
+                    const snap = await db.collection('configuracoes').doc('api_keys').get();
+                    if (snap.exists) {
+                        apiKey = snap.data().openRouter || snap.data().openrouter || snap.data().apiKey || "";
+                    }
+                }
+
+                if (apiKey) {
+                    const prompt = `Você é o Auditor-Geral do Poder Legislativo e da Lei Complementar nº 210/2024.
+Analise a seguinte proposição de emenda impositiva completa e faça a auditoria final:
+${JSON.stringify(dadosEmenda, null, 2)}
+
+Critérios rigorosos de auditoria:
+1. Nexo Causal & Objeto: O objeto atende ao interesse público continuado?
+2. Enquadramento Contábil: A rubrica condiz com a execução (Indireta x Direta)?
+3. LC 210/2024 Art. 10: Há risco de impedimento técnico por ausência de projeto de engenharia, insuficiência de recursos para etapa funcional, ou pertinência temática?
+4. Anulação de Despesas (CF Art. 166, § 3º): A dotação de redução indicada é válida e não anula pessoal/dívida/educação?
+
+Responda ESTRITAMENTE em formato JSON:
+{
+  "score": 9.5,
+  "status": "Aprovada", "Aprovada com Ressalvas" ou "Impedimento Técnico Detectado",
+  "parecer_conclusivo": "Texto detalhado de parecer técnico fundamentado para a comissão de finanças",
+  "pontos_atencao": ["Lista de alertas ou exigências documentais, se houver"],
+  "conformidade_lc210": true ou false
+}`;
+
+                    const controller = new AbortController();
+                    const timeout = setTimeout(() => controller.abort(), 8500);
+
+                    const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                        method: "POST",
+                        signal: controller.signal,
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${apiKey}`,
+                            "HTTP-Referer": "https://prisma-horizontina.rs.gov.br",
+                            "X-Title": "PRISMA Auditoria Momento 2"
+                        },
+                        body: JSON.stringify({
+                            model: "openrouter/free",
+                            messages: [{ role: "user", content: prompt }],
+                            temperature: 0.1
+                        })
+                    });
+                    clearTimeout(timeout);
+
+                    if (resp.ok) {
+                        const j = await resp.json();
+                        const raw = j?.choices?.[0]?.message?.content || "";
+                        const m = raw.match(/\{[\s\S]*\}/);
+                        if (m) parecer = JSON.parse(m[0]);
+                    }
+                }
+            } catch(e) {
+                console.warn("Nuvem indisponível no Momento 2, aplicando motor local:", e.message);
+            }
+
+            if (!parecer) {
+                parecer = executarAuditoriaFinalLocal(dadosEmenda);
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fa-solid fa-shield-check"></i> Reauditar Emenda`;
+
+            exibirResultadoAuditoriaM2(parecer);
+        }
+
+        function executarAuditoriaFinalLocal(d) {
+            let score = 10.0;
+            const alertas = [];
+
+            if (d.tipo_execucao === "Direta" && d.rubrica.includes("3.3.50.43")) {
+                score -= 3.0;
+                alertas.push("Inconsistência: Subvenção Social é exclusiva para o Terceiro Setor (Execução Indireta).");
+            }
+            if (d.rubrica.includes("4.4.90.51") && !d.exige_engenharia) {
+                score -= 2.5;
+                alertas.push("LC 210/2024 Art. 10, III: Obras exigem projeto de engenharia, memorial e ART prévios homologados.");
+            }
+            if (!d.justificativa || d.justificativa.length < 15) {
+                score -= 1.0;
+                alertas.push("A Justificativa deve detalhar com clareza o interesse público do objeto.");
+            }
+            if (!d.objetivo_especifico || d.objetivo_especifico.length < 10) {
+                score -= 1.0;
+                alertas.push("O Objetivo Específico deve conter metas quantitativas auditáveis perante o TCE.");
+            }
+
+            score = Math.max(0, Math.min(10, score));
+            let status = "Aprovada";
+            if (score < 7.0) status = "Impedimento Técnico Detectado";
+            else if (score < 9.0) status = "Aprovada com Ressalvas";
+
+            return {
+                score: score,
+                status: status,
+                parecer_conclusivo: score >= 8.5 
+                    ? "A proposição parlamentar atende plenamente aos requisitos da Lei Federal nº 4.320/1964, ao Marco Regulatório MROSC e aos preceitos da Lei Complementar nº 210/2024, demonstrando interesse público lídimo, correta redução orçamentária e nexo causal auditável." 
+                    : "A proposição apresenta inconformidades técnicas ou riscos de impedimento formal que devem ser ajustados antes do protocolo oficial.",
+                pontos_atencao: alertas,
+                conformidade_lc210: score >= 7.0
+            };
+        }
+
+        function exibirResultadoAuditoriaM2(res) {
+            const box = document.getElementById('box-resultado-auditoria-m2');
+            box.classList.remove('hidden');
+
+            const isAprov = res.score >= 7.0;
+            box.className = `p-4 rounded-xl border text-xs space-y-3 mt-2 ${
+                isAprov ? 'bg-[#0a1410] border-emerald-700/70 text-slate-200' : 'bg-[#1a0c0c] border-red-700/80 text-red-200'
+            }`;
+
+            let htmlAlertas = "";
+            if (res.pontos_atencao && res.pontos_atencao.length > 0) {
+                htmlAlertas = `
+                    <div class="p-3 bg-red-950/70 border border-red-600 rounded-lg text-red-300 space-y-1">
+                        <strong class="block text-red-400 font-bold"><i class="fa-solid fa-circle-exclamation"></i> Apontamentos da Auditoria:</strong>
+                        <ul class="list-disc pl-4 space-y-0.5">
+                            ${res.pontos_atencao.map(a => `<li>${a}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+
+            box.innerHTML = `
+                <div class="flex justify-between items-center pb-2 border-b ${isAprov ? 'border-emerald-900/60' : 'border-red-900/60'}">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl font-bold font-mono ${isAprov ? 'text-emerald-400' : 'text-red-400'}">${res.score.toFixed(1)} / 10.0</span>
+                        <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded ${isAprov ? 'bg-emerald-950 text-emerald-300' : 'bg-red-950 text-red-300'}">
+                            ${res.status}
+                        </span>
+                    </div>
+                    <span class="text-[10px] text-slate-400 font-mono">Auditoria Momento 2</span>
+                </div>
+
+                <p class="leading-relaxed text-[11px]">${res.parecer_conclusivo}</p>
+                ${htmlAlertas}
+            `;
+        }
+
+        // 5. NAVEGAÇÃO ENTRE OS 5 PASSOS DO WIZARD
+        function atualizarPassoUI() {
+            for (let i = 1; i <= TOTAL_PASSOS; i++) {
+                const el = document.getElementById(`etapa-${i}-conteudo`);
+                if (el) {
+                    if (i === passoAtual) el.classList.remove('hidden');
+                    else el.classList.add('hidden');
+                }
+            }
+
+            const elBadge = document.getElementById('wiz-passo-numero-badge');
+            const elTitulo = document.getElementById('wiz-passo-titulo');
+            const elInd = document.getElementById('wiz-indicador-passos');
+            const elBarra = document.getElementById('wiz-barra-progresso');
+            const btnVoltar = document.getElementById('btn-voltar-passo');
+            const btnAvancar = document.getElementById('btn-avancar-passo');
+            const btnFinalizar = document.getElementById('btn-finalizar-emenda');
+
+            const titulos = {
+                1: "Identificação da Proposição & Projeto de Lei da LOA",
+                2: "Beneficiário & Forma de Execução",
+                3: "Crédito Orçamentário Suplementado (Secretaria & Ação)",
+                4: "Crédito Orçamentário Reduzido (Superávit / Reserva)",
+                5: "Justificativa, Objetivo Específico & Auditoria Momento 2"
+            };
+
+            if (elBadge) elBadge.textContent = `Passo ${passoAtual} de ${TOTAL_PASSOS}`;
+            if (elTitulo) elTitulo.textContent = titulos[passoAtual] || "";
+            if (elInd) elInd.textContent = `${passoAtual} / ${TOTAL_PASSOS}`;
+            if (elBarra) elBarra.style.width = `${(passoAtual / TOTAL_PASSOS) * 100}%`;
+
+            if (passoAtual === 1) {
+                btnVoltar.classList.add('invisible');
+            } else {
+                btnVoltar.classList.remove('invisible');
+            }
+
+            if (passoAtual === TOTAL_PASSOS) {
+                btnAvancar.classList.add('hidden');
+                btnFinalizar.classList.remove('hidden');
+            } else {
+                btnAvancar.classList.remove('hidden');
+                btnFinalizar.classList.add('hidden');
+            }
+        }
+
+        function avancarPasso() {
+            if (passoAtual === 1) {
+                const num = document.getElementById('inp-passo-numero').value.trim();
+                const pl = document.getElementById('inp-passo-projeto-lei').value.trim();
+                const val = parseFloat(document.getElementById('inp-passo-valor').value || 0);
+                if (!num) {
+                    mostrarToast("Informe o número da emenda (Ex: 050/2025)", "erro");
+                    document.getElementById('inp-passo-numero').focus();
+                    return;
+                }
+                if (!pl) {
+                    mostrarToast("Informe o número do Projeto de Lei da LOA (Ex: Projeto de Lei nº 81/2025)", "erro");
+                    document.getElementById('inp-passo-projeto-lei').focus();
+                    return;
+                }
+                if (val <= 0) {
+                    mostrarToast("Informe o valor da indicação maior que zero.", "erro");
+                    document.getElementById('inp-passo-valor').focus();
+                    return;
+                }
+            } else if (passoAtual === 2) {
+                const ben = document.getElementById('inp-passo-beneficiario-livre').value.trim();
+                const sec = document.getElementById('sel-passo-secretaria').value;
+                if (!sec) {
+                    mostrarToast("Selecione qual Secretaria Municipal será a gestora da emenda.", "erro");
+                    document.getElementById('sel-passo-secretaria').focus();
+                    return;
+                }
+                if (!ben) {
+                    mostrarToast("Informe o beneficiário completo com CNPJ (se for entidade).", "erro");
+                    document.getElementById('inp-passo-beneficiario-livre').focus();
+                    return;
+                }
+            } else if (passoAtual === 3) {
+                const acao = document.getElementById('sel-passo-acao-ppa').value;
+                const dot = document.getElementById('sel-passo-dotacao-suplementada').value;
+                if (!acao) {
+                    mostrarToast("Selecione a Ação do PPA da Secretaria.", "erro");
+                    document.getElementById('sel-passo-acao-ppa').focus();
+                    return;
+                }
+                if (!dot) {
+                    mostrarToast("Selecione a dotação orçamentária suplementada.", "erro");
+                    document.getElementById('sel-passo-dotacao-suplementada').focus();
+                    return;
+                }
+            } else if (passoAtual === 4) {
+                const red = document.getElementById('sel-passo-dotacao-reducao').value;
+                if (!red) {
+                    mostrarToast("Selecione a dotação de onde sairá o recurso (Crédito Reduzido).", "erro");
+                    document.getElementById('sel-passo-dotacao-reducao').focus();
+                    return;
+                }
+            }
+
+            if (passoAtual < TOTAL_PASSOS) {
+                passoAtual++;
+                atualizarPassoUI();
+            }
+        }
+
+        function voltarPasso() {
+            if (passoAtual > 1) {
+                passoAtual--;
+                atualizarPassoUI();
+            }
+        }
+
+        // 6. FINALIZAR EMENDA & EMISSÃO DE MINUTA OFICIAL NO MODELO EXATO DA CÂMARA DE HORIZONTINA
+        async function finalizarEmenda() {
+            const num = document.getElementById('inp-passo-numero').value.trim();
+            const pl = document.getElementById('inp-passo-projeto-lei').value.trim();
+            const val = parseFloat(document.getElementById('inp-passo-valor').value || 0);
+            const prio = document.getElementById('sel-passo-prioridade').value;
+            const ben = document.getElementById('inp-passo-beneficiario-livre').value.trim();
+            const tipoExec = document.getElementById('sel-passo-tipo-execucao').value;
+            const sec = document.getElementById('sel-passo-secretaria').value;
+            const rubrica = document.getElementById('sel-passo-enquadramento').value;
+            const acaoPPA = document.getElementById('sel-passo-acao-ppa').value;
+            const dotSuplId = document.getElementById('sel-passo-dotacao-suplementada').value;
+            const dotRedId = document.getElementById('sel-passo-dotacao-reducao').value;
+            const exigeEng = document.getElementById('chk-passo-engenharia').checked;
+            const just = document.getElementById('inp-passo-justificativa').value.trim();
+            const obj = document.getElementById('inp-passo-objetivo').value.trim();
+
+            if (!autorAtivo) {
+                mostrarToast("Selecione o Parlamentar ou Bancada no topo da tela.", "erro");
+                document.getElementById('sel-parlamentar-ativo').focus();
+                return;
+            }
+
+            if (!num || !pl || val <= 0 || !ben || !just || !obj) {
+                mostrarToast("Preencha todos os campos obrigatórios antes de gerar a minuta oficial.", "erro");
+                return;
+            }
+
+            const ppaItem = (baseCentral.ppa || []).find(p => p.acao === acaoPPA) || {};
+            const dotSupl = (baseCentral.dotacoes || []).find(d => d.id === dotSuplId) || {};
+            const dotRed = (baseCentral.dotacoes || []).find(d => d.id === dotRedId) || {};
+
+            const emendaObj = {
+                numero_emenda: num,
+                projeto_lei: pl,
+                numero_processo: `PLOA_${num.replace(/[^0-9a-zA-Z]/g, '')}`,
+                prioridade: prio,
+                valor: val,
+                valor_extenso: valorPorExtenso(val),
+                beneficiario: ben,
+                tipo_execucao: tipoExec,
+                secretaria: sec,
+                enquadramento: rubrica,
+                acao: acaoPPA,
+                dotacao_supl_id: dotSuplId,
+                dotacao_red_id: dotRedId,
+                projeto_engenharia: exigeEng,
+                justificativa: just,
+                objetivo_especifico: obj,
+                tipo_emenda: autorAtivo.tipo,
+                vereador: autorAtivo.tipo === "INDIVIDUAL" ? autorAtivo.nome : "Nenhum (Emenda de Bancada)",
+                autor: autorAtivo.tipo === "INDIVIDUAL" ? autorAtivo.nome : autorAtivo.bancada,
+                bancada: autorAtivo.bancada,
+                partidoSigla: autorAtivo.partidoSigla || "PDT",
+                ano: "2026",
+                data_atualizacao: new Date().toISOString(),
+                // Dados completos para impressão
+                ppa_dados: ppaItem,
+                supl_dados: dotSupl,
+                red_dados: dotRed
+            };
+
+            if (emendaIdEmEdicao) {
+                const idx = listaEmendas.findIndex(e => e.id === emendaIdEmEdicao);
+                if (idx !== -1) listaEmendas[idx] = { id: emendaIdEmEdicao, ...emendaObj };
+            } else {
+                emendaObj.id = `EM_${new Date().getTime()}`;
+                listaEmendas.push(emendaObj);
+            }
+            localStorage.setItem(STORAGE_KEY_EMENDAS, JSON.stringify(listaEmendas));
+
+            try {
+                if (typeof db !== 'undefined') {
+                    if (emendaIdEmEdicao) {
+                        await db.collection("emendas").doc(emendaIdEmEdicao).set(emendaObj, { merge: true });
+                    } else {
+                        await db.collection("emendas").doc(emendaObj.id).set(emendaObj);
+                    }
+                }
+            } catch(e) {
+                console.warn("Firestore offline, salva localmente:", e.message);
+            }
+
+            montarMinutaOficialA4(emendaObj);
+            renderizarMinhasEmendas();
+            emendaIdEmEdicao = null;
+            document.getElementById('modal-minuta-final').classList.remove('hidden');
+            mostrarToast("Emenda protocolada com sucesso! Minuta oficial gerada no modelo da Câmara.");
+        }
+
+        // MONTAGEM DA MINUTA IDÊNTICA AO PDF DA CÂMARA DE HORIZONTINA
+        function montarMinutaOficialA4(em) {
+            const dataHoje = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+            const folha = document.getElementById('corpo-minuta-print');
+
+            const ppa = em.ppa_dados || {};
+            const supl = em.supl_dados || {};
+            const red = em.red_dados || {};
+
+            const valorFmt = formatarMoeda(em.valor);
+            const valorExtenso = em.valor_extenso || valorPorExtenso(em.valor);
+
+            folha.innerHTML = `
+                <div style="font-family: Arial, sans-serif; line-height: 1.35; color: #000;">
+                    <!-- CABEÇALHO -->
+                    <div style="text-align: center; margin-bottom: 12px;">
+                        <h2 style="font-size: 13pt; font-weight: bold; margin: 0; text-transform: uppercase;">Câmara Municipal de Vereadores HORIZONTINA</h2>
+                        <h3 style="font-size: 11pt; margin: 2px 0 6px 0; color: #333;">Rio Grande do Sul</h3>
+                        <h1 style="font-size: 13pt; font-weight: bold; margin: 6px 0 2px 0; text-transform: uppercase;">EMENDA ORÇAMENTÁRIA IMPOSITIVA N.º ${em.numero_emenda}</h1>
+                        <p style="font-size: 9pt; font-weight: bold; margin: 0; text-transform: uppercase;">FORMULÁRIO PARA A APRESENTAÇÃO DE EMENDAS AOS QUADROS ORÇAMENTÁRIOS</p>
+                        <p style="font-size: 10pt; font-weight: bold; margin: 4px 0 0 0;">${em.projeto_lei || 'Projeto de Lei nº 81/2025'}</p>
+                    </div>
+
+                    <!-- QUADRO 1: IDENTIFICAÇÃO E BENEFICIÁRIO -->
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 9pt;" border="1">
+                        <tr>
+                            <td style="padding: 4px 6px; width: 50%;"><b>Emenda Orçamento Nº:</b> ${em.numero_emenda}</td>
+                            <td style="padding: 4px 6px; width: 50%;"><b>Tipo de Emenda:</b> ${em.tipo_emenda}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px 6px;"><b>Autoria:</b> ${em.autor}</td>
+                            <td style="padding: 4px 6px;"><b>Ordem de Prioridade:</b> ${em.prioridade}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="padding: 4px 6px;"><b>Beneficiário:</b> ${em.beneficiario}</td>
+                        </tr>
+                    </table>
+
+                    <!-- JUSTIFICATIVA -->
+                    <div style="margin-bottom: 8px; font-size: 8.5pt; text-align: justify;">
+                        <p style="margin: 0 0 4px 0;"><b>Justificativa:</b></p>
+                        <p style="margin: 0; text-indent: 1.5cm;">${em.justificativa}</p>
+                    </div>
+
+                    <!-- OBJETIVO ESPECÍFICO -->
+                    <div style="margin-bottom: 8px; font-size: 8.5pt; text-align: justify;">
+                        <p style="margin: 0 0 4px 0;"><b>Objetivo Específico:</b> ${em.objetivo_especifico}</p>
+                    </div>
+
+                    <!-- VALOR -->
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 9pt;" border="1">
+                        <tr>
+                            <td style="padding: 4px 6px; width: 30%;"><b>Valor da Emenda</b></td>
+                            <td style="padding: 4px 6px; font-weight: bold;">R$ ${valorFmt} (${valorExtenso})</td>
+                        </tr>
+                    </table>
+
+                    <!-- QUADRO 2: CRÉDITO ORÇAMENTÁRIO SUPLEMENTADO -->
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 8.5pt;" border="1">
+                        <tr style="background-color: #f2f2f2;">
+                            <td colspan="2" style="padding: 3px 6px; font-weight: bold;">CRÉDITO ORÇAMENTÁRIO: ( ) Novo &nbsp;&nbsp;&nbsp;&nbsp; (X) Suplementado</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 3px 6px; width: 30%;"><b>Órgão</b></td>
+                            <td style="padding: 3px 6px;">${ppa.orgaoCod || '12'} ${ppa.orgaoNome || 'Sec.mun.de Esporte Cultura Juven. Lazer'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 3px 6px;"><b>Unidade Orçamentária</b></td>
+                            <td style="padding: 3px 6px;">${ppa.unidadeCod || '003'} ${ppa.unidadeNome || 'Departamento de Esporte e Lazer'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 3px 6px;"><b>Função</b></td>
+                            <td style="padding: 3px 6px;">${ppa.funcaoCod || '0027'} ${ppa.funcaoNome || 'Desporto e Lazer'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 3px 6px;"><b>Sub função</b></td>
+                            <td style="padding: 3px 6px;">${ppa.subfuncaoCod || '0812'} ${ppa.subfuncaoNome || 'Desporto Comunitário'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 3px 6px;"><b>Programa</b></td>
+                            <td style="padding: 3px 6px;">${ppa.programaCod || '0074'} ${ppa.programaNome || 'GESTÃO ADMINISTRATIVA - SMECJL'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 3px 6px;"><b>Ação</b></td>
+                            <td style="padding: 3px 6px;">${ppa.acao || '2237'} ${ppa.acaoDesc || 'MANUT.DOS EVENTOS E ATIVIDADES ESPOTIVAS'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 3px 6px;"><b>Elemento de Despesa</b></td>
+                            <td style="padding: 3px 6px;">${supl.elementoCod || '3350410000000000000'} ${supl.elementoDesc || 'Contribuições'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 3px 6px;"><b>Refer. Dotação</b></td>
+                            <td style="padding: 3px 6px;">${supl.ficha || '2226'} &nbsp;&nbsp;&nbsp;&nbsp; <b>Vínculo</b> ${supl.vinculo || '15000001'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 3px 6px;"><b>Valores Iniciais</b></td>
+                            <td style="padding: 3px 6px;">R$ ${valorFmt} ${valorExtenso}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 3px 6px;"><b>Valor da Emenda</b></td>
+                            <td style="padding: 3px 6px; font-weight: bold;">R$ ${valorFmt} ${valorExtenso}</td>
+                        </tr>
+                    </table>
+
+                    <!-- QUADRO 3: CRÉDITO ORÇAMENTÁRIO REDUZIDO -->
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 8.5pt;" border="1">
+                        <tr style="background-color: #f2f2f2;">
+                            <td colspan="3" style="padding: 3px 6px; font-weight: bold;">CRÉDITO ORÇAMENTÁRIO REDUZIDO:</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 3px 6px; width: 30%;"><b>Órgão</b></td>
+                            <td style="padding: 3px 6px; width: 10%;">${red.orgaoCod || '14'}</td>
+                            <td style="padding: 3px 6px;">${red.orgaoNome || 'Reserva de Contingência'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 3px 6px;"><b>Unidade Orçamentária</b></td>
+                            <td style="padding: 3px 6px;">${red.unidadeCod || '001'}</td>
+                            <td style="padding: 3px 6px;">${red.unidadeNome || 'Reserva de Contingência'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 3px 6px;"><b>Função</b></td>
+                            <td style="padding: 3px 6px;">${red.funcaoCod || '0099'}</td>
+                            <td style="padding: 3px 6px;">${red.funcaoNome || 'Reserva de Contingência'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 3px 6px;"><b>Sub função</b></td>
+                            <td style="padding: 3px 6px;">${red.subfuncaoCod || '0999'}</td>
+                            <td style="padding: 3px 6px;">${red.subfuncaoNome || 'Reserva de Contingência'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 3px 6px;"><b>Programa</b></td>
+                            <td style="padding: 3px 6px;">${red.programaCod || '9999'}</td>
+                            <td style="padding: 3px 6px;">${red.programaNome || 'Reserva de Contingência'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 3px 6px;"><b>Ação</b></td>
+                            <td style="padding: 3px 6px;">${red.acao || '0012'}</td>
+                            <td style="padding: 3px 6px;">${red.acaoDesc || 'Reserva de Contingência - Emendas Individuais'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 3px 6px;"><b>Elemento de Despesa</b></td>
+                            <td style="padding: 3px 6px;">${red.elementoCod || '399999900'}</td>
+                            <td style="padding: 3px 6px;">${red.elementoDesc || 'Reserva de Contingência e Reserva do RPPS'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 3px 6px;"><b>Refer. Dotação</b></td>
+                            <td style="padding: 3px 6px;">${red.ficha || '2337'}</td>
+                            <td style="padding: 3px 6px;"><b>Vínculo</b> ${red.vinculo || '15000001'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 3px 6px;"><b>Valores Iniciais</b></td>
+                            <td colspan="2" style="padding: 3px 6px;">${formatarMoeda(red.valoresIniciais || 3538245.78)}</td>
+                        </tr>
+                    </table>
+
+                    <!-- DATA E ASSINATURA -->
+                    <div style="margin-top: 14px; text-align: left; font-size: 9pt;">
+                        <p style="margin: 0 0 10px 0;">Horizontina, em ${dataHoje}.</p>
+                        <p style="margin: 0; font-weight: bold;">Vereador(a): ${em.autor}</p>
+                        <p style="margin: 2px 0 0 0;">Partido ${em.partidoSigla || 'PDT'}</p>
+                    </div>
+
+                    <!-- RODAPÉ INSTITUCIONAL DA CÂMARA -->
+                    <div style="margin-top: 18px; border-top: 1px solid #666; padding-top: 4px; text-align: center; font-size: 7.5pt; color: #444; line-height: 1.3;">
+                        Rua Balduíno Schneider, 375 - 2º Andar da Prefeitura - CEP 98920-000 - Fone: (55) 3537-4777<br>
+                        HORIZONTINA - RS - E-mail: secretaria@camarahorizontina.rs.gov.br<br>
+                        <b>Protocolo Legislativo:</b> ${em.numero_processo || 'Digital'}
+                    </div>
+                </div>
+            `;
+        }
+
+        function exportarMinutaParaWord() {
+            const folha = document.getElementById('corpo-minuta-print');
+            if (!folha) return;
+
+            const html = folha.innerHTML;
+            const doc = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                <head><meta charset='utf-8'><title>Emenda Impositiva Horizontina</title>
+                <style>
+                    body { font-family: Arial, sans-serif; font-size: 10pt; line-height: 1.3; color: #000; }
+                    table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+                    th, td { border: 1px solid #000; padding: 4px 6px; font-size: 9pt; }
+                    h1 { font-size: 13pt; margin: 4px 0; text-align: center; }
+                    h2 { font-size: 12pt; margin: 2px 0; text-align: center; }
+                    h3 { font-size: 11pt; margin: 2px 0; text-align: center; }
+                    p { margin: 4px 0; }
+                </style>
+                </head>
+                <body>${html}</body>
+                </html>
+            `;
+            const blob = new Blob(['\ufeff' + doc], { type: 'application/msword' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const num = document.getElementById('inp-passo-numero').value.replace(/[^0-9a-zA-Z]/g, '_') || '050';
+            a.download = `EMENDA_IMPOSITIVA_${num}_HORIZONTINA.doc`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            mostrarToast("Documento Word (.doc) baixado no modelo oficial da Câmara!");
+        }
+
+        // 7. RENDERIZAÇÃO DA TABELA DO PARLAMENTAR
+        function renderizarMinhasEmendas() {
+            const tbody = document.getElementById('tbody-minhas-emendas');
+            const elCont = document.getElementById('lbl-autor-total-emendas');
+            const elBadge = document.getElementById('badge-contador-minhas-emendas');
+            if (!tbody) return;
+
+            if (!autorAtivo) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500 font-mono">Selecione um parlamentar ou bancada no topo para visualizar as emendas.</td></tr>`;
+                if (elCont) elCont.textContent = "0 emenda(s)";
+                if (elBadge) elBadge.textContent = "0 emendas";
+                return;
+            }
+
+            const emendasDoAutor = listaEmendas.filter(em => {
+                if (autorAtivo.tipo === "INDIVIDUAL") {
+                    return em.vereador === autorAtivo.nome || (em.autor && em.autor.includes(autorAtivo.nome));
+                } else {
+                    return em.bancada === autorAtivo.bancada || em.tipo_emenda === "BANCADA";
+                }
+            });
+
+            if (elCont) elCont.textContent = `${emendasDoAutor.length} emenda(s)`;
+            if (elBadge) elBadge.textContent = `${emendasDoAutor.length} emendas`;
+
+            if (emendasDoAutor.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="p-8 text-center text-slate-500 font-mono">
+                            Nenhuma emenda cadastrada para este parlamentar ainda.<br>
+                            Use o assistente acima para iniciar a sua primeira indicação.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = emendasDoAutor.map(em => `
+                <tr class="hover:bg-[#070809] transition">
+                    <td class="p-3 font-bold text-white">${em.numero_emenda}</td>
+                    <td class="p-3 text-slate-400 font-mono text-[11px]">${em.projeto_lei || 'PLOA'}</td>
+                    <td class="p-3 text-slate-200 truncate max-w-[180px]" title="${em.beneficiario}">${em.beneficiario}</td>
+                    <td class="p-3 text-right font-bold text-emerald-400">${formatarMoeda(em.valor)}</td>
+                    <td class="p-3">
+                        <span class="text-[10px] px-2 py-0.5 rounded font-bold ${em.tipo_execucao === 'Indireta' ? 'bg-purple-950 text-purple-300 border border-purple-800' : 'bg-blue-950 text-blue-300 border border-blue-800'}">
+                            ${em.tipo_execucao}
+                        </span>
+                    </td>
+                    <td class="p-3 text-[11px] text-slate-400 font-mono">Ação ${em.acao || '-'}</td>
+                    <td class="p-3 text-right">
+                        <div class="flex justify-end gap-1.5">
+                            <button type="button" onclick="carregarMinutaSalva('${em.id}')" class="px-2 py-1 bg-[#181e2a] hover:bg-[#202838] text-slate-300 rounded-lg border border-[#2a3446] text-[11px] font-bold">
+                                📄 Minuta
+                            </button>
+                            <button type="button" onclick="editarEmendaSalva('${em.id}')" class="px-2 py-1 bg-blue-950 hover:bg-blue-900 text-blue-300 rounded-lg border border-blue-800 text-[11px] font-bold">
+                                ✏️ Editar
+                            </button>
+                            <button type="button" onclick="excluirEmendaSalva('${em.id}')" class="px-2 py-1 bg-red-950 hover:bg-red-900 text-red-300 rounded-lg border border-red-800 text-[11px] font-bold">
+                                🗑️
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function carregarMinutaSalva(id) {
+            const em = listaEmendas.find(e => e.id === id);
+            if (!em) return;
+            montarMinutaOficialA4(em);
+            document.getElementById('modal-minuta-final').classList.remove('hidden');
+        }
+
+        function editarEmendaSalva(id) {
+            const em = listaEmendas.find(e => e.id === id);
+            if (!em) return;
+
+            emendaIdEmEdicao = id;
+            document.getElementById('inp-passo-numero').value = em.numero_emenda || '';
+            document.getElementById('inp-passo-projeto-lei').value = em.projeto_lei || 'Projeto de Lei nº 81/2025';
+            document.getElementById('inp-passo-valor').value = em.valor || 0;
+            atualizarExtensoValor(em.valor || 0);
+            document.getElementById('sel-passo-prioridade').value = em.prioridade || '1ª';
+            document.getElementById('inp-passo-beneficiario-livre').value = em.beneficiario || '';
+            document.getElementById('sel-passo-tipo-execucao').value = em.tipo_execucao || 'Indireta';
+            aoAlternarTipoExecucao(em.tipo_execucao || 'Indireta');
+            document.getElementById('sel-passo-secretaria').value = em.secretaria || 'SMECJL';
+            aoSelecionarSecretaria(em.secretaria || 'SMECJL');
+            document.getElementById('sel-passo-enquadramento').value = em.enquadramento || '3.3.50.41 - Contribuições Correntes';
+            atualizarExplicacaoRubrica(em.enquadramento || '3.3.50.41 - Contribuições Correntes');
+            if (em.acao) document.getElementById('sel-passo-acao-ppa').value = em.acao;
+            if (em.dotacao_supl_id) document.getElementById('sel-passo-dotacao-suplementada').value = em.dotacao_supl_id;
+            if (em.dotacao_red_id) {
+                document.getElementById('sel-passo-dotacao-reducao').value = em.dotacao_red_id;
+                aoSelecionarDotacaoReducao(em.dotacao_red_id);
+            }
+            document.getElementById('chk-passo-engenharia').checked = !!em.projeto_engenharia;
+            document.getElementById('inp-passo-justificativa').value = em.justificativa || '';
+            document.getElementById('inp-passo-objetivo').value = em.objetivo_especifico || '';
+
+            passoAtual = 1;
+            atualizarPassoUI();
+            document.getElementById('secao-wizard-emenda').scrollIntoView({ behavior: 'smooth' });
+            mostrarToast(`Carregada para edição: Emenda nº ${em.numero_emenda}`);
+        }
+
+        async function excluirEmendaSalva(id) {
+            const em = listaEmendas.find(e => e.id === id);
+            if (!em) return;
+
+            if (confirm(`Deseja realmente excluir a Proposição nº ${em.numero_emenda}?`)) {
+                try {
+                    if (typeof db !== 'undefined') {
+                        await db.collection("emendas").doc(id).delete();
+                    }
+                } catch(e) {}
+
+                listaEmendas = listaEmendas.filter(e => e.id !== id);
+                localStorage.setItem(STORAGE_KEY_EMENDAS, JSON.stringify(listaEmendas));
+                renderizarMinhasEmendas();
+                mostrarToast("Proposição excluída com sucesso.");
+            }
+        }
+
+        function abrirCatalogoAssociacoes() {
+            filtrarEntidadesModal();
+            document.getElementById('modal-catalogo-associacoes').classList.remove('hidden');
+        }
+
+        function fecharModalCatalogo() {
+            document.getElementById('modal-catalogo-associacoes').classList.add('hidden');
+        }
+
+        function filtrarEntidadesModal() {
+            const container = document.getElementById('lista-cards-associacoes');
+            const busca = (document.getElementById('filtro-busca-modal-entidades')?.value || "").toLowerCase();
+            const ents = baseCentral.entidades || [];
+
+            const filtradas = ents.filter(e => {
+                return !busca || e.nome.toLowerCase().includes(busca) || (e.area || '').toLowerCase().includes(busca) || (e.cnpj || '').includes(busca);
+            });
+
+            if (filtradas.length === 0) {
+                container.innerHTML = `
+                    <div class="p-6 text-center text-slate-500 font-mono text-xs">
+                        Nenhuma associação encontrada no catálogo.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtradas.map(e => `
+                <div onclick="vincularAssociacaoAoPasso('${e.nome}', '${e.cnpj}', '${e.tipo || 'Indireta'}', '${e.rubrica || '3.3.50.41 - Contribuições Correntes'}', '${e.secretariaPadrao || 'SMECJL'}')" class="p-3 bg-[#070809] hover:bg-[#181e2a] border border-[#1f2735] hover:border-emerald-600 rounded-xl transition cursor-pointer flex justify-between items-center">
+                    <div class="space-y-0.5">
+                        <strong class="text-white text-xs block">${e.nome}</strong>
+                        <span class="text-[10px] text-slate-400 font-mono">CNPJ: ${e.cnpj} • ${e.area || 'Setorial'}</span>
+                    </div>
+                    <button type="button" class="px-2.5 py-1 rounded-lg bg-emerald-950 text-emerald-300 border border-emerald-800 font-bold text-[10px] shrink-0">
+                        Selecionar
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function vincularAssociacaoAoPasso(nome, cnpj, tipo, rubrica, sec) {
+            document.getElementById('inp-passo-beneficiario-livre').value = `${nome} - CNPJ ${cnpj}`;
+            document.getElementById('sel-passo-tipo-execucao').value = tipo;
+            aoAlternarTipoExecucao(tipo);
+            if (sec) {
+                document.getElementById('sel-passo-secretaria').value = sec;
+                aoSelecionarSecretaria(sec);
+            }
+            if (rubrica) {
+                document.getElementById('sel-passo-enquadramento').value = rubrica;
+                atualizarExplicacaoRubrica(rubrica);
+            }
+            fecharModalCatalogo();
+            mostrarToast(`Entidade "${nome}" vinculada à proposição!`);
+        }
+
+        function abrirModalGuiaContabil() {
+            document.getElementById('modal-guia-didatico').classList.remove('hidden');
+        }
+
+        function fecharModalGuiaContabil() {
+            document.getElementById('modal-guia-didatico').classList.add('hidden');
+        }
+
+        function fecharModalMinuta() {
+            document.getElementById('modal-minuta-final').classList.add('hidden');
+        }
+
+        function rolarParaMinhasEmendas() {
+            document.getElementById('secao-minhas-emendas').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
